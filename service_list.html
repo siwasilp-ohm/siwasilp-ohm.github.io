@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCD แพลตฟอร์มจำลอง - รายการบริการ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            background-color: #F0F2F5; /* Facebook-like background */
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        .animation-delay-100 { animation-delay: 0.1s; }
+        .animation-delay-200 { animation-delay: 0.2s; }
+        .animation-delay-300 { animation-delay: 0.3s; }
+        .animation-delay-400 { animation-delay: 0.4s; }
+        .animation-delay-500 { animation-delay: 0.5s; }
+        .animation-delay-600 { animation-delay: 0.6s; }
+        .animation-delay-700 { animation-delay: 0.7s; }
+        .animation-delay-800 { animation-delay: 0.8s; }
+        /* Add more delays for more staggered items */
+        .animation-delay-900 { animation-delay: 0.9s; }
+        .animation-delay-1000 { animation-delay: 1.0s; }
+        .animation-delay-1100 { animation-delay: 1.1s; }
+        .animation-delay-1200 { animation-delay: 1.2s; }
+    </style>
+</head>
+<body class="bg-[#F0F2F5]">
+
+    <div class="min-h-screen p-6">
+        <div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-8 animate-fade-in">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">การจัดการบริการ</h1>
+
+            <!-- แถบแท็บ -->
+            <div class="flex justify-center mb-8 border-b-2 border-gray-200">
+                <button id="tabRecommend" onclick="setActiveTab('Recommend')" class="px-6 py-3 text-lg font-medium rounded-t-lg transition-all duration-300 ease-in-out text-gray-600 hover:text-[#1877F2] hover:border-[#1877F2]">
+                    แนะนำ
+                </button>
+                <button id="tabOffer" onclick="setActiveTab('Offer')" class="px-6 py-3 text-lg font-medium rounded-t-lg transition-all duration-300 ease-in-out text-gray-600 hover:text-[#1877F2] hover:border-[#1877F2]">
+                    เสนอ
+                </button>
+                <button id="tabInvited" onclick="setActiveTab('Invited')" class="px-6 py-3 text-lg font-medium rounded-t-lg transition-all duration-300 ease-in-out text-gray-600 hover:text-[#1877F2] hover:border-[#1877F2]">
+                    ได้รับเชิญ
+                </button>
+                <button id="tabKeep" onclick="setActiveTab('Keep')" class="px-6 py-3 text-lg font-medium rounded-t-lg transition-all duration-300 ease-in-out text-gray-600 hover:text-[#1877F2] hover:border-[#1877F2]">
+                    เก็บไว้
+                </button>
+            </div>
+
+            <!-- คอนเทนเนอร์รายการบริการ -->
+            <div id="serviceListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in-up">
+                <!-- บริการจะถูกใส่เข้ามาที่นี่โดย JavaScript -->
+            </div>
+
+            <!-- ปุ่มกลับไปหน้าแดชบอร์ด -->
+            <div class="mt-10 text-center">
+                <button
+                    onclick="navigateTo('dashboard.html')"
+                    class="px-8 py-3 bg-gray-700 text-white rounded-full shadow-lg hover:bg-gray-800 transition duration-300 ease-in-out transform hover:-translate-y-0.5"
+                >
+                    กลับสู่แดชบอร์ด
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Function to navigate between separate HTML files
+        function navigateTo(url) {
+            window.location.href = url;
+        }
+
+        // --- Data Persistence (localStorage) ---
+        function getServices() {
+            const servicesJson = localStorage.getItem('mockServices');
+            return servicesJson ? JSON.parse(servicesJson) : [
+                // Initial mock data if none exists in localStorage
+                // Recommend Services (Recommended by platform/AI)
+                {
+                    id: 'SER-REC-001',
+                    title: 'การรับมือกับการทำงานข้ามวัฒนธรรม',
+                    detail: 'หลักสูตรเข้มข้นที่ช่วยพัฒนาทักษะการสื่อสารและการเจรจาต่อรองในบริบททางวัฒนธรรมที่หลากหลาย เพื่อความสำเร็จในองค์กรระดับโลก.',
+                    group: 'Training',
+                    owner: 'SUT Academy',
+                    distributor: 'COOP SUT',
+                    expense: '5,000 – 10,000 บาท',
+                    dueDate: '2025-02-02', // Past date for testing "Keep" logic
+                    postedDate: '2024-12-01',
+                    durationDays: 15,
+                    contact: '044-224235',
+                    customerGroup: 'ทั่วไป',
+                    status: 'เปิด',
+                    type: 'Recommend',
+                    imageUrl: 'https://placehold.co/400x250/AEC6CF/000000?text=Cross-Cultural+Training'
+                },
+                {
+                    id: 'SER-REC-002',
+                    title: 'ที่ปรึกษาเทคนิค AI & Machine Learning',
+                    detail: 'บริการให้คำปรึกษาเชิงลึกด้านการประยุกต์ใช้ AI และ Machine Learning สำหรับธุรกิจทุกขนาด เพื่อเพิ่มประสิทธิภาพและสร้างนวัตกรรมใหม่.',
+                    group: 'Consult',
+                    owner: 'AI Solutions Co.',
+                    distributor: 'Tech Innovate',
+                    expense: '15,000 – 25,000 บาท',
+                    dueDate: '2025-03-15', // Past date for testing "Keep" logic
+                    postedDate: '2024-12-01',
+                    durationDays: 15,
+                    contact: '044-224236',
+                    customerGroup: 'องค์กร',
+                    status: 'เปิด',
+                    type: 'Recommend',
+                    imageUrl: 'https://placehold.co/400x250/FFDDC1/000000?text=AI+Consulting+Service'
+                },
+                {
+                    id: 'SER-REC-003',
+                    title: 'การวิเคราะห์ข้อมูลขั้นสูงด้วย Python',
+                    detail: 'เรียนรู้การใช้ Python สำหรับการวิเคราะห์ข้อมูลขนาดใหญ่, การสร้างโมเดลเชิงสถิติ, และการนำเสนอผลลัพธ์ที่น่าเชื่อถือ.',
+                    group: 'Training',
+                    owner: 'Data Science Hub',
+                    distributor: 'Global EdTech',
+                    expense: '8,000 – 12,000 บาท',
+                    dueDate: '2025-09-01',
+                    postedDate: '2025-07-20',
+                    durationDays: 20,
+                    contact: '089-1234567',
+                    customerGroup: 'ทั่วไป',
+                    status: 'เปิด',
+                    type: 'Recommend',
+                    imageUrl: 'https://placehold.co/400x250/D3D3D3/000000?text=Advanced+Data+Analysis'
+                },
+                {
+                    id: 'SER-REC-004',
+                    title: 'บริการทดสอบและรับรองอุปกรณ์ IoT',
+                    detail: 'บริการทดสอบความเข้ากันได้, ประสิทธิภาพ, และความปลอดภัยของอุปกรณ์ IoT ตามมาตรฐานสากล เพื่อให้ผลิตภัณฑ์ของคุณพร้อมเข้าสู่ตลาด.',
+                    group: 'Equip&Test',
+                    owner: 'IoT Labs Inc.',
+                    distributor: 'Smart Tech Solutions',
+                    expense: '30,000 – 50,000 บาท',
+                    dueDate: '2025-10-15',
+                    postedDate: '2025-07-25',
+                    durationDays: 45,
+                    contact: '02-1234567',
+                    customerGroup: 'องค์กร',
+                    status: 'เปิด',
+                    type: 'Recommend',
+                    imageUrl: 'https://placehold.co/400x250/ADD8E6/000000?text=IoT+Device+Testing'
+                },
+                {
+                    id: 'SER-REC-005',
+                    title: 'สัมมนาเชิงปฏิบัติการ: การจัดการนวัตกรรมอย่างยั่งยืน',
+                    detail: 'สัมมนาที่จะช่วยให้องค์กรของคุณสร้างและรักษาวัฒนธรรมแห่งนวัตกรรม พร้อมเครื่องมือและกรอบแนวคิดที่นำไปใช้ได้จริง.',
+                    group: 'Education',
+                    owner: 'Innovation Institute',
+                    distributor: 'Future Skills Co.',
+                    expense: '2,500 บาท',
+                    dueDate: '2025-08-30',
+                    postedDate: '2025-07-10',
+                    durationDays: 2,
+                    contact: '091-2345678',
+                    customerGroup: 'ทั่วไป',
+                    status: 'เปิด',
+                    type: 'Recommend',
+                    imageUrl: 'https://placehold.co/400x250/B0E0E6/000000?text=Sustainable+Innovation'
+                },
+                {
+                    id: 'SER-REC-006',
+                    title: 'บริการจดทะเบียนลิขสิทธิ์และเครื่องหมายการค้า',
+                    detail: 'ให้คำแนะนำและดำเนินการจดทะเบียนทรัพย์สินทางปัญญาอย่างครบวงจร เพื่อปกป้องนวัตกรรมและความคิดสร้างสรรค์ของคุณ.',
+                    group: 'Patent&License',
+                    owner: 'IP Protect Legal',
+                    distributor: 'Legal Hub',
+                    expense: '18,000 – 30,000 บาท',
+                    dueDate: '2025-12-01',
+                    postedDate: '2025-07-05',
+                    durationDays: 90,
+                    contact: '02-7654321',
+                    customerGroup: 'บุคคล',
+                    status: 'เปิด',
+                    type: 'Recommend',
+                    imageUrl: 'https://placehold.co/400x250/FFB6C1/000000?text=IP+Registration+Service'
+                },
+                {
+                    id: 'SER-REC-007',
+                    title: 'หลักสูตรพัฒนาทักษะผู้นำยุคดิจิทัล',
+                    detail: 'เรียนรู้การเป็นผู้นำที่สามารถนำพาทีมและองค์กรให้เติบโตในยุคที่เทคโนโลยีก้าวหน้าอย่างรวดเร็ว.',
+                    group: 'Training',
+                    owner: 'Leadership Institute',
+                    distributor: 'Executive Training',
+                    expense: '25,000 – 40,000 บาท',
+                    dueDate: '2025-11-15',
+                    postedDate: '2025-07-01',
+                    durationDays: 30,
+                    contact: '02-8765432',
+                    customerGroup: 'องค์กร',
+                    status: 'เปิด',
+                    type: 'Recommend',
+                    imageUrl: 'https://placehold.co/400x250/87CEEB/000000?text=Digital+Leadership'
+                },
+                {
+                    id: 'SER-REC-008',
+                    title: 'บริการให้คำปรึกษาด้านความปลอดภัยทางไซเบอร์',
+                    detail: 'ประเมินความเสี่ยง, วางแผนป้องกัน, และจัดการเหตุการณ์ด้านความปลอดภัยทางไซเบอร์ เพื่อปกป้องข้อมูลสำคัญของธุรกิจ.',
+                    group: 'Consult',
+                    owner: 'CyberSecure Experts',
+                    distributor: 'SecureIT Solutions',
+                    expense: '50,000 – 100,000 บาท',
+                    dueDate: '2025-10-01',
+                    postedDate: '2025-06-15',
+                    durationDays: 60,
+                    contact: '02-3456789',
+                    customerGroup: 'องค์กร',
+                    status: 'เปิด',
+                    type: 'Recommend',
+                    imageUrl: 'https://placehold.co/400x250/F0E68C/000000?text=Cybersecurity+Consult'
+                },
+                {
+                    id: 'SER-REC-009',
+                    title: 'เวิร์คช็อปการสร้างสรรค์นวัตกรรมผลิตภัณฑ์',
+                    detail: 'เรียนรู้กระบวนการ Design Thinking และ Lean Startup เพื่อสร้างผลิตภัณฑ์ใหม่ที่ตอบโจทย์ความต้องการของตลาด.',
+                    group: 'Education',
+                    owner: 'Creative Minds Studio',
+                    distributor: 'Startup Hub',
+                    expense: '3,500 บาท',
+                    dueDate: '2025-09-25',
+                    postedDate: '2025-07-12',
+                    durationDays: 3,
+                    contact: '085-1112222',
+                    customerGroup: 'ทั่วไป',
+                    status: 'เปิด',
+                    type: 'Recommend',
+                    imageUrl: 'https://placehold.co/400x250/DDA0DD/000000?text=Product+Innovation+Workshop'
+                },
+                {
+                    id: 'SER-REC-010',
+                    title: 'หลักสูตรการจัดการห่วงโซ่อุปทานดิจิทัล',
+                    detail: 'ทำความเข้าใจและประยุกต์ใช้เทคโนโลยีดิจิทัลในการบริหารจัดการห่วงโซ่อุปทานให้มีประสิทธิภาพสูงสุด.',
+                    group: 'Training',
+                    owner: 'Supply Chain Pro',
+                    distributor: 'Logistics Academy',
+                    expense: '12,000 – 18,000 บาท',
+                    dueDate: '2025-10-30',
+                    postedDate: '2025-07-08',
+                    durationDays: 25,
+                    contact: '02-6667777',
+                    customerGroup: 'องค์กร',
+                    status: 'เปิด',
+                    type: 'Recommend',
+                    imageUrl: 'https://placehold.co/400x250/C0C0C0/000000?text=Digital+Supply+Chain'
+                },
+
+                // Offer Services (Services offered by the current user or other users)
+                {
+                    id: 'SER-OFF-001',
+                    title: 'การออกแบบเครื่องบดอัดชีวมวลประสิทธิภาพสูง',
+                    detail: 'รับออกแบบและพัฒนาเครื่องจักรบดอัดชีวมวลที่ปรับแต่งได้ตามความต้องการเฉพาะของคุณ เพื่อเพิ่มประสิทธิภาพการผลิตพลังงานทดแทน.',
+                    group: 'Equip&Test',
+                    owner: 'ฉัน', // This represents the current logged-in user
+                    distributor: 'ตนเอง',
+                    expense: 'ต่อรองได้ (เริ่มต้น 150,000 บาท)',
+                    dueDate: '2025-06-30', // This one should be expired and moved to Keep
+                    postedDate: '2025-01-10',
+                    durationDays: 30,
+                    contact: '081-1234567',
+                    customerGroup: 'บุคคล',
+                    status: 'เปิด',
+                    type: 'Offer',
+                    imageUrl: 'https://placehold.co/400x250/C1E1C1/000000?text=High-Efficiency+Biomass'
+                },
+                {
+                    id: 'SER-OFF-002',
+                    title: 'บริการให้คำปรึกษาด้านกฎหมายทรัพย์สินทางปัญญา',
+                    detail: 'ทีมทนายความผู้เชี่ยวชาญพร้อมให้คำปรึกษาและดำเนินการจดทะเบียนสิทธิบัตร, เครื่องหมายการค้า, และลิขสิทธิ์ เพื่อคุ้มครองนวัตกรรมของคุณ.',
+                    group: 'Patent&License',
+                    owner: 'สำนักงานกฎหมายนวัตกรรม',
+                    distributor: 'Law Connect Pro',
+                    expense: '25,000 – 70,000 บาท',
+                    dueDate: '2025-11-20',
+                    postedDate: '2025-07-01',
+                    durationDays: 60,
+                    contact: '02-9876543',
+                    customerGroup: 'ทั่วไป',
+                    status: 'เปิด',
+                    type: 'Offer',
+                    imageUrl: 'https://placehold.co/400x250/FFC0CB/000000?text=IP+Legal+Consulting'
+                },
+                {
+                    id: 'SER-OFF-003',
+                    title: 'พัฒนาเว็บไซต์ E-commerce แบบครบวงจร',
+                    detail: 'รับพัฒนาเว็บไซต์ E-commerce ที่ทันสมัย, ตอบสนองทุกอุปกรณ์, พร้อมระบบจัดการสินค้า, ตะกร้าสินค้า, และการชำระเงินที่ปลอดภัย.',
+                    group: 'Expertise',
+                    owner: 'ฉัน',
+                    distributor: 'Freelance Dev Studio',
+                    expense: '40,000 – 80,000 บาท',
+                    dueDate: '2025-09-10',
+                    postedDate: '2025-07-15',
+                    durationDays: 45,
+                    contact: '098-7654321',
+                    customerGroup: 'องค์กร',
+                    status: 'เปิด',
+                    type: 'Offer',
+                    imageUrl: 'https://placehold.co/400x250/87CEEB/000000?text=Full-Stack+E-commerce'
+                },
+                {
+                    id: 'SER-OFF-004',
+                    title: 'สอนพิเศษวิชาฟิสิกส์ ม.ปลาย และมหาวิทยาลัย',
+                    detail: 'ติวเตอร์ผู้มีประสบการณ์รับสอนพิเศษวิชาฟิสิกส์สำหรับนักเรียนมัธยมปลายและนักศึกษามหาวิทยาลัย เน้นความเข้าใจและเทคนิคการแก้โจทย์.',
+                    group: 'Education',
+                    owner: 'ฉัน',
+                    distributor: 'ติวเตอร์ฟิสิกส์มืออาชีพ',
+                    expense: '300 – 500 บาท/ชม.',
+                    dueDate: '2025-12-31',
+                    postedDate: '2025-07-28',
+                    durationDays: 150,
+                    contact: '061-2345678',
+                    customerGroup: 'บุคคล',
+                    status: 'เปิด',
+                    type: 'Offer',
+                    imageUrl: 'https://placehold.co/400x250/F0F8FF/000000?text=Physics+Tutoring+Pro'
+                },
+                {
+                    id: 'SER-OFF-005',
+                    title: 'บริการแปลเอกสารทางเทคนิค (ไทย-อังกฤษ)',
+                    detail: 'รับแปลเอกสารทางเทคนิค, คู่มือ, รายงานวิจัย, และบทความเฉพาะทางจากภาษาไทยเป็นอังกฤษและกลับกัน โดยผู้เชี่ยวชาญเฉพาะด้าน.',
+                    group: 'Expertise',
+                    owner: 'Translation Hub',
+                    distributor: 'Language Services',
+                    expense: '500 – 1,000 บาท/หน้า',
+                    dueDate: '2025-10-05',
+                    postedDate: '2025-07-20',
+                    durationDays: 10,
+                    contact: '082-3334444',
+                    customerGroup: 'ทั่วไป',
+                    status: 'เปิด',
+                    type: 'Offer',
+                    imageUrl: 'https://placehold.co/400x250/E0BBE4/000000?text=Technical+Translation'
+                },
+                {
+                    id: 'SER-OFF-006',
+                    title: 'จัดทำแผนธุรกิจและโมเดลการเงินสำหรับ Startup',
+                    detail: 'ช่วย Startup จัดทำแผนธุรกิจที่น่าเชื่อถือและโมเดลการเงินที่แม่นยำ เพื่อดึงดูดนักลงทุนและวางรากฐานการเติบโต.',
+                    group: 'Consult',
+                    owner: 'Startup Boost',
+                    distributor: 'Business Advisors',
+                    expense: '80,000 – 150,000 บาท',
+                    dueDate: '2025-11-30',
+                    postedDate: '2025-07-10',
+                    durationDays: 40,
+                    contact: '090-5556666',
+                    customerGroup: 'องค์กร',
+                    status: 'เปิด',
+                    type: 'Offer',
+                    imageUrl: 'https://placehold.co/400x250/957DAD/000000?text=Startup+Business+Plan'
+                },
+
+                // Invited Services (User is invited to participate)
+                {
+                    id: 'SER-INV-001',
+                    title: 'คำเชิญเข้าร่วมคณะกรรมการที่ปรึกษาด้านสิ่งแวดล้อม',
+                    detail: 'ได้รับเชิญให้เข้าร่วมคณะกรรมการผู้เชี่ยวชาญ เพื่อเสนอแนวทางและนโยบายในการแก้ไขปัญหาสิ่งแวดล้อมในระดับภูมิภาคและประเทศ.',
+                    group: 'Consult',
+                    owner: 'กระทรวงทรัพยากรธรรมชาติ',
+                    distributor: 'กรมสิ่งแวดล้อม',
+                    expense: 'ไม่มี (ค่าตอบแทนการประชุม)',
+                    dueDate: '2025-11-01',
+                    postedDate: '2025-07-22',
+                    durationDays: 100,
+                    contact: '02-8889999',
+                    customerGroup: 'ทั่วไป',
+                    status: 'เปิด',
+                    type: 'Invited',
+                    imageUrl: 'https://placehold.co/400x250/DDA0DD/000000?text=Environmental+Advisory+Board'
+                },
+                {
+                    id: 'SER-INV-002',
+                    title: 'คำเชิญเป็นวิทยากรหลักสูตร AI สำหรับผู้บริหาร',
+                    detail: 'ได้รับเชิญเป็นวิทยากรหลักในหลักสูตรอบรม AI สำหรับผู้บริหารระดับสูง เพื่อแบ่งปันความรู้และประสบการณ์ในการประยุกต์ใช้ AI ในองค์กร.',
+                    group: 'Training',
+                    owner: 'Executive Ed. Institute',
+                    distributor: 'Business School',
+                    expense: '100,000 บาท',
+                    dueDate: '2025-09-20',
+                    postedDate: '2025-07-18',
+                    durationDays: 3,
+                    contact: '02-4445555',
+                    customerGroup: 'องค์กร',
+                    status: 'เปิด',
+                    type: 'Invited',
+                    imageUrl: 'https://placehold.co/400x250/F0E68C/000000?text=AI+for+Executives+Speaker'
+                },
+                {
+                    id: 'SER-INV-003',
+                    title: 'โครงการวิจัยร่วม: การพัฒนาวัสดุนาโนเพื่อพลังงาน',
+                    detail: 'คำเชิญเข้าร่วมโครงการวิจัยนานาชาติเพื่อพัฒนาวัสดุนาโนสำหรับแอปพลิเคชันด้านพลังงานสะอาดและยั่งยืน.',
+                    group: 'Expertise',
+                    owner: 'National Research Council',
+                    distributor: 'Global Science Alliance',
+                    expense: 'ไม่มี (ทุนวิจัย)',
+                    dueDate: '2026-03-31',
+                    postedDate: '2025-07-01',
+                    durationDays: 270,
+                    contact: '02-1239876',
+                    customerGroup: 'องค์กร',
+                    status: 'เปิด',
+                    type: 'Invited',
+                    imageUrl: 'https://placehold.co/400x250/90EE90/000000?text=Nano+Materials+Research'
+                },
+                {
+                    id: 'SER-INV-004',
+                    title: 'คำเชิญเป็นที่ปรึกษาโครงการ Smart City',
+                    detail: 'ได้รับเชิญเป็นที่ปรึกษาหลักสำหรับโครงการพัฒนา Smart City ในจังหวัดนำร่อง เพื่อวางแผนและนำเสนอโซลูชันเทคโนโลยี.',
+                    group: 'Consult',
+                    owner: 'กระทรวงดิจิทัล',
+                    distributor: 'Smart City Thailand',
+                    expense: '120,000 บาท',
+                    dueDate: '2025-10-20',
+                    postedDate: '2025-07-10',
+                    durationDays: 90,
+                    contact: '02-7778888',
+                    customerGroup: 'องค์กร',
+                    status: 'เปิด',
+                    type: 'Invited',
+                    imageUrl: 'https://placehold.co/400x250/B2F0B2/000000?text=Smart+City+Consultant'
+                },
+                {
+                    id: 'SER-INV-005',
+                    title: 'คำเชิญเข้าร่วมคณะทำงานพัฒนาหลักสูตรใหม่',
+                    detail: 'ได้รับเชิญให้เข้าร่วมคณะทำงานเพื่อออกแบบและพัฒนาหลักสูตรการศึกษาใหม่ที่ตอบสนองความต้องการของตลาดแรงงานในอนาคต.',
+                    group: 'Education',
+                    owner: 'Ministry of Education',
+                    distributor: 'Curriculum Development',
+                    expense: 'ไม่มี (ค่าเบี้ยเลี้ยง)',
+                    dueDate: '2025-12-15',
+                    postedDate: '2025-07-25',
+                    durationDays: 120,
+                    contact: '02-2223333',
+                    customerGroup: 'ทั่วไป',
+                    status: 'เปิด',
+                    type: 'Invited',
+                    imageUrl: 'https://placehold.co/400x250/87CEEB/000000?text=New+Curriculum+Development'
+                },
+                {
+                    id: 'SER-INV-006',
+                    title: 'คำเชิญเป็นผู้ประเมินโครงการวิจัยและพัฒนา',
+                    detail: 'ได้รับเชิญให้เป็นผู้ประเมินอิสระสำหรับโครงการวิจัยและพัฒนาที่ยื่นขอทุนสนับสนุนจากภาครัฐ.',
+                    group: 'Expertise',
+                    owner: 'National Innovation Agency',
+                    distributor: 'Research Fund',
+                    expense: '5,000 บาท/โครงการ',
+                    dueDate: '2025-09-05',
+                    postedDate: '2025-07-01',
+                    durationDays: 15,
+                    contact: '02-1234567',
+                    customerGroup: 'ทั่วไป',
+                    status: 'เปิด',
+                    type: 'Invited',
+                    imageUrl: 'https://placehold.co/400x250/A2D2FF/000000?text=Research+Project+Evaluator'
+                }
+            ];
+        }
+
+        function saveServices(services) {
+            localStorage.setItem('mockServices', JSON.stringify(services));
+        }
+
+        let activeTab = 'Recommend'; // แท็บที่ใช้งานอยู่สำหรับรายการบริการ
+
+        const serviceListContainer = document.getElementById('serviceListContainer');
+
+        function renderServiceList() {
+            serviceListContainer.innerHTML = ''; // ล้างบริการที่แสดงอยู่ก่อนหน้า
+
+            // ตรรกะ: รายการที่หมดอายุเกิน 3 วันจะถูกย้ายไปที่ "เก็บไว้"
+            let services = getServices();
+            const today = new Date();
+            services = services.map(service => {
+                if (service.type !== 'Keep' && service.dueDate) {
+                    const dueDate = new Date(service.dueDate);
+                    const diffTime = today - dueDate;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if (diffDays > 3) { // If due date is more than 3 days in the past
+                        return { ...service, type: 'Keep', status: 'หมดอายุ' };
+                    }
+                }
+                return service;
+            });
+            saveServices(services); // Save updated services back to localStorage
+
+            const filteredServices = services.filter(service => service.type === activeTab);
+
+            if (filteredServices.length === 0) {
+                serviceListContainer.innerHTML = `
+                    <div class="col-span-full text-center py-10 text-gray-500 text-lg">
+                        ไม่พบการบริการในหมวดหมู่นี้
+                    </div>
+                `;
+                return;
+            }
+
+            filteredServices.forEach((service, index) => {
+                const serviceCard = document.createElement('div');
+                // Add animation delay for staggered effect, using index to create a unique delay
+                serviceCard.className = `bg-gray-50 rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg border border-gray-200 animate-fade-in-up animation-delay-${(index % 12) * 100}`; // Increased delay range for more items
+                serviceCard.innerHTML = `
+                    <img
+                        src="${service.imageUrl}"
+                        alt="${service.title}"
+                        class="w-full h-40 object-cover"
+                        onerror="this.onerror=null; this.src='https://placehold.co/400x250/E0E0E0/666666?text=ไม่มีรูปภาพ';"
+                    />
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">${service.title}</h3>
+                        <p class="text-sm text-gray-600 mb-3 line-clamp-3">${service.detail}</p>
+                        <div class="text-xs text-gray-500 space-y-1 mb-4">
+                            <p class="flex items-center"><i data-lucide="book-open" class="w-4 h-4 mr-2 text-blue-400"></i>กลุ่ม: ${service.group}</p>
+                            <p class="flex items-center"><i data-lucide="user" class="w-4 h-4 mr-2 text-green-400"></i>เจ้าของ: ${service.owner}</p>
+                            <p class="flex items-center"><i data-lucide="calendar-days" class="w-4 h-4 mr-2 text-purple-400"></i>วันครบกำหนด: ${service.dueDate}</p>
+                            <p class="flex items-center"><i data-lucide="calendar-check" class="w-4 h-4 mr-2 text-orange-400"></i>วันที่โพสต์: ${service.postedDate || 'N/A'}</p>
+                            <p class="flex items-center"><i data-lucide="timer" class="w-4 h-4 mr-2 text-teal-400"></i>ระยะเวลา: ${service.durationDays || 'N/A'} วัน</p>
+                            <p class="flex items-center"><i data-lucide="phone" class="w-4 h-4 mr-2 text-red-400"></i>ติดต่อ: ${service.contact}</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-4">
+                            <span class="text-lg font-bold text-blue-700">${service.expense}</span>
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold ${service.status === 'เปิด' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                ${service.status}
+                            </span>
+                        </div>
+                        <div class="mt-4 flex space-x-2">
+                            ${activeTab === 'Offer' ? `
+                                <button onclick="handleServiceAction('${service.id}', 'accept')" class="flex-1 px-4 py-2 bg-[#1877F2] text-white rounded-full text-sm hover:bg-[#166FE5] transition duration-200 transform hover:scale-105 shadow-sm">
+                                    <i data-lucide="check" class="inline-block w-4 h-4 mr-1"></i> ยอมรับ
+                                </button>
+                                <button onclick="handleServiceAction('${service.id}', 'cancel')" class="flex-1 px-4 py-2 bg-red-500 text-white rounded-full text-sm hover:bg-red-600 transition duration-200 transform hover:scale-105 shadow-sm">
+                                    <i data-lucide="x" class="inline-block w-4 h-4 mr-1"></i> ยกเลิก
+                                </button>
+                            ` : ''}
+                            ${activeTab === 'Invited' ? `
+                                <button onclick="handleServiceAction('${service.id}', 'accept_invite')" class="flex-1 px-4 py-2 bg-green-500 text-white rounded-full text-sm hover:bg-green-600 transition duration-200 transform hover:scale-105 shadow-sm">
+                                    <i data-lucide="check-circle" class="inline-block w-4 h-4 mr-1"></i> ตอบรับ
+                                </button>
+                                <button onclick="handleServiceAction('${service.id}', 'decline_invite')" class="flex-1 px-4 py-2 bg-red-500 text-white rounded-full text-sm hover:bg-red-600 transition duration-200 transform hover:scale-105 shadow-sm">
+                                    <i data-lucide="x-circle" class="inline-block w-4 h-4 mr-1"></i> ปฏิเสธ
+                                </button>
+                            ` : ''}
+                            ${activeTab !== 'Keep' ? `
+                                <button onclick="handleServiceAction('${service.id}', 'keep')" class="flex-1 px-4 py-2 bg-yellow-500 text-white rounded-full text-sm hover:bg-yellow-600 transition duration-200 transform hover:scale-105 shadow-sm">
+                                    <i data-lucide="bookmark" class="inline-block w-4 h-4 mr-1"></i> ย้ายไปเก็บไว้
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                serviceListContainer.appendChild(serviceCard);
+            });
+            lucide.createIcons();
+        }
+
+        function setActiveTab(tabName) {
+            activeTab = tabName;
+            const tabs = document.querySelectorAll('.mb-8 button');
+            tabs.forEach(tab => {
+                tab.classList.remove('text-[#1877F2]', 'border-b-4', 'border-[#1877F2]', 'bg-[#E7F3FF]');
+                tab.classList.add('text-gray-600', 'hover:text-[#1877F2]', 'hover:border-[#1877F2]');
+            });
+            document.getElementById(`tab${tabName}`).classList.add('text-[#1877F2]', 'border-b-4', 'border-[#1877F2]', 'bg-[#E7F3FF]');
+            document.getElementById(`tab${tabName}`).classList.remove('text-gray-600', 'hover:text-[#1877F2]', 'hover:border-[#1877F2]');
+            renderServiceList();
+        }
+
+        function handleServiceAction(serviceId, actionType) {
+            let services = getServices();
+            services = services.map(service => {
+                if (service.id === serviceId) {
+                    if (actionType === 'keep') {
+                        return { ...service, type: 'Keep', status: 'เก็บไว้' };
+                    } else if (actionType === 'accept') {
+                        alert(`ยอมรับบริการ "${service.title}" แล้ว (จำลอง)`);
+                        return { ...service, status: 'ยอมรับแล้ว' };
+                    } else if (actionType === 'cancel') {
+                        alert(`ยกเลิกบริการ "${service.title}" แล้ว (จำลอง)`);
+                        return { ...service, status: 'ยกเลิกแล้ว' };
+                    } else if (actionType === 'accept_invite') {
+                        alert(`ตอบรับคำเชิญสำหรับบริการ "${service.title}" แล้ว (จำลอง)`);
+                        return { ...service, status: 'ตอบรับแล้ว' };
+                    } else if (actionType === 'decline_invite') {
+                        alert(`ปฏิเสธคำเชิญสำหรับบริการ "${service.title}" แล้ว (จำลอง)`);
+                        return { ...service, status: 'ปฏิเสธแล้ว' };
+                    }
+                }
+                return service;
+            });
+            saveServices(services);
+            console.log(`ดำเนินการ "${actionType}" สำหรับบริการ ${serviceId} (จำลอง)`);
+            renderServiceList(); // Re-render to reflect changes
+        }
+
+        // Initial render when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            setActiveTab('Recommend'); // Set 'Recommend' as the default active tab
+        });
+    </script>
+</body>
+</html>

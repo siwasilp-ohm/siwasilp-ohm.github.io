@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCD แพลตฟอร์มจำลอง - การจับคู่รางวัล</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; margin: 0; background-color: #F0F2F5; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-[#F0F2F5] min-h-screen p-6">
+    <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl p-8 animate-fade-in">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">การจับคู่รางวัล</h1>
+
+        <div class="bg-blue-50 rounded-xl p-6 shadow-md mb-8 animate-fade-in-up">
+            <h2 class="text-xl font-semibold text-blue-800 mb-4 flex items-center"><i data-lucide="wallet" class="w-6 h-6 mr-2 text-blue-600"></i> คะแนนสะสมของคุณ</h2>
+            <p class="text-5xl font-bold text-blue-700 text-center">2,000 <span class="text-2xl text-gray-600">คะแนน</span></p>
+            <p class="text-center text-gray-600 mt-2">คุณสามารถใช้คะแนนเหล่านี้แลกรางวัลได้</p>
+        </div>
+
+        <h2 class="text-2xl font-semibold text-gray-800 mb-5 animate-fade-in-up animation-delay-200">รางวัลที่คุณสามารถแลกได้</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in-up animation-delay-400">
+            <!-- Reward Card 1 -->
+            <div class="bg-gray-50 rounded-xl shadow-md overflow-hidden transform transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg">
+                <img src="https://placehold.co/400x200/FFDDC1/FFFFFF?text=คูปองกาแฟ" alt="คูปองกาแฟ" class="w-full h-40 object-cover">
+                <div class="p-5">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">คูปองกาแฟ Starbucks</h3>
+                    <p class="text-sm text-gray-600 mb-3">แลกรับคูปองกาแฟฟรี 1 แก้วที่ Starbucks ทุกสาขา</p>
+                    <div class="flex justify-between items-center mt-4">
+                        <span class="text-lg font-bold text-blue-700">500 คะแนน</span>
+                        <button class="bg-[#1877F2] text-white py-2 px-4 rounded-full text-sm hover:bg-[#166FE5] transition duration-200">
+                            <i data-lucide="gift" class="inline-block w-4 h-4 mr-1"></i> แลกรางวัล
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reward Card 2 -->
+            <div class="bg-gray-50 rounded-xl shadow-md overflow-hidden transform transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg">
+                <img src="https://placehold.co/400x200/C1E1C1/FFFFFF?text=ส่วนลดคอร์ส" alt="ส่วนลดคอร์ส" class="w-full h-40 object-cover">
+                <div class="p-5">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">ส่วนลด 20% สำหรับหลักสูตร Premium</h3>
+                    <p class="text-sm text-gray-600 mb-3">ใช้เป็นส่วนลดสำหรับหลักสูตรพรีเมียมใดก็ได้บนแพลตฟอร์ม</p>
+                    <div class="flex justify-between items-center mt-4">
+                        <span class="text-lg font-bold text-blue-700">1,000 คะแนน</span>
+                        <button class="bg-[#1877F2] text-white py-2 px-4 rounded-full text-sm hover:bg-[#166FE5] transition duration-200">
+                            <i data-lucide="gift" class="inline-block w-4 h-4 mr-1"></i> แลกรางวัล
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reward Card 3 -->
+            <div class="bg-gray-50 rounded-xl shadow-md overflow-hidden transform transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg">
+                <img src="https://placehold.co/400x200/ADD8E6/FFFFFF?text=บัตรของขวัญ" alt="บัตรของขวัญ" class="w-full h-40 object-cover">
+                <div class="p-5">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">บัตรของขวัญ Central มูลค่า 500 บาท</h3>
+                    <p class="text-sm text-gray-600 mb-3">แลกรับบัตรของขวัญ Central เพื่อใช้ที่ห้างสรรพสินค้าชั้นนำ</p>
+                    <div class="flex justify-between items-center mt-4">
+                        <span class="text-lg font-bold text-blue-700">2,500 คะแนน</span>
+                        <button class="bg-gray-400 text-white py-2 px-4 rounded-full text-sm cursor-not-allowed" disabled>
+                            <i data-lucide="gift" class="inline-block w-4 h-4 mr-1"></i> คะแนนไม่พอ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-10 text-center">
+            <button onclick="window.location.href='dashboard.html'" class="px-8 py-3 bg-gray-700 text-white rounded-full shadow-lg hover:bg-gray-800 transition duration-300 ease-in-out transform hover:-translate-y-0.5">
+                กลับสู่แดชบอร์ด
+            </button>
+        </div>
+    </div>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

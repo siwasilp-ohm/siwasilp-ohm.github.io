@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCD แพลตฟอร์มจำลอง - การตั้งค่า</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; margin: 0; background-color: #F0F2F5; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-[#F0F2F5] min-h-screen p-6">
+    <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl p-8 animate-fade-in">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">การตั้งค่า</h1>
+
+        <div class="space-y-6 animate-fade-in-up">
+            <!-- การตั้งค่าโปรไฟล์ -->
+            <div class="bg-gray-50 rounded-xl p-6 shadow-md">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center"><i data-lucide="user" class="w-6 h-6 mr-2 text-[#1877F2]"></i> การตั้งค่าโปรไฟล์</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="profileName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อผู้ใช้งาน</label>
+                        <input type="text" id="profileName" value="เจนนิเฟอร์ ส." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#1877F2] focus:border-[#1877F2]">
+                    </div>
+                    <div>
+                        <label for="profileEmail" class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
+                        <input type="email" id="profileEmail" value="jenifer.s@sut.ac.th" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#1877F2] focus:border-[#1877F2]">
+                    </div>
+                    <div>
+                        <label for="profilePhone" class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์</label>
+                        <input type="tel" id="profilePhone" value="081-234-5678" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#1877F2] focus:border-[#1877F2]">
+                    </div>
+                    <div>
+                        <label for="profileAddress" class="block text-sm font-medium text-gray-700 mb-1">ที่อยู่</label>
+                        <textarea id="profileAddress" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#1877F2] focus:border-[#1877F2]">123 ถนนมิตรภาพ, นครราชสีมา</textarea>
+                    </div>
+                    <div>
+                        <label for="profilePicture" class="block text-sm font-medium text-gray-700 mb-1">รูปโปรไฟล์</label>
+                        <input type="file" id="profilePicture" accept="image/*" class="mt-1 block w-full text-sm text-gray-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-full file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-[#E7F3FF] file:text-[#1877F2]
+                            hover:file:bg-[#D0E6FF] transition duration-200">
+                        <p id="profilePictureName" class="mt-2 text-sm text-gray-500 hidden"></p>
+                    </div>
+                    <button onclick="saveProfileSettings()" class="px-5 py-2 bg-[#1877F2] text-white rounded-full hover:bg-[#166FE5] transition duration-200 shadow-md">บันทึกการเปลี่ยนแปลง</button>
+                </div>
+            </div>
+
+            <!-- การตั้งค่าบัญชีและความปลอดภัย -->
+            <div class="bg-gray-50 rounded-xl p-6 shadow-md">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center"><i data-lucide="shield-check" class="w-6 h-6 mr-2 text-green-500"></i> บัญชีและความปลอดภัย</h2>
+                <div class="space-y-4">
+                    <div>
+                        <button onclick="alert('จำลอง: ไปยังหน้าเปลี่ยนรหัสผ่าน')" class="w-full text-left px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-200 flex items-center justify-between">
+                            <span class="text-gray-700">เปลี่ยนรหัสผ่าน</span>
+                            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between px-4 py-2 bg-white border border-gray-300 rounded-lg">
+                            <span class="text-gray-700">การยืนยันตัวตนแบบ 2 ชั้น (2FA)</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="toggle2FA" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1877F2]"></div>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <button onclick="alert('จำลอง: แสดงประวัติการเข้าสู่ระบบ')" class="w-full text-left px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-200 flex items-center justify-between">
+                            <span class="text-gray-700">ประวัติการเข้าสู่ระบบ</span>
+                            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- การตั้งค่าการแจ้งเตือน -->
+            <div class="bg-gray-50 rounded-xl p-6 shadow-md">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center"><i data-lucide="bell" class="w-6 h-6 mr-2 text-yellow-500"></i> การตั้งค่าการแจ้งเตือน</h2>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700">การแจ้งเตือนกิจกรรมใหม่</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="toggleNewActivity" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1877F2]"></div>
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700">การแจ้งเตือนข้อความ</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="toggleMessages" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1877F2]"></div>
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700">การแจ้งเตือนอีเมล</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="toggleEmailNotif" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1877F2]"></div>
+                        </label>
+                    </div>
+                    <button onclick="saveNotificationSettings()" class="px-5 py-2 bg-[#1877F2] text-white rounded-full hover:bg-[#166FE5] transition duration-200 shadow-md">บันทึกการแจ้งเตือน</button>
+                </div>
+            </div>
+
+            <!-- การตั้งค่าความเป็นส่วนตัว -->
+            <div class="bg-gray-50 rounded-xl p-6 shadow-md">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center"><i data-lucide="lock" class="w-6 h-6 mr-2 text-red-500"></i> การตั้งค่าความเป็นส่วนตัว</h2>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700">ใครสามารถดูโปรไฟล์ของคุณได้?</span>
+                        <select id="privacyProfile" class="px-3 py-1 rounded-lg border border-gray-300 focus:ring-[#1877F2] focus:border-[#1877F2]">
+                            <option value="everyone">ทุกคน</option>
+                            <option value="friends">เพื่อนเท่านั้น</option>
+                            <option value="only_me">เฉพาะฉัน</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700">ใครสามารถส่งคำขอเป็นเพื่อนได้?</span>
+                        <select id="privacyFriendRequest" class="px-3 py-1 rounded-lg border border-gray-300 focus:ring-[#1877F2] focus:border-[#1877F2]">
+                            <option value="everyone">ทุกคน</option>
+                            <option value="friends_of_friends">เพื่อนของเพื่อน</option>
+                        </select>
+                    </div>
+                    <button onclick="savePrivacySettings()" class="px-5 py-2 bg-[#1877F2] text-white rounded-full hover:bg-[#166FE5] transition duration-200 shadow-md">บันทึกความเป็นส่วนตัว</button>
+                </div>
+            </div>
+
+            <!-- การตั้งค่าแอปพลิเคชัน -->
+            <div class="bg-gray-50 rounded-xl p-6 shadow-md">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center"><i data-lucide="smartphone" class="w-6 h-6 mr-2 text-purple-500"></i> การตั้งค่าแอปพลิเคชัน</h2>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700">ภาษา</span>
+                        <select id="appLanguage" class="px-3 py-1 rounded-lg border border-gray-300 focus:ring-[#1877F2] focus:border-[#1877F2]">
+                            <option value="th">ไทย</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700">โหมดการแสดงผล</span>
+                        <select id="appTheme" class="px-3 py-1 rounded-lg border border-gray-300 focus:ring-[#1877F2] focus:border-[#1877F2]">
+                            <option value="light">สว่าง (Light)</option>
+                            <option value="dark">มืด (Dark)</option>
+                        </select>
+                    </div>
+                    <button onclick="saveAppSettings()" class="px-5 py-2 bg-[#1877F2] text-white rounded-full hover:bg-[#166FE5] transition duration-200 shadow-md">บันทึกการตั้งค่าแอป</button>
+                </div>
+            </div>
+
+            <!-- เกี่ยวกับและช่วยเหลือ -->
+            <div class="bg-gray-50 rounded-xl p-6 shadow-md">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center"><i data-lucide="info" class="w-6 h-6 mr-2 text-blue-500"></i> เกี่ยวกับและช่วยเหลือ</h2>
+                <div class="space-y-3">
+                    <p class="text-gray-700">เวอร์ชัน: 1.0.0 (Beta)</p>
+                    <p class="text-gray-700">วันที่อัปเดตล่าสุด: 31 กรกฎาคม 2568</p>
+                    <button onclick="navigateTo('analysis.html')" class="w-full text-left px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-200 flex items-center justify-between">
+                        <span class="text-gray-700">ข้อมูลระบบและสถาปัตยกรรม</span>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+                    </button>
+                    <button onclick="alert('จำลอง: ไปยังหน้าคำถามที่พบบ่อย')" class="w-full text-left px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-200 flex items-center justify-between">
+                        <span class="text-gray-700">คำถามที่พบบ่อย (FAQ)</span>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+                    </button>
+                    <button onclick="alert('จำลอง: ไปยังหน้าติดต่อสนับสนุน')" class="w-full text-left px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-200 flex items-center justify-between">
+                        <span class="text-gray-700">ติดต่อฝ่ายสนับสนุน</span>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+                    </button>
+                    <button onclick="alert('จำลอง: แสดงข้อกำหนดและเงื่อนไข')" class="w-full text-left px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-200 flex items-center justify-between">
+                        <span class="text-gray-700">ข้อกำหนดและเงื่อนไข</span>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ปุ่มออกจากระบบ -->
+            <div class="text-center pt-4">
+                <button onclick="confirmLogout()" class="px-8 py-3 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition duration-300 ease-in-out transform hover:-translate-y-0.5">
+                    <i data-lucide="log-out" class="inline-block w-5 h-5 mr-2"></i> ออกจากระบบ
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-10 text-center">
+            <button onclick="window.location.href='dashboard.html'" class="px-8 py-3 bg-gray-700 text-white rounded-full shadow-lg hover:bg-gray-800 transition duration-300 ease-in-out transform hover:-translate-y-0.5">
+                กลับสู่แดชบอร์ด
+            </button>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden animate-fade-in">
+        <div class="bg-white p-8 rounded-xl shadow-2xl text-center max-w-sm w-full transform scale-95 animate-scale-in">
+            <i data-lucide="log-out" class="w-12 h-12 text-red-500 mx-auto mb-4"></i>
+            <h3 class="text-xl font-bold text-gray-800 mb-4">ยืนยันการออกจากระบบ</h3>
+            <p class="text-gray-600 mb-6">คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?</p>
+            <div class="flex justify-center space-x-4">
+                <button
+                    onclick="hideLogoutModal()"
+                    class="px-5 py-2 bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 transition duration-200"
+                >
+                    ไม่, อยู่ต่อ
+                </button>
+                <button
+                    onclick="performLogout()"
+                    class="px-5 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition duration-200"
+                >
+                    ใช่, ออกจากระบบ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Function to navigate between separate HTML files
+        function navigateTo(url) {
+            window.location.href = url;
+        }
+
+        // --- Data Persistence for Settings (localStorage) ---
+        function getSettings() {
+            const settingsJson = localStorage.getItem('userSettings');
+            return settingsJson ? JSON.parse(settingsJson) : {
+                profile: {
+                    name: 'เจนนิเฟอร์ ส.',
+                    email: 'jenifer.s@sut.ac.th',
+                    phone: '081-234-5678',
+                    address: '123 ถนนมิตรภาพ, นครราชสีมา',
+                    pictureName: null
+                },
+                notifications: {
+                    newActivity: true,
+                    messages: false,
+                    emailNotif: true
+                },
+                privacy: {
+                    profileVisibility: 'everyone',
+                    friendRequest: 'everyone'
+                },
+                app: {
+                    language: 'th',
+                    theme: 'light'
+                },
+                security: {
+                    twoFactorAuth: false
+                }
+            };
+        }
+
+        function saveSettings(settings) {
+            localStorage.setItem('userSettings', JSON.stringify(settings));
+        }
+
+        // --- Load Settings on Page Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const settings = getSettings();
+
+            // Profile Settings
+            document.getElementById('profileName').value = settings.profile.name;
+            document.getElementById('profileEmail').value = settings.profile.email;
+            document.getElementById('profilePhone').value = settings.profile.phone;
+            document.getElementById('profileAddress').value = settings.profile.address;
+            if (settings.profile.pictureName) {
+                document.getElementById('profilePictureName').textContent = `ไฟล์ที่เลือก: ${settings.profile.pictureName}`;
+                document.getElementById('profilePictureName').classList.remove('hidden');
+            }
+
+            // Security Settings
+            document.getElementById('toggle2FA').checked = settings.security.twoFactorAuth;
+
+            // Notification Settings
+            document.getElementById('toggleNewActivity').checked = settings.notifications.newActivity;
+            document.getElementById('toggleMessages').checked = settings.notifications.messages;
+            document.getElementById('toggleEmailNotif').checked = settings.notifications.emailNotif;
+
+            // Privacy Settings
+            document.getElementById('privacyProfile').value = settings.privacy.profileVisibility;
+            document.getElementById('privacyFriendRequest').value = settings.privacy.friendRequest;
+
+            // App Settings
+            document.getElementById('appLanguage').value = settings.app.language;
+            document.getElementById('appTheme').value = settings.app.theme;
+        });
+
+        // --- Save Functions ---
+        function saveProfileSettings() {
+            const settings = getSettings();
+            settings.profile.name = document.getElementById('profileName').value;
+            settings.profile.email = document.getElementById('profileEmail').value;
+            settings.profile.phone = document.getElementById('profilePhone').value;
+            settings.profile.address = document.getElementById('profileAddress').value;
+            const profilePictureInput = document.getElementById('profilePicture');
+            if (profilePictureInput.files.length > 0) {
+                settings.profile.pictureName = profilePictureInput.files[0].name;
+            }
+            saveSettings(settings);
+            console.log('บันทึกการตั้งค่าโปรไฟล์แล้ว');
+            alert('บันทึกการตั้งค่าโปรไฟล์แล้ว'); // For demo purposes
+        }
+
+        function saveNotificationSettings() {
+            const settings = getSettings();
+            settings.notifications.newActivity = document.getElementById('toggleNewActivity').checked;
+            settings.notifications.messages = document.getElementById('toggleMessages').checked;
+            settings.notifications.emailNotif = document.getElementById('toggleEmailNotif').checked;
+            saveSettings(settings);
+            console.log('บันทึกการตั้งค่าการแจ้งเตือนแล้ว');
+            alert('บันทึกการตั้งค่าการแจ้งเตือนแล้ว'); // For demo purposes
+        }
+
+        function savePrivacySettings() {
+            const settings = getSettings();
+            settings.privacy.profileVisibility = document.getElementById('privacyProfile').value;
+            settings.privacy.friendRequest = document.getElementById('privacyFriendRequest').value;
+            saveSettings(settings);
+            console.log('บันทึกการตั้งค่าความเป็นส่วนตัวแล้ว');
+            alert('บันทึกการตั้งค่าความเป็นส่วนตัวแล้ว'); // For demo purposes
+        }
+
+        function saveAppSettings() {
+            const settings = getSettings();
+            settings.app.language = document.getElementById('appLanguage').value;
+            settings.app.theme = document.getElementById('appTheme').value;
+            saveSettings(settings);
+            console.log('บันทึกการตั้งค่าแอปพลิเคชันแล้ว');
+            alert('บันทึกการตั้งค่าแอปพลิเคชันแล้ว'); // For demo purposes
+            // In a real app, changing theme/language would involve more complex logic
+        }
+
+        // --- Security Settings (2FA Toggle) ---
+        document.getElementById('toggle2FA').addEventListener('change', (event) => {
+            const settings = getSettings();
+            settings.security.twoFactorAuth = event.target.checked;
+            saveSettings(settings);
+            console.log(`การยืนยันตัวตนแบบ 2 ชั้น: ${event.target.checked ? 'เปิด' : 'ปิด'}`);
+            alert(`การยืนยันตัวตนแบบ 2 ชั้น: ${event.target.checked ? 'เปิด' : 'ปิด'}`); // For demo purposes
+        });
+
+        // --- Profile Picture Name Display ---
+        document.getElementById('profilePicture').addEventListener('change', (event) => {
+            const fileInput = event.target;
+            const fileNameDisplay = document.getElementById('profilePictureName');
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.textContent = `ไฟล์ที่เลือก: ${fileInput.files[0].name}`;
+                fileNameDisplay.classList.remove('hidden');
+            } else {
+                fileNameDisplay.textContent = '';
+                fileNameDisplay.classList.add('hidden');
+            }
+        });
+
+        // --- Logout Modal Logic ---
+        const logoutModal = document.getElementById('logoutModal');
+
+        function confirmLogout() {
+            logoutModal.classList.remove('hidden');
+        }
+
+        function hideLogoutModal() {
+            logoutModal.classList.add('hidden');
+        }
+
+        function performLogout() {
+            hideLogoutModal();
+            localStorage.removeItem('userSettings'); // Clear user settings on logout
+            // In a real app, this would involve clearing session tokens, etc.
+            navigateTo('index.html'); // Redirect to login page
+        }
+    </script>
+</body>
+</html>

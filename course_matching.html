@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCD แพลตฟอร์มจำลอง - การจับคู่หลักสูตร</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; margin: 0; background-color: #F0F2F5; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        .animation-delay-200 { animation-delay: 0.2s; }
+        .animation-delay-400 { animation-delay: 0.4s; }
+        .animation-delay-600 { animation-delay: 0.6s; }
+        .animation-delay-800 { animation-delay: 0.8s; }
+    </style>
+</head>
+<body class="bg-[#F0F2F5] min-h-screen p-6">
+    <div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-8 animate-fade-in">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">การจับคู่หลักสูตร</h1>
+
+        <!-- Filter/Category Section -->
+        <div class="mb-8 flex flex-wrap justify-center gap-3 animate-fade-in-up" id="categoryFilterButtons">
+            <!-- Buttons will be rendered by JavaScript -->
+        </div>
+
+        <div id="courseListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in-up animation-delay-200">
+            <!-- Course Cards will be injected here by JavaScript -->
+        </div>
+
+        <div class="mt-10 text-center">
+            <button onclick="window.location.href='dashboard.html'" class="px-8 py-3 bg-gray-700 text-white rounded-full shadow-lg hover:bg-gray-800 transition duration-300 ease-in-out transform hover:-translate-y-0.5">
+                กลับสู่แดชบอร์ด
+            </button>
+        </div>
+    </div>
+    <script>
+        // เริ่มต้น Lucide icons
+        lucide.createIcons();
+
+        // ข้อมูลหลักสูตรจำลอง
+        const mockCourses = [
+            {
+                id: 'C-001',
+                title: 'พื้นฐาน Machine Learning',
+                detail: 'เรียนรู้แนวคิดพื้นฐานและอัลกอริทึมที่สำคัญใน Machine Learning พร้อมกรณีศึกษาและการประยุกต์ใช้จริงในอุตสาหกรรม',
+                instructor: 'ดร.วิชาญ ชาญฉลาด',
+                duration: '8 สัปดาห์',
+                rating: 4.8,
+                reviews: 120,
+                category: 'เทคโนโลยี',
+                imageUrl: 'https://placehold.co/400x200/AEC6CF/FFFFFF?text=Machine+Learning+Basics'
+            },
+            {
+                id: 'C-002',
+                title: 'การบริหารจัดการโครงการอย่างมืออาชีพ',
+                detail: 'หลักสูตรครอบคลุมหลักการ Agile และ Scrum เพื่อการบริหารโครงการที่มีประสิทธิภาพและส่งมอบงานได้ตรงเวลา',
+                instructor: 'อ.ปรีชา จัดการ',
+                duration: '6 สัปดาห์',
+                rating: 4.5,
+                reviews: 85,
+                category: 'การจัดการ',
+                imageUrl: 'https://placehold.co/400x200/FFDDC1/FFFFFF?text=Project+Management'
+            },
+            {
+                id: 'C-003',
+                title: 'การตลาดดิจิทัลสำหรับธุรกิจยุคใหม่',
+                detail: 'เรียนรู้กลยุทธ์ SEO, SEM, Social Media Marketing และ Content Marketing เพื่อเพิ่มยอดขายออนไลน์',
+                instructor: 'คุณการตลาด ออนไลน์',
+                duration: '10 สัปดาห์',
+                rating: 4.9,
+                reviews: 210,
+                category: 'การจัดการ',
+                imageUrl: 'https://placehold.co/400x200/C1E1C1/FFFFFF?text=Digital+Marketing'
+            },
+            {
+                id: 'C-004',
+                title: 'การพัฒนาแอปพลิเคชันมือถือด้วย React Native',
+                detail: 'สร้างแอปพลิเคชัน iOS และ Android ด้วยโค้ดชุดเดียว พร้อมเรียนรู้การเชื่อมต่อ API และ Firebase',
+                instructor: 'ผศ.ดร.นวัตกรรม ล้ำหน้า',
+                duration: '12 สัปดาห์',
+                rating: 4.7,
+                reviews: 95,
+                category: 'เทคโนโลยี',
+                imageUrl: 'https://placehold.co/400x200/D8BFD8/FFFFFF?text=React+Native+Dev'
+            },
+            {
+                id: 'C-005',
+                title: 'ภาษาอังกฤษเพื่อการสื่อสารทางธุรกิจ',
+                detail: 'พัฒนาทักษะการพูด ฟัง อ่าน เขียน ภาษาอังกฤษที่จำเป็นสำหรับการทำงานในสภาพแวดล้อมธุรกิจระหว่างประเทศ',
+                instructor: 'อ.ลิซ่า สมิธ',
+                duration: '4 สัปดาห์',
+                rating: 4.6,
+                reviews: 70,
+                category: 'ภาษา',
+                imageUrl: 'https://placehold.co/400x200/B0E0E6/FFFFFF?text=Business+English'
+            },
+            {
+                id: 'C-006',
+                title: 'การคิดเชิงออกแบบ (Design Thinking) สำหรับนวัตกร',
+                detail: 'เรียนรู้กระบวนการคิดเชิงออกแบบเพื่อสร้างสรรค์นวัตกรรมและแก้ไขปัญหาที่ซับซ้อนอย่างมีประสิทธิภาพ',
+                instructor: 'คุณสร้างสรรค์ ไอเดีย',
+                duration: '5 สัปดาห์',
+                rating: 4.9,
+                reviews: 150,
+                category: 'ความคิดสร้างสรรค์',
+                imageUrl: 'https://placehold.co/400x200/FFB6C1/FFFFFF?text=Design+Thinking'
+            },
+            {
+                id: 'C-007',
+                title: 'พื้นฐานการเขียนโค้ดด้วย Python',
+                detail: 'เริ่มต้นการเขียนโปรแกรมด้วยภาษา Python เรียนรู้โครงสร้างข้อมูล, อัลกอริทึม และการแก้ปัญหาเบื้องต้น',
+                instructor: 'อ.โค้ดดิ้ง เก่งมาก',
+                duration: '7 สัปดาห์',
+                rating: 4.7,
+                reviews: 180,
+                category: 'เทคโนโลยี',
+                imageUrl: 'https://placehold.co/400x200/F0E68C/FFFFFF?text=Python+Basics'
+            },
+            {
+                id: 'C-008',
+                title: 'การเจรจาต่อรองและการสื่อสารข้ามวัฒนธรรม',
+                detail: 'พัฒนาทักษะการเจรจาต่อรองและการสื่อสารที่มีประสิทธิภาพในบริบททางวัฒนธรรมที่หลากหลาย',
+                instructor: 'ดร.วัฒนธรรม เข้าใจ',
+                duration: '3 สัปดาห์',
+                rating: 4.4,
+                reviews: 60,
+                category: 'การจัดการ',
+                imageUrl: 'https://placehold.co/400x200/DDA0DD/FFFFFF?text=Cross-Cultural+Comm'
+            }
+        ];
+
+        let activeCategory = 'ทั้งหมด'; // หมวดหมู่ที่ใช้งานอยู่
+
+        const courseListContainer = document.getElementById('courseListContainer');
+        const categoryFilterButtons = document.getElementById('categoryFilterButtons');
+
+        // ฟังก์ชันสำหรับเรนเดอร์รายการหลักสูตร
+        function renderCourseList() {
+            courseListContainer.innerHTML = ''; // ล้างเนื้อหาเดิม
+
+            const filteredCourses = activeCategory === 'ทั้งหมด'
+                ? mockCourses
+                : mockCourses.filter(course => course.category === activeCategory);
+
+            if (filteredCourses.length === 0) {
+                courseListContainer.innerHTML = `
+                    <div class="col-span-full text-center py-10 text-gray-500 text-lg">
+                        ไม่พบหลักสูตรในหมวดหมู่นี้
+                    </div>
+                `;
+                return;
+            }
+
+            filteredCourses.forEach((course, index) => {
+                const courseCard = document.createElement('div');
+                courseCard.className = `bg-gray-50 rounded-xl shadow-md overflow-hidden transform transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg animate-fade-in-up animation-delay-${index * 100}`;
+                courseCard.innerHTML = `
+                    <img src="${course.imageUrl}" alt="${course.title}" class="w-full h-40 object-cover">
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">${course.title}</h3>
+                        <p class="text-sm text-gray-600 mb-3 line-clamp-3">${course.detail}</p>
+                        <div class="text-xs text-gray-500 space-y-1 mb-4">
+                            <p class="flex items-center"><i data-lucide="user" class="w-4 h-4 mr-2 text-green-400"></i>ผู้สอน: ${course.instructor}</p>
+                            <p class="flex items-center"><i data-lucide="calendar-days" class="w-4 h-4 mr-2 text-purple-400"></i>ระยะเวลา: ${course.duration}</p>
+                            <p class="flex items-center"><i data-lucide="star" class="w-4 h-4 mr-2 text-yellow-400"></i>คะแนน: ${course.rating} (${course.reviews} รีวิว)</p>
+                        </div>
+                        <button onclick="handleRegister('${course.id}')" class="w-full bg-[#1877F2] text-white py-2 px-4 rounded-full hover:bg-[#166FE5] transition duration-300 ease-in-out transform hover:-translate-y-0.5 shadow-md">
+                            <i data-lucide="book-open" class="inline-block w-4 h-4 mr-1"></i> ลงทะเบียน
+                        </button>
+                    </div>
+                `;
+                courseListContainer.appendChild(courseCard);
+            });
+            lucide.createIcons(); // สร้างไอคอน Lucide ใหม่สำหรับ card ที่เพิ่งเพิ่มเข้ามา
+        }
+
+        // ฟังก์ชันสำหรับตั้งค่าหมวดหมู่ที่ใช้งานอยู่และเรนเดอร์ใหม่
+        function setActiveCategory(category) {
+            activeCategory = category;
+            const buttons = categoryFilterButtons.querySelectorAll('button');
+            buttons.forEach(button => {
+                if (button.textContent === activeCategory) {
+                    button.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                    button.classList.add('bg-[#1877F2]', 'text-white', 'hover:bg-[#166FE5]');
+                } else {
+                    button.classList.remove('bg-[#1877F2]', 'text-white', 'hover:bg-[#166FE5]');
+                    button.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                }
+            });
+            renderCourseList();
+        }
+
+        // ฟังก์ชันสำหรับจัดการการลงทะเบียน (จำลอง)
+        function handleRegister(courseId) {
+            console.log(`ลงทะเบียนหลักสูตร ID: ${courseId}`);
+            alert(`คุณได้ลงทะเบียนหลักสูตร ID: ${courseId} แล้ว (จำลอง)`);
+        }
+
+        // เรนเดอร์ปุ่มหมวดหมู่
+        function renderCategoryButtons() {
+            const categories = ['ทั้งหมด', ...new Set(mockCourses.map(course => course.category))];
+            categoryFilterButtons.innerHTML = ''; // Clear existing buttons
+            categories.forEach(category => {
+                const button = document.createElement('button');
+                button.textContent = category;
+                button.className = `px-5 py-2 rounded-full text-sm font-medium transition duration-200 shadow-md`;
+                button.onclick = () => setActiveCategory(category);
+                categoryFilterButtons.appendChild(button);
+            });
+            setActiveCategory(activeCategory); // Set initial active state
+        }
+
+        // โหลดหน้าเริ่มต้น
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCategoryButtons(); // Render category buttons first
+            renderCourseList(); // Then render the course list
+        });
+    </script>
+</body>
+</html>

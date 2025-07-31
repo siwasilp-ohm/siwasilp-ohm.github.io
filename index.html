@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCD แพลตฟอร์มจำลอง - เข้าสู่ระบบ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            background-color: #F0F2F5; /* Facebook-like background */
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-fade-in-down { animation: fadeInDown 0.6s ease-out forwards; }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        .animation-delay-200 { animation-delay: 0.2s; }
+        .animation-delay-400 { animation-delay: 0.4s; }
+        .animation-delay-600 { animation-delay: 0.6s; }
+        .animation-delay-800 { animation-delay: 0.8s; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-200 to-blue-50">
+
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center transform transition-all duration-500 hover:scale-105">
+            <h1 class="text-4xl font-extrabold text-gray-800 mb-6 animate-fade-in-down">ชุมชนการจับคู่</h1>
+            <p class="text-gray-600 mb-8 animate-fade-in-down animation-delay-200">แพลตฟอร์มสำหรับการพัฒนาความสามารถอย่างต่อเนื่องและการมีส่วนร่วมระหว่างมหาวิทยาลัยกับสังคม</p>
+
+            <div class="space-y-4 mb-8 animate-fade-in-up animation-delay-400">
+                <button onclick="window.location.href='dashboard.html'" class="w-full flex items-center justify-center px-6 py-3 border border-gray-300 rounded-full shadow-sm text-lg font-medium text-gray-700 bg-white hover:bg-gray-50 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/LINE_logo.svg/1200px-LINE_logo.svg.png" alt="LINE" class="h-6 w-6 mr-3" />
+                    เข้าสู่ระบบด้วย LINE
+                </button>
+                <button onclick="window.location.href='dashboard.html'" class="w-full flex items-center justify-center px-6 py-3 rounded-full shadow-sm text-lg font-medium text-white bg-[#1877F2] hover:bg-[#166FE5] transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md">
+                    <i data-lucide="facebook" class="h-6 w-6 mr-3"></i>
+                    เข้าสู่ระบบด้วย Facebook
+                </button>
+                <button onclick="window.location.href='dashboard.html'" class="w-full flex items-center justify-center px-6 py-3 border border-gray-300 rounded-full shadow-sm text-lg font-medium text-gray-700 bg-white hover:bg-gray-50 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md">
+                    <i data-lucide="mail" class="h-6 w-6 text-red-500 mr-3"></i>
+                    เข้าสู่ระบบด้วย Google
+                </button>
+                <button onclick="window.location.href='dashboard.html'" class="w-full flex items-center justify-center px-6 py-3 border border-gray-300 rounded-full shadow-sm text-lg font-medium text-gray-700 bg-white hover:bg-gray-50 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md">
+                    <i data-lucide="apple" class="h-6 w-6 text-gray-900 mr-3"></i>
+                    เข้าสู่ระบบด้วย Apple
+                </button>
+                 <button onclick="window.location.href='analysis.html'" class="w-full flex items-center justify-center px-6 py-3 border border-gray-300 rounded-full shadow-sm text-lg font-medium text-gray-700 bg-white hover:bg-gray-50 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md">
+                    <i data-lucide="file-cog" class="h-6 w-6 text-gray-900 mr-3"></i>
+                   SYSTEM Analysis
+                </button>
+            </div>
+
+            <a href="#" class="text-blue-600 hover:underline text-sm animate-fade-in animation-delay-600">เกี่ยวกับ</a>
+            <p class="mt-6 text-gray-500 text-xs animate-fade-in animation-delay-800">ลิขสิทธิ์© 2025 SUT. สงวนลิขสิทธิ์.</p>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCD แพลตฟอร์มจำลอง - ตั้งค่าบริการ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            background-color: #F0F2F5; /* Facebook-like background */
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes pulseOnce { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        .animate-scale-in { animation: scaleIn 0.3s ease-out forwards; }
+        .animate-pulse-once { animation: pulseOnce 0.8s ease-in-out; }
+    </style>
+</head>
+<body class="bg-[#F0F2F5]">
+
+    <div class="min-h-screen p-6 flex justify-center items-start">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-3xl animate-fade-in-up">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">การตั้งค่าข้อมูลบริการ</h1>
+
+            <form id="serviceForm" class="space-y-6">
+                <!-- ข้อมูลทั่วไป -->
+                <div class="p-6 bg-gray-50 rounded-xl border border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">ข้อมูลทั่วไป</h2>
+                    <div>
+                        <label for="serviceTitle" class="block text-sm font-medium text-gray-700 mb-1">ชื่อบริการ</label>
+                        <input
+                            type="text"
+                            id="serviceTitle"
+                            name="title"
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-[#1877F2] focus:border-[#1877F2] sm:text-sm transition duration-200"
+                            placeholder="เช่น เทคนิค AI CMC"
+                            required
+                        />
+                    </div>
+                    <div class="mt-4">
+                        <label for="serviceDetail" class="block text-sm font-medium text-gray-700 mb-1">รายละเอียดบริการ</label>
+                        <textarea
+                            id="serviceDetail"
+                            name="detail"
+                            rows="4"
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-[#1877F2] focus:border-[#1877F2] sm:text-sm transition duration-200"
+                            placeholder="อธิบายรายละเอียดบริการของคุณ..."
+                            required
+                        ></textarea>
+                    </div>
+                    <div class="mt-4">
+                        <label for="serviceGroup" class="block text-sm font-medium text-gray-700 mb-1">กลุ่มบริการ</label>
+                        <select
+                            id="serviceGroup"
+                            name="group"
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-[#1877F2] focus:border-[#1877F2] sm:text-sm transition duration-200"
+                            required
+                        >
+                            <option value="">เลือกกลุ่ม</option>
+                            <option value="Equip&Test">อุปกรณ์ & ทดสอบ</option>
+                            <option value="Consult">ที่ปรึกษา</option>
+                            <option value="Training">ฝึกอบรม</option>
+                            <option value="Patent&License">สิทธิบัตร & ใบอนุญาต</option>
+                            <option value="Expertise">ความเชี่ยวชาญ</option>
+                            <option value="Education">การศึกษา</option>
+                        </select>
+                    </div>
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="serviceOwner" class="block text-sm font-medium text-gray-700 mb-1">เจ้าของบริการ</label>
+                            <input
+                                type="text"
+                                id="serviceOwner"
+                                name="owner"
+                                class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-[#1877F2] focus:border-[#1877F2] sm:text-sm transition duration-200"
+                                placeholder="เช่น Seagate"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label for="serviceDistributor" class="block text-sm font-medium text-gray-700 mb-1">ผู้จัดจำหน่ายบริการ</label>
+                            <input
+                                type="text"
+                                id="serviceDistributor"
+                                name="distributor"
+                                class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-[#1877F2] focus:border-[#1877F2] sm:text-sm transition duration-200"
+                                placeholder="เช่น COOP SUT"
+                                required
+                            />
+                        </div>
+                    </div>
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="serviceExpense" class="block text-sm font-medium text-gray-700 mb-1">ค่าใช้จ่ายบริการต่อหน่วย</label>
+                            <input
+                                type="text"
+                                id="serviceExpense"
+                                name="expense"
+                                class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-[#1877F2] focus:border-[#1877F2] sm:text-sm transition duration-200"
+                                placeholder="เช่น 5000 – 10,000 บาท"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label for="serviceDueDate" class="block text-sm font-medium text-gray-700 mb-1">วันครบกำหนดบริการ</label>
+                            <input
+                                type="date"
+                                id="serviceDueDate"
+                                name="dueDate"
+                                class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-[#1877F2] focus:border-[#1877F2] sm:text-sm transition duration-200"
+                                required
+                            />
+                        </div>
+                    </div>
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="contactNumber" class="block text-sm font-medium text-gray-700 mb-1">เบอร์ติดต่อ</label>
+                            <input
+                                type="tel"
+                                id="contactNumber"
+                                name="contact"
+                                class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-[#1877F2] focus:border-[#1877F2] sm:text-sm transition duration-200"
+                                placeholder="เช่น 044-224235"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label for="customerGroup" class="block text-sm font-medium text-gray-700 mb-1">กลุ่มลูกค้า</label>
+                            <select
+                                id="customerGroup"
+                                name="customerGroup"
+                                class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-[#1877F2] focus:border-[#1877F2] sm:text-sm transition duration-200"
+                                required
+                            >
+                                <option value="">เลือกกลุ่มลูกค้า</option>
+                                <option value="General">ทั่วไป</option>
+                                <option value="Individual">บุคคล</option>
+                                <option value="Enterprise">องค์กร</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label for="serviceOpeningStatus" class="block text-sm font-medium text-gray-700 mb-1">สถานะการเปิดบริการ</label>
+                        <select
+                            id="serviceOpeningStatus"
+                            name="status"
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-[#1877F2] focus:border-[#1877F2] sm:text-sm transition duration-200"
+                        >
+                            <option value="Open">เปิด</option>
+                            <option value="Closed">ปิด</option>
+                        </select>
+                    </div>
+                    <div class="mt-4">
+                        <label for="servicePicture" class="block text-sm font-medium text-gray-700 mb-1">รูปภาพบริการ</label>
+                        <input
+                            type="file"
+                            id="servicePicture"
+                            name="picture"
+                            class="mt-1 block w-full text-sm text-gray-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-full file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-[#E7F3FF] file:text-[#1877F2]
+                                hover:file:bg-[#D0E6FF] transition duration-200"
+                            accept="image/*"
+                        />
+                        <p id="selectedFileName" class="mt-2 text-sm text-gray-500 hidden"></p>
+                    </div>
+                </div>
+
+                <!-- ปุ่มยืนยันและการดำเนินการ -->
+                <div class="flex justify-end space-x-4 pt-6">
+                    <button
+                        type="button"
+                        onclick="showCancelModal()"
+                        class="px-6 py-3 bg-gray-200 text-gray-800 rounded-full shadow-md hover:bg-gray-300 transition duration-300 ease-in-out transform hover:-translate-y-0.5"
+                    >
+                        ยกเลิก
+                    </button>
+                    <button
+                        type="submit"
+                        class="px-6 py-3 bg-[#1877F2] text-white rounded-full shadow-lg hover:bg-[#166FE5] transition duration-300 ease-in-out transform hover:-translate-y-0.5 animate-pulse-once"
+                    >
+                        โพสต์
+                    </button>
+                </div>
+            </form>
+
+            <!-- Modal ยืนยันการยกเลิก -->
+            <div id="cancelModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden animate-fade-in">
+                <div class="bg-white p-8 rounded-xl shadow-2xl text-center max-w-sm w-full transform scale-95 animate-scale-in">
+                    <i data-lucide="x" class="w-12 h-12 text-red-500 mx-auto mb-4"></i>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">ยืนยันการยกเลิก</h3>
+                    <p class="text-gray-600 mb-6">คุณแน่ใจหรือไม่ว่าต้องการยกเลิก? การเปลี่ยนแปลงที่ยังไม่ได้บันทึกทั้งหมดจะหายไป</p>
+                    <div class="flex justify-center space-x-4">
+                        <button
+                            onclick="hideCancelModal()"
+                            class="px-5 py-2 bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 transition duration-200"
+                        >
+                            ไม่, อยู่ต่อ
+                        </button>
+                        <button
+                            onclick="confirmCancel()"
+                            class="px-5 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition duration-200"
+                        >
+                            ใช่, ยกเลิก
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Function to navigate between separate HTML files
+        function navigateTo(url) {
+            window.location.href = url;
+        }
+
+        // --- Data Persistence (localStorage) ---
+        function getServices() {
+            const servicesJson = localStorage.getItem('mockServices');
+            return servicesJson ? JSON.parse(servicesJson) : [
+                // Initial mock data if none exists in localStorage
+                {
+                    id: 'SER-2023-00001',
+                    title: 'การรับมือกับการทำงานข้ามวัฒนธรรม',
+                    detail: 'การสื่อสารและการเจรจาต่อรองที่จำเป็นในงาน...',
+                    group: 'Training',
+                    owner: 'SUT',
+                    distributor: 'COOP SUT',
+                    expense: '5,000 – 10,000 บาท',
+                    dueDate: '2025-02-02',
+                    postedDate: '2024-12-01',
+                    durationDays: 15,
+                    contact: '044-224235',
+                    customerGroup: 'ทั่วไป',
+                    status: 'เปิด',
+                    type: 'Recommend',
+                    imageUrl: 'https://placehold.co/400x250/AEC6CF/FFFFFF?text=บริการฝึกอบรม'
+                },
+                {
+                    id: 'SER-2023-00002',
+                    title: 'ที่ปรึกษาเทคนิค AI CMC',
+                    detail: 'การให้คำปรึกษาเกี่ยวกับเทคนิค AI และ CMC ขั้นสูงสำหรับการใช้งานในอุตสาหกรรม',
+                    group: 'Consult',
+                    owner: 'Seagate',
+                    distributor: 'COOP SUT',
+                    expense: '15,000 – 25,000 บาท',
+                    dueDate: '2025-03-15',
+                    postedDate: '2024-12-01',
+                    durationDays: 15,
+                    contact: '044-224236',
+                    customerGroup: 'องค์กร',
+                    status: 'เปิด',
+                    type: 'Recommend',
+                    imageUrl: 'https://placehold.co/400x250/FFDDC1/FFFFFF?text=ที่ปรึกษาAI'
+                },
+                {
+                    id: 'SER-2023-00003',
+                    title: 'การออกแบบเครื่องบดอัดชีวมวล',
+                    detail: 'ต้องการออกแบบเครื่องจักรที่ใช้ในการบดอัดชีวมวล และที่...',
+                    group: 'Equip&Test',
+                    owner: 'ฉัน',
+                    distributor: 'ตนเอง',
+                    expense: 'ต่อรองได้',
+                    dueDate: '2025-06-30',
+                    postedDate: '2025-01-10',
+                    durationDays: 30,
+                    contact: '081-1234567',
+                    customerGroup: 'บุคคล',
+                    status: 'เปิด',
+                    type: 'Offer',
+                    imageUrl: 'https://placehold.co/400x250/C1E1C1/FFFFFF?text=ออกแบบเครื่องจักร'
+                },
+                {
+                    id: 'SER-2023-00004',
+                    title: 'ความช่วยเหลือในการยื่นจดสิทธิบัตร',
+                    detail: 'ความช่วยเหลือในกระบวนการยื่นจดสิทธิบัตรสำหรับการประดิษฐ์ใหม่',
+                    group: 'Patent&License',
+                    owner: 'สำนักงานกฎหมาย A',
+                    distributor: 'SUT',
+                    expense: '20,000 – 50,000 บาท',
+                    dueDate: '2025-04-10',
+                    postedDate: '2025-02-15',
+                    durationDays: 45,
+                    contact: '044-224237',
+                    customerGroup: 'ทั่วไป',
+                    status: 'เปิด',
+                    type: 'Invited',
+                    imageUrl: 'https://placehold.co/400x250/ADD8E6/FFFFFF?text=บริการสิทธิบัตร'
+                }
+            ];
+        }
+
+        function saveServices(services) {
+            localStorage.setItem('mockServices', JSON.stringify(services));
+        }
+
+        // --- ตรรกะสำหรับฟอร์มการจับคู่บริการ ---
+        const serviceForm = document.getElementById('serviceForm');
+        const servicePictureInput = document.getElementById('servicePicture');
+        const selectedFileNameSpan = document.getElementById('selectedFileName');
+
+        servicePictureInput.addEventListener('change', (event) => {
+            if (event.target.files.length > 0) {
+                selectedFileNameSpan.textContent = `ไฟล์ที่เลือก: ${event.target.files[0].name}`;
+                selectedFileNameSpan.classList.remove('hidden');
+            } else {
+                selectedFileNameSpan.textContent = '';
+                selectedFileNameSpan.classList.add('hidden');
+            }
+        });
+
+        serviceForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(serviceForm);
+            const serviceData = {};
+            for (const [key, value] of formData.entries()) {
+                if (key === 'picture') {
+                    serviceData[key] = value ? value.name : null;
+                } else {
+                    serviceData[key] = value;
+                }
+            }
+
+            serviceData.id = 'SER-' + Date.now().toString().slice(-8);
+            serviceData.imageUrl = `https://placehold.co/400x250/CCCCCC/333333?text=${serviceData.group || 'บริการ'}`;
+            serviceData.type = 'Offer';
+            serviceData.postedDate = new Date().toISOString().slice(0, 10);
+            serviceData.durationDays = 30;
+
+            let services = getServices();
+            services.push(serviceData);
+            saveServices(services);
+
+            console.log('ข้อมูลบริการที่ส่ง:', serviceData);
+            console.log('บริการถูกส่งสำเร็จ! (จำลอง)');
+            navigateTo('service_list.html');
+        });
+
+        // --- ตรรกะสำหรับ Modal ยกเลิก ---
+        const cancelModal = document.getElementById('cancelModal');
+
+        function showCancelModal() {
+            cancelModal.classList.remove('hidden');
+        }
+
+        function hideCancelModal() {
+            cancelModal.classList.add('hidden');
+        }
+
+        function confirmCancel() {
+            hideCancelModal();
+            navigateTo('dashboard.html');
+        }
+    </script>
+</body>
+</html>

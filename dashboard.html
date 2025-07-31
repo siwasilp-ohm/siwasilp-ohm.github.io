@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCD แพลตฟอร์มจำลอง - แดชบอร์ด</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            background-color: #F0F2F5; /* Facebook-like background */
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-fade-in-down { animation: fadeInDown 0.6s ease-out forwards; }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+
+        /* Mobile-first: Hide sidebar by default on small screens */
+        .sidebar {
+            display: none;
+        }
+        /* Show sidebar on larger screens */
+        @media (min-width: 1024px) { /* lg breakpoint */
+            .sidebar {
+                display: flex;
+            }
+            .main-content {
+                margin-left: 16rem; /* Adjust for sidebar width */
+            }
+        }
+
+        /* Hamburger menu for mobile */
+        .hamburger-menu {
+            display: block;
+        }
+        @media (min-width: 1024px) {
+            .hamburger-menu {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#F0F2F5]">
+
+    <!-- Top Bar for Mobile -->
+    <header class="lg:hidden bg-white shadow-md p-4 flex items-center justify-between">
+        <h1 class="text-xl font-bold text-gray-800">ศูนย์ประกาศ</h1>
+        <button id="mobileMenuButton" class="text-gray-600 hover:text-gray-800">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+    </header>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobileSidebar" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden">
+        <aside class="w-64 bg-white h-full p-6 flex flex-col items-center border-r border-gray-200">
+            <div class="flex items-center mb-6 w-full justify-center">
+                <img
+                    src="https://placehold.co/60x60/87CEEB/FFFFFF?text=JS"
+                    alt="รูปโปรไฟล์ผู้ใช้"
+                    class="w-16 h-16 rounded-full border-4 border-[#1877F2] object-cover shadow-md"
+                />
+                <div class="ml-4 text-center">
+                    <h2 class="text-xl font-semibold text-gray-800">สมชาย ใจดี</h2>
+                    <p class="text-sm text-gray-600">2,000 คะแนน</p>
+                    <p class="text-xs text-gray-500">นักศึกษา</p>
+                </div>
+            </div>
+
+            <nav class="w-full space-y-2">
+                <button onclick="navigateTo('dashboard.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200">
+                    <i data-lucide="bell" class="w-5 h-5 mr-3"></i>
+                    ศูนย์ประกาศ
+                </button>
+                <button onclick="navigateTo('data_analysis.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200">
+                    <i data-lucide="line-chart" class="w-5 h-5 mr-3"></i>
+                    การวิเคราะห์ข้อมูล / รายงาน
+                </button>
+                <button onclick="navigateTo('friend_matching.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200">
+                    <i data-lucide="users-round" class="w-5 h-5 mr-3"></i>
+                    การจับคู่เพื่อน
+                </button>
+                <button onclick="navigateTo('course_matching.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200">
+                    <i data-lucide="book-text" class="w-5 h-5 mr-3"></i>
+                    การจับคู่หลักสูตร
+                </button>
+                <button onclick="navigateTo('service_list.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200">
+                    <i data-lucide="briefcase" class="w-5 h-5 mr-3"></i>
+                    การจับคู่งาน
+                </button>
+                <button onclick="navigateTo('content_matching.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200">
+                    <i data-lucide="newspaper" class="w-5 h-5 mr-3"></i>
+                    การจับคู่เนื้อหา
+                </button>
+                <button onclick="navigateTo('social_matching.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200">
+                    <i data-lucide="message-circle-more" class="w-5 h-5 mr-3"></i>
+                    การจับคู่ทางสังคม
+                </button>
+                <button onclick="navigateTo('reward_matching.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200">
+                    <i data-lucide="award" class="w-5 h-5 mr-3"></i>
+                    การจับคู่รางวัล
+                </button>
+                <button onclick="navigateTo('settings.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200">
+                    <i data-lucide="settings" class="w-5 h-5 mr-3"></i>
+                    การตั้งค่า
+                </button>
+            </nav>
+            <button id="closeMobileMenu" class="mt-auto px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition duration-200">
+                <i data-lucide="x" class="inline-block w-5 h-5 mr-2"></i> ปิดเมนู
+            </button>
+        </aside>
+    </div>
+
+    <div class="min-h-screen flex flex-col lg:flex-row bg-[#F0F2F5]">
+        <!-- แถบด้านข้าง (Sidebar) - Desktop Only -->
+        <aside class="sidebar w-64 bg-white shadow-lg p-6 flex-col items-center lg:items-start border-r border-gray-200 fixed h-full hidden lg:flex">
+            <div class="flex items-center mb-6 w-full justify-center lg:justify-start">
+                <img
+                    src="https://placehold.co/60x60/87CEEB/FFFFFF?text=JS"
+                    alt="รูปโปรไฟล์ผู้ใช้"
+                    class="w-16 h-16 rounded-full border-4 border-[#1877F2] object-cover shadow-md transition-transform duration-300 hover:scale-110"
+                />
+                <div class="ml-4 text-center lg:text-left">
+                    <h2 class="text-xl font-semibold text-gray-800">เจนนิเฟอร์ ส.</h2>
+                    <p class="text-sm text-gray-600">2,000 คะแนน</p>
+                    <p class="text-xs text-gray-500">เจ้าหน้าที่ธุรการ ผู้เรียน โค้ช</p>
+                </div>
+            </div>
+
+            <nav class="w-full space-y-2">
+                <button onclick="navigateTo('dashboard.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200 ease-in-out transform hover:translate-x-1">
+                    <i data-lucide="bell" class="w-5 h-5 mr-3"></i>
+                    ศูนย์ประกาศ
+                </button>
+                <button onclick="navigateTo('data_analysis.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200 ease-in-out transform hover:translate-x-1">
+                    <i data-lucide="line-chart" class="w-5 h-5 mr-3"></i>
+                    การวิเคราะห์ข้อมูล / รายงาน
+                </button>
+                <button onclick="navigateTo('friend_matching.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200 ease-in-out transform hover:translate-x-1">
+                    <i data-lucide="users-round" class="w-5 h-5 mr-3"></i>
+                    การจับคู่เพื่อน
+                </button>
+                <button onclick="navigateTo('course_matching.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200 ease-in-out transform hover:translate-x-1">
+                    <i data-lucide="book-text" class="w-5 h-5 mr-3"></i>
+                    การจับคู่หลักสูตร
+                </button>
+                <button onclick="navigateTo('service_list.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200 ease-in-out transform hover:translate-x-1">
+                    <i data-lucide="briefcase" class="w-5 h-5 mr-3"></i>
+                    การจับคู่งาน
+                </button>
+                <button onclick="navigateTo('content_matching.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200 ease-in-out transform hover:translate-x-1">
+                    <i data-lucide="newspaper" class="w-5 h-5 mr-3"></i>
+                    การจับคู่เนื้อหา
+                </button>
+                <button onclick="navigateTo('social_matching.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200 ease-in-out transform hover:translate-x-1">
+                    <i data-lucide="message-circle-more" class="w-5 h-5 mr-3"></i>
+                    การจับคู่ทางสังคม
+                </button>
+                <button onclick="navigateTo('reward_matching.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200 ease-in-out transform hover:translate-x-1">
+                    <i data-lucide="award" class="w-5 h-5 mr-3"></i>
+                    การจับคู่รางวัล
+                </button>
+                <button onclick="navigateTo('settings.html')" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-[#E7F3FF] hover:text-[#1877F2] transition duration-200 ease-in-out transform hover:translate-x-1">
+                    <i data-lucide="settings" class="w-5 h-5 mr-3"></i>
+                    การตั้งค่า
+                </button>
+            </nav>
+        </aside>
+
+        <!-- เนื้อหาหลัก (Main Content) -->
+        <main class="flex-1 p-6 lg:p-10 overflow-auto lg:ml-64">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6 animate-fade-in hidden lg:block">ศูนย์ประกาศ</h1>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in-up">
+                <!-- การ์ด: การจับคู่งาน -->
+                <div class="bg-white rounded-xl shadow-lg p-6 transform transition-transform duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="flex items-center mb-4">
+                        <i data-lucide="briefcase" class="w-8 h-8 text-[#1877F2] mr-3"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">การจับคู่งาน</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        จับคู่งานกับผู้ใช้เพื่อเข้าถึงงานหรือผู้ใช้ที่ตรงกับทักษะหรือความสนใจของพวกเขา
+                    </p>
+                    <button onclick="navigateTo('service_list.html')" class="w-full bg-[#1877F2] text-white py-2 px-4 rounded-full hover:bg-[#166FE5] transition duration-300 ease-in-out transform hover:-translate-y-0.5 shadow-md">
+                        ดูงาน
+                    </button>
+                </div>
+
+                <!-- การ์ด: การจับคู่หลักสูตร -->
+                <div class="bg-white rounded-xl shadow-lg p-6 transform transition-transform duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="flex items-center mb-4">
+                        <i data-lucide="book-text" class="w-8 h-8 text-green-500 mr-3"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">การจับคู่หลักสูตร</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        จับคู่หลักสูตรฝึกอบรมกับผู้ใช้เพื่อพัฒนาทักษะตามความต้องการของพวกเขา
+                    </p>
+                    <button onclick="navigateTo('course_matching.html')" class="w-full bg-green-500 text-white py-2 px-4 rounded-full hover:bg-green-600 transition duration-300 ease-in-out transform hover:-translate-y-0.5 shadow-md">
+                        ค้นหาหลักสูตร
+                    </button>
+                </div>
+
+                <!-- การ์ด: การจับคู่เนื้อหา -->
+                <div class="bg-white rounded-xl shadow-lg p-6 transform transition-transform duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="flex items-center mb-4">
+                        <i data-lucide="newspaper" class="w-8 h-8 text-purple-500 mr-3"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">การจับคู่เนื้อหา</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        จับคู่เนื้อหากับผู้ใช้เพื่อเข้าถึงเนื้อหาที่เหมาะสมกับพวกเขา
+                    </p>
+                    <button onclick="navigateTo('content_matching.html')" class="w-full bg-purple-500 text-white py-2 px-4 rounded-full hover:bg-purple-600 transition duration-300 ease-in-out transform hover:-translate-y-0.5 shadow-md">
+                        สำรวจเนื้อหา
+                    </button>
+                </div>
+
+                <!-- การ์ด: การจับคู่ทางสังคม -->
+                <div class="bg-white rounded-xl shadow-lg p-6 transform transition-transform duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="flex items-center mb-4">
+                        <i data-lucide="message-circle-more" class="w-8 h-8 text-yellow-500 mr-3"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">การจับคู่ทางสังคม</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        จับคู่ผู้ใช้กับเพื่อนร่วมงานที่มีพื้นฐานอาชีพหรือความสนใจในอาชีพที่คล้ายกัน
+                    </p>
+                    <button onclick="navigateTo('social_matching.html')" class="w-full bg-yellow-500 text-white py-2 px-4 rounded-full hover:bg-yellow-600 transition duration-300 ease-in-out transform hover:-translate-y-0.5 shadow-md">
+                        เชื่อมต่อตอนนี้
+                    </button>
+                </div>
+
+                <!-- การ์ด: การค้นหาบริการ -->
+                <div class="bg-white rounded-xl shadow-lg p-6 transform transition-transform duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="flex items-center mb-4">
+                        <i data-lucide="search" class="w-8 h-8 text-red-500 mr-3"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">การค้นหาบริการ</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        ค้นหาบริการสำหรับผู้ใช้เพื่อนำเสนอบริการที่ผู้ใช้กำลังมองหาหรือเหมาะสม
+                    </p>
+                    <button onclick="navigateTo('service_form.html')" class="w-full bg-[#1877F2] text-white py-2 px-4 rounded-full hover:bg-[#166FE5] transition duration-300 ease-in-out transform hover:-translate-y-0.5 shadow-md">
+                        เสนอการบริการ
+                    </button>
+                </div>
+
+                <!-- การ์ด: การจับคู่รางวัล -->
+                <div class="bg-white rounded-xl shadow-lg p-6 transform transition-transform duration-300 hover:scale-105 hover:shadow-xl">
+                    <div class="flex items-center mb-4">
+                        <i data-lucide="award" class="w-8 h-8 text-indigo-500 mr-3"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">การจับคู่รางวัล</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        จับคู่ผู้ใช้กับรางวัลที่เหมาะสมกับการมีส่วนร่วมของพวกเขา
+                    </p>
+                    <button onclick="navigateTo('reward_matching.html')" class="w-full bg-indigo-500 text-white py-2 px-4 rounded-full hover:bg-indigo-600 transition duration-300 ease-in-out transform hover:-translate-y-0.5 shadow-md">
+                        รับรางวัล
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Function to navigate between separate HTML files
+        function navigateTo(url) {
+            window.location.href = url;
+        }
+
+        // Mobile menu toggle logic
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        const mobileSidebar = document.getElementById('mobileSidebar');
+        const closeMobileMenu = document.getElementById('closeMobileMenu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileSidebar.classList.remove('hidden');
+        });
+
+        mobileSidebar.addEventListener('click', (event) => {
+            // Close sidebar if clicked outside the aside element
+            if (event.target === mobileSidebar) {
+                mobileSidebar.classList.add('hidden');
+            }
+        });
+
+        closeMobileMenu.addEventListener('click', () => {
+            mobileSidebar.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
