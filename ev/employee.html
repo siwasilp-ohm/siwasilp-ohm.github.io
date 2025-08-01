@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>พนักงาน</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="auth.js"></script>
+</head>
+<body onload="checkLogin('employee')">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">ระบบชาร์จ EV</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavEmployee" aria-controls="navbarNavEmployee" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavEmployee">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a href="dashboard.html" class="nav-link">แดชบอร์ด</a></li>
+        <li class="nav-item"><a href="admin.html" class="nav-link">ผู้ดูแลระบบ</a></li>
+        <li class="nav-item"><a href="employee.html" class="nav-link active">พนักงาน</a></li>
+        <li class="nav-item"><a href="user.html" class="nav-link">ผู้ใช้งาน</a></li>
+        <li class="nav-item"><a href="solar-monitor.html" class="nav-link">โซลาร์</a></li>
+        <li class="nav-item"><a href="report.html" class="nav-link">รายงาน</a></li>
+      </ul>
+      <span class="navbar-text text-white me-3" id="loggedUser"></span>
+      <button class="btn btn-outline-light" onclick="logout()">ออกจากระบบ</button>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <h2>จัดการพนักงาน</h2>
+  <p>ระบบจัดการข้อมูลพนักงาน สามารถเพิ่ม แก้ไข หรือลบข้อมูลพนักงานได้ (ฟังก์ชันยังไม่เชื่อมฐานข้อมูล)</p>
+
+  <table class="table table-bordered">
+    <thead class="table-light">
+      <tr>
+        <th>ชื่อพนักงาน</th>
+        <th>อีเมล</th>
+        <th>ตำแหน่ง</th>
+        <th>การจัดการ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>employee01</td>
+        <td>employee01@example.com</td>
+        <td>พนักงานทั่วไป</td>
+        <td>
+          <button class="btn btn-warning btn-sm" disabled>แก้ไข</button>
+          <button class="btn btn-danger btn-sm" disabled>ลบ</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button class="btn btn-primary mt-3" disabled>เพิ่มพนักงาน</button>
+  <small class="text-muted d-block mt-2">* ฟังก์ชันเพิ่ม/แก้ไข/ลบ ยังไม่ได้เชื่อมต่อฐานข้อมูล</small>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

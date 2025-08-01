@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ผู้ดูแลระบบ</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="auth.js"></script>
+</head>
+<body onload="checkLogin('admin')">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">ระบบชาร์จ EV</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAdmin" aria-controls="navbarNavAdmin" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAdmin">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a href="dashboard.html" class="nav-link">แดชบอร์ด</a></li>
+        <li class="nav-item"><a href="admin.html" class="nav-link active">ผู้ดูแลระบบ</a></li>
+        <li class="nav-item"><a href="employee.html" class="nav-link">พนักงาน</a></li>
+        <li class="nav-item"><a href="user.html" class="nav-link">ผู้ใช้งาน</a></li>
+        <li class="nav-item"><a href="solar-monitor.html" class="nav-link">โซลาร์</a></li>
+        <li class="nav-item"><a href="report.html" class="nav-link">รายงาน</a></li>
+      </ul>
+      <span class="navbar-text text-white me-3" id="loggedUser"></span>
+      <button class="btn btn-outline-light" onclick="logout()">ออกจากระบบ</button>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <h2>ตั้งค่าราคาค่าไฟ</h2>
+  <form>
+    <div class="mb-3 row">
+      <label class="col-sm-3 col-form-label">ราคาไฟจาก PEA (บาท/kWh)</label>
+      <div class="col-sm-4">
+        <input type="number" class="form-control" id="pricePEA" value="4.5" />
+      </div>
+    </div>
+    <div class="mb-3 row">
+      <label class="col-sm-3 col-form-label">ราคาไฟจากโซลาร์ (บาท/kWh)</label>
+      <div class="col-sm-4">
+        <input type="number" class="form-control" id="priceSolar" value="2.0" />
+      </div>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="savePrices()">บันทึก</button>
+  </form>
+
+  <h3 class="mt-5">จัดการระบบ OCPP</h3>
+  <p>ฟังก์ชันทดสอบและจัดการระบบชาร์จรถ EV (mockup)</p>
+  <button class="btn btn-success mb-3" onclick="testOCPP()">ทดสอบการชาร์จ</button>
+
+  <h3>บันทึกธุรกรรม</h3>
+  <table class="table table-bordered">
+    <thead class="table-light">
+      <tr>
+        <th>วันที่</th>
+        <th>ผู้ใช้งาน</th>
+        <th>จำนวนพลังงาน (kWh)</th>
+        <th>ราคา (บาท)</th>
+        <th>สถานะ</th>
+      </tr>
+    </thead>
+    <tbody id="transactionLog">
+      <tr><td>2025-08-01</td><td>user01</td><td>12.5</td><td>250</td><td>สำเร็จ</td></tr>
+      <tr><td>2025-08-02</td><td>user02</td><td>8.3</td><td>166</td><td>สำเร็จ</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+  function savePrices(){
+    const pea = document.getElementById('pricePEA').value;
+    const solar = document.getElementById('priceSolar').value;
+    alert(`บันทึกราคาค่าไฟ PEA: ${pea} บาท/kWh และ Solar: ${solar} บาท/kWh เรียบร้อยแล้ว`);
+  }
+
+  function testOCPP(){
+    alert('เริ่มทดสอบการชาร์จระบบ OCPP...');
+  }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

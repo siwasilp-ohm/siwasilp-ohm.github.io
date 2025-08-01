@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ระบบชาร์จรถ EV</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #4e9af1, #2d6cdf);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .main-content {
+      flex: 1;
+    }
+    .btn-login {
+      background-color: #ffc107;
+      border: none;
+      color: #212529;
+      font-weight: 600;
+      padding: 12px 30px;
+      font-size: 1.2rem;
+      border-radius: 30px;
+      transition: background-color 0.3s ease;
+    }
+    .btn-login:hover {
+      background-color: #e0a800;
+      color: #212529;
+    }
+    footer {
+      background-color: #1b3a8a;
+      padding: 10px 0;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #cfd8dc;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="#">EV Charging System</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="login.html">เข้าสู่ระบบ</a></li>
+          <li class="nav-item"><a class="nav-link" href="dashboard.html">แดชบอร์ด</a></li>
+          <li class="nav-item"><a class="nav-link" href="solar-monitor.html">ตรวจสอบโซลาร์</a></li>
+          <li class="nav-item"><a class="nav-link" href="report.html">รายงาน</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container main-content d-flex flex-column justify-content-center align-items-center text-center" style="height: 75vh;">
+    <h1 class="mb-4 fw-bold">ระบบชาร์จรถยนต์ไฟฟ้า (EV Charging System)</h1>
+    <p class="mb-4 fs-5">บริหารจัดการการชาร์จรถ EV ด้วยระบบ OCPP, WebSocket, และการชำระเงิน QR Payment</p>
+    <a href="login.html" class="btn btn-login">เข้าสู่ระบบเพื่อเริ่มต้น</a>
+  </div>
+
+  <footer>
+    &copy; 2025 ระบบชาร์จ EV | พัฒนาโดย ศิวศิลป์ พรจำศิลป์
+  </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>เข้าสู่ระบบ</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="auth.js"></script>
+</head>
+<body>
+
+<div class="container" style="max-width: 400px; margin-top: 100px;">
+  <h2 class="mb-4 text-center">เข้าสู่ระบบ EV Charging</h2>
+  <form id="loginForm">
+    <div class="mb-3">
+      <label for="username" class="form-label">ชื่อผู้ใช้</label>
+      <input type="text" class="form-control" id="username" required />
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">รหัสผ่าน</label>
+      <input type="password" class="form-control" id="password" required />
+    </div>
+    <button type="submit" class="btn btn-primary w-100">เข้าสู่ระบบ</button>
+  </form>
+  <div id="loginError" class="text-danger mt-3" style="display:none;">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
+</div>
+
+<script>
+  document.getElementById('loginForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    if(authenticate(username, password)){
+      // Save login info
+      localStorage.setItem('loggedUser', username);
+      localStorage.setItem('userRole', getUserRole(username));
+      redirectByRole();
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+    }
+  });
+
+  function redirectByRole(){
+    const role = localStorage.getItem('userRole');
+    if(role === 'admin') window.location.href = 'admin.html';
+    else if(role === 'employee') window.location.href = 'employee.html';
+    else if(role === 'user') window.location.href = 'user.html';
+    else window.location.href = 'dashboard.html';
+  }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
