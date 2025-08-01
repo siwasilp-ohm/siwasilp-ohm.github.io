@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - EV Charging System</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Sarabun', 'Inter', sans-serif;
+            background-color: #0f172a; /* slate-900 */
+            color: #f1f5f9; /* slate-100 */
+        }
+        .sidebar {
+            background-color: #1e293b; /* slate-800 */
+        }
+        .card {
+            background-color: #1e293b; /* slate-800 */
+            border: 1px solid #334155; /* slate-700 */
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Energy Flow Animation Styles */
+        .energy-flow-path {
+            stroke-dasharray: 8;
+            stroke-dashoffset: 1000;
+            animation: dash 20s linear infinite;
+        }
+        .energy-flow-path.reverse {
+            animation-direction: reverse;
+        }
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        .icon-glow {
+            filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.7)); /* blue-500 */
+        }
+        .icon-glow-yellow {
+             filter: drop-shadow(0 0 8px rgba(234, 179, 8, 0.7)); /* yellow-500 */
+        }
+         .icon-glow-red {
+             filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.7)); /* red-500 */
+        }
+    </style>
+</head>
+<body class="flex h-screen">
+
+    <!-- Sidebar -->
+    <aside class="sidebar w-64 flex-shrink-0 p-6">
+        <div class="flex items-center gap-3 mb-10">
+            <svg class="w-10 h-10 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5m-6-15l7.5 7.5-7.5 7.5" />
+            </svg>
+            <h1 class="text-2xl font-bold text-white">EV-Charge</h1>
+        </div>
+        <nav class="flex flex-col gap-3">
+            <a href="#" class="flex items-center gap-3 px-4 py-3 bg-blue-500/20 text-blue-300 rounded-lg">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                <span>แดชบอร์ด</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-700 rounded-lg">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21a6 6 0 00-9-5.197m0 0A5.995 5.995 0 0012 12a5.995 5.995 0 00-3-5.197M15 21a9 9 0 00-9-9"></path></svg>
+                <span>จัดการผู้ใช้</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-700 rounded-lg">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5m-6-15l7.5 7.5-7.5 7.5" /></svg>
+                <span>จัดการตู้ชาร์จ</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-700 rounded-lg">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span>ธุรกรรม</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 overflow-y-auto">
+        <header class="mb-8">
+            <h2 class="text-3xl font-bold text-white">Solar Cell Service & Energy Management</h2>
+            <p class="text-slate-400">ภาพรวมการผลิตและใช้พลังงานไฟฟ้าแบบ Real-time จาก Inverter</p>
+        </header>
+
+        <!-- Solar Service Section -->
+        <div class="card">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                
+                <!-- Energy Flow Animation -->
+                <div class="lg:col-span-2">
+                    <h3 class="font-bold text-xl mb-4 text-white">แผนภาพการไหลของพลังงาน</h3>
+                    <div class="relative w-full aspect-video p-4">
+                        <svg id="energy-flow-svg" class="w-full h-full" viewBox="0 0 400 220">
+                            <!-- Paths -->
+                            <path id="solar-to-inverter" d="M50 40 L 190 40" fill="none" stroke="#4a5568" stroke-width="2"/>
+                            <path id="inverter-to-house" d="M210 40 L 350 40" fill="none" stroke="#4a5568" stroke-width="2"/>
+                            <path id="inverter-to-battery" d="M200 60 L 200 150" fill="none" stroke="#4a5568" stroke-width="2"/>
+                            <path id="inverter-to-grid" d="M200 60 Q 125 100 50 180" fill="none" stroke="#4a5568" stroke-width="2" />
+
+                            <!-- Icons -->
+                            <g transform="translate(20, 20)">
+                                <circle cx="20" cy="20" r="20" fill="#334155"/>
+                                <path id="solar-icon" class="icon-glow-yellow" d="M20 12v-2a1 1 0 011-1h2a1 1 0 011 1v2m-4 16v2a1 1 0 001 1h2a1 1 0 001-1v-2m10-12h2a1 1 0 011 1v2a1 1 0 01-1 1h-2m-16 0H8a1 1 0 01-1-1v-2a1 1 0 011-1h2m12 6l1.414 1.414a1 1 0 01-1.414 1.414L28 28m-12-12l-1.414-1.414a1 1 0 011.414-1.414L16 16m12 0l1.414-1.414a1 1 0 00-1.414-1.414L28 16m-12 12l-1.414 1.414a1 1 0 001.414 1.414L16 28m4-10a4 4 0 11-8 0 4 4 0 018 0z" stroke="#facc15" stroke-width="1.5" fill="none" />
+                                <text x="20" y="55" text-anchor="middle" fill="#e2e8f0" font-size="10">Solar</text>
+                                <text id="solar-prod-text" x="20" y="68" text-anchor="middle" fill="#facc15" font-size="12" font-weight="bold">0 W</text>
+                            </g>
+                             <g transform="translate(180, 20)">
+                                <circle cx="20" cy="20" r="20" fill="#334155"/>
+                                <path id="inverter-icon" class="icon-glow" d="M27 16a2 2 0 012 2v4a2 2 0 01-2 2h-2V16h2zM15 16h2v8h-2a2 2 0 01-2-2v-4a2 2 0 012-2zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#60a5fa" stroke-width="1.5" fill="none"/>
+                                <text x="20" y="55" text-anchor="middle" fill="#e2e8f0" font-size="10">Inverter</text>
+                            </g>
+                             <g transform="translate(340, 20)">
+                                <circle cx="20" cy="20" r="20" fill="#334155"/>
+                                <path id="house-icon" class="icon-glow" d="M20 12l-8 6v8h5v-6h6v6h5v-8l-8-6z" stroke="#60a5fa" stroke-width="1.5" fill="none"/>
+                                <text x="20" y="55" text-anchor="middle" fill="#e2e8f0" font-size="10">Load</text>
+                                <text id="house-load-text" x="20" y="68" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="bold">0 W</text>
+                            </g>
+                            <g transform="translate(180, 160)">
+                                <circle cx="20" cy="20" r="20" fill="#334155"/>
+                                <rect id="battery-level" x="13" y="15" width="14" height="0" fill="#4ade80"/>
+                                <path id="battery-icon" class="icon-glow" d="M14 12h12a2 2 0 012 2v8a2 2 0 01-2 2H14a2 2 0 01-2-2v-8a2 2 0 012-2zM29 16h1" stroke="#4ade80" stroke-width="1.5" fill="none"/>
+                                <text x="20" y="55" text-anchor="middle" fill="#e2e8f0" font-size="10">Battery</text>
+                                <text id="battery-soc-text" x="20" y="68" text-anchor="middle" fill="#4ade80" font-size="12" font-weight="bold">0%</text>
+                            </g>
+                             <g transform="translate(20, 160)">
+                                <circle cx="20" cy="20" r="20" fill="#334155"/>
+                                <path id="grid-icon" class="icon-glow-red" d="M12 12a2 2 0 100-4 2 2 0 000 4zm0 6a2 2 0 100-4 2 2 0 000 4zm0 6a2 2 0 100-4 2 2 0 000 4z M20 12a2 2 0 100-4 2 2 0 000 4zm0 6a2 2 0 100-4 2 2 0 000 4zm0 6a2 2 0 100-4 2 2 0 000 4z M28 12a2 2 0 100-4 2 2 0 000 4zm0 6a2 2 0 100-4 2 2 0 000 4zm0 6a2 2 0 100-4 2 2 0 000 4z" stroke="#f87171" stroke-width="1.5" fill="none"/>
+                                <text x="20" y="55" text-anchor="middle" fill="#e2e8f0" font-size="10">Grid</text>
+                                <text id="grid-power-text" x="20" y="68" text-anchor="middle" fill="#f87171" font-size="12" font-weight="bold">0 W</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Data & Gauges -->
+                <div class="flex flex-col gap-6 justify-center">
+                    <div class="text-center">
+                        <h4 class="text-slate-400 text-lg">กำลังการผลิต (Solar)</h4>
+                        <p id="data-solar" class="text-4xl font-bold text-yellow-400">0 W</p>
+                    </div>
+                     <div class="text-center">
+                        <h4 class="text-slate-400 text-lg">การใช้งาน (Load)</h4>
+                        <p id="data-load" class="text-4xl font-bold text-blue-400">0 W</p>
+                    </div>
+                     <div class="text-center">
+                        <h4 class="text-slate-400 text-lg">สถานะแบตเตอรี่ (SOC)</h4>
+                        <p id="data-battery" class="text-4xl font-bold text-green-400">0 %</p>
+                    </div>
+                     <div class="text-center">
+                        <h4 class="text-slate-400 text-lg">ไฟฟ้า (Grid)</h4>
+                        <p id="data-grid" class="text-4xl font-bold text-red-400">0 W</p>
+                        <span id="data-grid-status" class="text-sm text-slate-500"></span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="mt-8">
+            <h3 class="font-bold text-xl mb-4 text-white">กราฟแสดงผลการใช้พลังงาน</h3>
+            <div class="card">
+                <canvas id="energyChart"></canvas>
+            </div>
+        </div>
+    </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // --- Chart.js Setup ---
+    const ctx = document.getElementById('energyChart').getContext('2d');
+    const energyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [], // Will be populated with timestamps
+            datasets: [
+                {
+                    label: 'Solar Production (W)',
+                    data: [],
+                    borderColor: '#facc15', // yellow-400
+                    backgroundColor: 'rgba(250, 204, 21, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                },
+                {
+                    label: 'Home Consumption (W)',
+                    data: [],
+                    borderColor: '#60a5fa', // blue-400
+                    backgroundColor: 'rgba(96, 165, 250, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: 'minute',
+                        displayFormats: {
+                            minute: 'HH:mm'
+                        },
+                        tooltipFormat: 'HH:mm:ss'
+                    },
+                    ticks: { color: '#94a3b8' },
+                    grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { 
+                        color: '#94a3b8',
+                        callback: function(value) { return value + ' W' }
+                    },
+                    grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                }
+            },
+            plugins: {
+                legend: { labels: { color: '#e2e8f0' } }
+            }
+        }
+    });
+
+    // --- Mock Data Simulation ---
+    // In a real application, this data would come from a WebSocket connection.
+    let mockData = {
+        solarProduction: 2500,
+        homeConsumption: 800,
+        batterySOC: 60,
+        batteryPower: 0, // >0 charging, <0 discharging
+        gridPower: 0, // >0 feeding to grid, <0 consuming from grid
+    };
+
+    function updateDashboard() {
+        // Simulate fluctuations
+        mockData.solarProduction += (Math.random() - 0.5) * 200;
+        mockData.homeConsumption += (Math.random() - 0.5) * 50;
+        
+        if (mockData.solarProduction < 0) mockData.solarProduction = 0;
+        if (mockData.homeConsumption < 100) mockData.homeConsumption = 100;
+
+        // Simple energy logic
+        const netPower = mockData.solarProduction - mockData.homeConsumption;
+
+        if (netPower > 0) { // Excess solar
+            if (mockData.batterySOC < 99) {
+                // Charge battery
+                mockData.batteryPower = Math.min(netPower, 2000); // Max 2kW charge
+                mockData.batterySOC += mockData.batteryPower / 5000; // Simulate capacity
+                mockData.gridPower = netPower - mockData.batteryPower; // Feed rest to grid
+            } else {
+                // Battery full, feed all to grid
+                mockData.batteryPower = 0;
+                mockData.gridPower = netPower;
+            }
+        } else { // Not enough solar
+            const powerDeficit = -netPower;
+            if (mockData.batterySOC > 20) {
+                // Discharge battery
+                mockData.batteryPower = -Math.min(powerDeficit, 3000); // Max 3kW discharge
+                mockData.batterySOC += mockData.batteryPower / 5000;
+                mockData.gridPower = powerDeficit + mockData.batteryPower; // Consume rest from grid
+            } else {
+                // Battery low, consume all from grid
+                mockData.batteryPower = 0;
+                mockData.gridPower = -powerDeficit;
+            }
+        }
+
+        if (mockData.batterySOC > 100) mockData.batterySOC = 100;
+        if (mockData.batterySOC < 0) mockData.batterySOC = 0;
+
+        // --- Update UI Elements ---
+        updateUI(mockData);
+        updateChart(mockData);
+        updateAnimations(mockData);
+    }
+
+    function updateUI(data) {
+        document.getElementById('data-solar').textContent = `${data.solarProduction.toFixed(0)} W`;
+        document.getElementById('data-load').textContent = `${data.homeConsumption.toFixed(0)} W`;
+        document.getElementById('data-battery').textContent = `${data.batterySOC.toFixed(1)} %`;
+        
+        const gridStatusEl = document.getElementById('data-grid-status');
+        if (data.gridPower > 0) {
+            document.getElementById('data-grid').textContent = `${data.gridPower.toFixed(0)} W`;
+            document.getElementById('data-grid').className = "text-4xl font-bold text-green-400";
+            gridStatusEl.textContent = "ส่งออก (Exporting)";
+        } else {
+            document.getElementById('data-grid').textContent = `${Math.abs(data.gridPower).toFixed(0)} W`;
+            document.getElementById('data-grid').className = "text-4xl font-bold text-red-400";
+            gridStatusEl.textContent = "นำเข้า (Importing)";
+        }
+
+        document.getElementById('solar-prod-text').textContent = `${data.solarProduction.toFixed(0)} W`;
+        document.getElementById('house-load-text').textContent = `${data.homeConsumption.toFixed(0)} W`;
+        document.getElementById('battery-soc-text').textContent = `${data.batterySOC.toFixed(1)}%`;
+        document.getElementById('grid-power-text').textContent = `${Math.abs(data.gridPower).toFixed(0)} W`;
+    }
+
+    function updateChart(data) {
+        const now = Date.now();
+        energyChart.data.labels.push(now);
+        energyChart.data.datasets[0].data.push(data.solarProduction);
+        energyChart.data.datasets[1].data.push(data.homeConsumption);
+
+        // Limit data points to keep chart performant
+        if (energyChart.data.labels.length > 60) {
+            energyChart.data.labels.shift();
+            energyChart.data.datasets.forEach(dataset => dataset.data.shift());
+        }
+        energyChart.update('none');
+    }
+
+    function updateAnimations(data) {
+        const solarToInverter = document.getElementById('solar-to-inverter');
+        const inverterToHouse = document.getElementById('inverter-to-house');
+        const inverterToBattery = document.getElementById('inverter-to-battery');
+        const inverterToGrid = document.getElementById('inverter-to-grid');
+        const batteryLevel = document.getElementById('battery-level');
+        
+        // Solar -> Inverter
+        if (data.solarProduction > 10) {
+            solarToInverter.style.stroke = '#facc15';
+            solarToInverter.classList.add('energy-flow-path');
+        } else {
+            solarToInverter.style.stroke = '#4a5568';
+            solarToInverter.classList.remove('energy-flow-path');
+        }
+        
+        // Inverter -> House
+        if (data.homeConsumption > 10) {
+            inverterToHouse.style.stroke = '#60a5fa';
+            inverterToHouse.classList.add('energy-flow-path');
+        } else {
+            inverterToHouse.style.stroke = '#4a5568';
+            inverterToHouse.classList.remove('energy-flow-path');
+        }
+
+        // Battery
+        batteryLevel.setAttribute('height', 18 * (data.batterySOC / 100));
+        batteryLevel.setAttribute('y', 15 + (18 - 18 * (data.batterySOC / 100)));
+
+        if (data.batteryPower > 10) { // Charging
+            inverterToBattery.style.stroke = '#4ade80';
+            inverterToBattery.classList.add('energy-flow-path');
+            inverterToBattery.classList.remove('reverse');
+        } else if (data.batteryPower < -10) { // Discharging
+            inverterToBattery.style.stroke = '#fde047'; // yellow-300
+            inverterToBattery.classList.add('energy-flow-path', 'reverse');
+        } else {
+            inverterToBattery.style.stroke = '#4a5568';
+            inverterToBattery.classList.remove('energy-flow-path', 'reverse');
+        }
+        
+        // Grid
+        if (data.gridPower > 10) { // Exporting to Grid
+            inverterToGrid.style.stroke = '#4ade80';
+            inverterToGrid.classList.add('energy-flow-path', 'reverse');
+        } else if (data.gridPower < -10) { // Importing from Grid
+            inverterToGrid.style.stroke = '#f87171';
+            inverterToGrid.classList.add('energy-flow-path');
+            inverterToGrid.classList.remove('reverse');
+        } else {
+            inverterToGrid.style.stroke = '#4a5568';
+            inverterToGrid.classList.remove('energy-flow-path', 'reverse');
+        }
+    }
+
+    // Initial call and interval to simulate real-time updates
+    updateDashboard();
+    setInterval(updateDashboard, 2000);
+});
+</script>
+
+</body>
+</html>
