@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Charge - User Mockup</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts & Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .app-container {
+            max-width: 420px;
+            height: 100vh;
+            margin: auto;
+            background-color: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .page {
+            display: none;
+            flex-grow: 1;
+            flex-direction: column;
+        }
+        .page.active {
+            display: flex;
+        }
+        .btn-primary {
+            background-color: #2563eb; /* blue-600 */
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8; /* blue-700 */
+        }
+        .input-field {
+            background-color: #f1f5f9; /* slate-100 */
+            border: 1px solid #e2e8f0; /* slate-200 */
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            width: 100%;
+        }
+        /* Charging Animation */
+        .battery-outline {
+            width: 100px;
+            height: 200px;
+            border: 5px solid #374151; /* gray-700 */
+            border-radius: 15px;
+            position: relative;
+            margin: auto;
+        }
+        .battery-outline::after {
+            content: '';
+            width: 40px;
+            height: 10px;
+            background: #374151;
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 5px;
+        }
+        .battery-level {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            background: linear-gradient(to top, #4ade80, #86efac); /* green-400 to green-300 */
+            border-radius: 0 0 10px 10px;
+            transition: height 1s ease-in-out;
+        }
+        .pulsing-icon {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- ===== Page 1: Login ===== -->
+    <div id="login-page" class="page active p-8 justify-center items-center">
+        <div class="w-full text-center">
+            <i class="fas fa-bolt-lightning text-5xl text-blue-600 mb-4"></i>
+            <h1 class="text-3xl font-bold text-gray-800">ยินดีต้อนรับ</h1>
+            <p class="text-gray-500 mb-8">เข้าสู่ระบบเพื่อเริ่มใช้งาน</p>
+            
+            <form id="login-form" class="flex flex-col gap-4">
+                <input type="email" placeholder="อีเมล" class="input-field" value="user@example.com">
+                <input type="password" placeholder="รหัสผ่าน" class="input-field" value="password">
+                <button type="submit" class="btn-primary mt-4">เข้าสู่ระบบ</button>
+                <a href="#" class="text-sm text-blue-600 hover:underline mt-2">ยังไม่มีบัญชี? สมัครสมาชิก</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== Page 2: Main Dashboard (Map) ===== -->
+    <div id="main-page" class="page">
+        <header class="p-4 flex justify-between items-center border-b">
+            <div>
+                <p class="text-sm text-gray-500">ยอดเงินคงเหลือ</p>
+                <p class="text-xl font-bold text-gray-800">฿ 250.75</p>
+            </div>
+            <button onclick="showPage('wallet-page')" class="bg-green-100 text-green-700 px-4 py-2 rounded-full font-semibold">
+                <i class="fa-solid fa-wallet mr-2"></i>เติมเงิน
+            </button>
+        </header>
+        <div class="flex-grow relative">
+            <!-- Map Placeholder -->
+            <div class="absolute inset-0 bg-gray-200 flex items-center justify-center">
+                <img src="https://placehold.co/420x600/e2e8f0/64748b?text=Map+Area" alt="Map Placeholder" class="w-full h-full object-cover">
+                 <!-- Charger Pin -->
+                 <div class="absolute" style="top: 45%; left: 50%; transform: translate(-50%, -50%);">
+                    <button onclick="showPage('charger-detail-page')" class="text-center">
+                        <i class="fas fa-map-marker-alt text-5xl text-blue-600 drop-shadow-lg"></i>
+                        <span class="block bg-white px-2 py-1 rounded-md shadow-md mt-2 text-sm font-semibold">EV-001</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <footer class="p-4 border-t bg-white grid grid-cols-3 text-center">
+            <a href="#" class="text-blue-600"><i class="fas fa-map-location-dot text-2xl"></i><span class="block text-xs mt-1">แผนที่</span></a>
+            <a href="#" class="text-gray-400"><i class="fas fa-car-side text-2xl"></i><span class="block text-xs mt-1">รถของฉัน</span></a>
+            <a href="#" class="text-gray-400"><i class="fas fa-user text-2xl"></i><span class="block text-xs mt-1">โปรไฟล์</span></a>
+        </footer>
+    </div>
+
+    <!-- ===== Page 3: Charger Details & Start Charging ===== -->
+    <div id="charger-detail-page" class="page p-6 flex-col">
+        <header class="mb-6">
+            <button onclick="showPage('main-page')" class="text-gray-600"><i class="fas fa-arrow-left mr-2"></i> กลับ</button>
+        </header>
+        <div class="text-center">
+            <i class="fas fa-charging-station text-6xl text-blue-600"></i>
+            <h2 class="text-3xl font-bold mt-4">สถานีชาร์จ EV-001</h2>
+            <p class="text-green-600 font-semibold mt-1"><i class="fas fa-check-circle"></i> ว่าง</p>
+        </div>
+        <div class="my-8 space-y-4">
+            <div class="flex justify-between items-center bg-slate-100 p-4 rounded-lg">
+                <span class="text-gray-600">ประเภทหัวชาร์จ</span>
+                <span class="font-bold">Type 2 (AC)</span>
+            </div>
+            <div class="flex justify-between items-center bg-slate-100 p-4 rounded-lg">
+                <span class="text-gray-600">กำลังไฟสูงสุด</span>
+                <span class="font-bold">22 kW</span>
+            </div>
+            <div class="flex justify-between items-center bg-slate-100 p-4 rounded-lg">
+                <span class="text-gray-600">ราคา</span>
+                <span class="font-bold text-blue-600">฿ 7.5 / kWh</span>
+            </div>
+        </div>
+        <div class="mt-auto">
+            <button onclick="showPage('charging-session-page')" class="btn-primary w-full text-lg">
+                <i class="fas fa-bolt mr-2"></i> เริ่มชาร์จเลย
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== Page 4: Charging Session ===== -->
+    <div id="charging-session-page" class="page p-8 bg-gray-800 text-white justify-between">
+        <div class="text-center">
+            <h2 class="text-3xl font-bold">กำลังชาร์จ...</h2>
+            <p class="text-blue-300">รถยนต์: Toyota bZ4X (กข 1234)</p>
+        </div>
+        
+        <div class="relative text-center">
+            <div class="battery-outline">
+                <div id="battery-level-indicator" class="battery-level" style="height: 20%;"></div>
+            </div>
+            <p id="soc-text" class="text-5xl font-bold mt-6">20%</p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 text-center">
+            <div>
+                <p class="text-gray-400">เวลา</p>
+                <p id="charge-time" class="text-2xl font-semibold">00:00:00</p>
+            </div>
+            <div>
+                <p class="text-gray-400">พลังงาน</p>
+                <p id="charge-kwh" class="text-2xl font-semibold">0.00 kWh</p>
+            </div>
+            <div>
+                <p class="text-gray-400">ค่าบริการ</p>
+                <p id="charge-cost" class="text-2xl font-semibold">฿ 0.00</p>
+            </div>
+        </div>
+
+        <button onclick="showPage('main-page')" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl text-lg">
+            <i class="fas fa-stop-circle mr-2"></i> หยุดชาร์จ
+        </button>
+    </div>
+    
+    <!-- ===== Page 5: Wallet & Top-up ===== -->
+    <div id="wallet-page" class="page p-6 flex-col">
+        <header class="mb-6 flex items-center">
+            <button onclick="showPage('main-page')" class="text-gray-600 mr-4"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="text-2xl font-bold">เติมเงินเข้า Wallet</h2>
+        </header>
+        <div class="bg-blue-600 text-white p-6 rounded-xl shadow-lg mb-8">
+            <p class="text-blue-200">ยอดเงินปัจจุบัน</p>
+            <p class="text-4xl font-bold">฿ 250.75</p>
+        </div>
+        
+        <div>
+            <label class="font-semibold text-gray-700">ระบุจำนวนเงิน (บาท)</label>
+            <input type="number" id="topup-amount" class="input-field mt-2 text-xl text-center" placeholder="เช่น 300, 500, 1000">
+        </div>
+        
+        <div id="qr-code-area" class="hidden my-8 text-center">
+            <p class="text-gray-600 mb-2">สแกน QR Code นี้เพื่อชำระเงิน</p>
+            <img src="https://placehold.co/250x250/ffffff/000000?text=PromptPay+QR" alt="QR Code" class="mx-auto rounded-lg shadow-md">
+            <p class="text-sm text-gray-500 mt-4">QR Code จะหมดอายุใน 15:00 นาที</p>
+        </div>
+
+        <div class="mt-auto">
+            <button onclick="generateQR()" class="btn-primary w-full text-lg">สร้าง QR Code</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const pages = document.querySelectorAll('.page');
+    let chargeInterval;
+
+    function showPage(pageId) {
+        // Stop charging simulation if leaving the page
+        if (chargeInterval) {
+            clearInterval(chargeInterval);
+            chargeInterval = null;
+        }
+
+        pages.forEach(page => {
+            page.classList.remove('active');
+        });
+        document.getElementById(pageId).classList.add('active');
+
+        // Start charging simulation if entering the page
+        if (pageId === 'charging-session-page') {
+            startChargingSimulation();
+        }
+    }
+
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        showPage('main-page');
+    });
+    
+    function generateQR() {
+        const amount = document.getElementById('topup-amount').value;
+        if (amount && amount > 0) {
+            // In a real app, you would call a backend API to get a real QR code
+            document.getElementById('qr-code-area').classList.remove('hidden');
+        } else {
+            alert('กรุณาระบุจำนวนเงินที่ถูกต้อง');
+        }
+    }
+
+    function startChargingSimulation() {
+        let seconds = 0;
+        let kwh = 0;
+        let cost = 0;
+        let soc = 20;
+        const pricePerKwh = 7.5; // Example price
+
+        const timeEl = document.getElementById('charge-time');
+        const kwhEl = document.getElementById('charge-kwh');
+        const costEl = document.getElementById('charge-cost');
+        const socTextEl = document.getElementById('soc-text');
+        const batteryLevelEl = document.getElementById('battery-level-indicator');
+
+        // Reset UI
+        timeEl.textContent = '00:00:00';
+        kwhEl.textContent = '0.00 kWh';
+        costEl.textContent = '฿ 0.00';
+        socTextEl.textContent = '20%';
+        batteryLevelEl.style.height = '20%';
+
+        chargeInterval = setInterval(() => {
+            seconds++;
+            // Simulate 22kW charging (22kWh per 3600 seconds)
+            kwh += 22 / 3600; 
+            cost = kwh * pricePerKwh;
+            // Simulate battery capacity of 70kWh
+            soc += (22 / 3600) / 70 * 100; 
+
+            if (soc >= 100) {
+                soc = 100;
+                clearInterval(chargeInterval);
+                alert("ชาร์จเต็มแล้ว!");
+            }
+
+            // Update UI
+            const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+            const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+            const s = String(seconds % 60).padStart(2, '0');
+            
+            timeEl.textContent = `${h}:${m}:${s}`;
+            kwhEl.textContent = `${kwh.toFixed(2)} kWh`;
+            costEl.textContent = `฿ ${cost.toFixed(2)}`;
+            socTextEl.textContent = `${Math.floor(soc)}%`;
+            batteryLevelEl.style.height = `${soc}%`;
+
+        }, 1000);
+    }
+
+    // Initialize with login page
+    showPage('login-page');
+</script>
+
+</body>
+</html>
