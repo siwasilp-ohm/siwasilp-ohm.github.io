@@ -192,6 +192,29 @@
             box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.1);
         }
         
+        /* Admin Page Styles */
+        .btn-admin-menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-admin-menu:hover {
+            background-color: #f9fafb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .admin-section {
+            width: 100%;
+        }
+        
         .footer {
             position: sticky;
             bottom: 0;
@@ -243,6 +266,644 @@
 <body>
 
 <div class="app-container">
+
+    <!-- ===== Page 10: Admin ===== -->
+    <div id="admin-page" class="page p-6 flex-col">
+        <header class="mb-6">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold">หน้าผู้ดูแลระบบ</h1>
+                <button onclick="showPage('main-page')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <p class="text-gray-600">จัดการการตั้งค่าและพารามิเตอร์ต่างๆ ของระบบ</p>
+        </header>
+
+        <div class="grid grid-cols-1 gap-4 mb-6">
+            <!-- ส่วนเมนูการจัดการ -->
+            <div class="card p-4">
+                <h2 class="text-lg font-semibold mb-4">เมนูการจัดการ</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <button id="btn-charger-test" class="btn-admin-menu">
+                        <i class="fas fa-plug text-blue-500 text-xl mb-2"></i>
+                        <span>ทดสอบหัวชาร์จ</span>
+                    </button>
+                    <button id="btn-customer-manage" class="btn-admin-menu">
+                        <i class="fas fa-users text-green-500 text-xl mb-2"></i>
+                        <span>จัดการลูกค้า</span>
+                    </button>
+                    <button id="btn-price-config" class="btn-admin-menu">
+                        <i class="fas fa-tags text-purple-500 text-xl mb-2"></i>
+                        <span>กำหนดราคา</span>
+                    </button>
+                    <button id="btn-logs" class="btn-admin-menu">
+                        <i class="fas fa-list-ul text-gray-500 text-xl mb-2"></i>
+                        <span>ประวัติการทำงาน</span>
+                    </button>
+                    <button id="btn-transactions" class="btn-admin-menu">
+                        <i class="fas fa-exchange-alt text-amber-500 text-xl mb-2"></i>
+                        <span>ธุรกรรม</span>
+                    </button>
+                    <button id="btn-solar-manager" class="btn-admin-menu">
+                        <i class="fas fa-solar-panel text-yellow-500 text-xl mb-2"></i>
+                        <span>Solar Manager</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ส่วนแสดงผลการจัดการ -->
+        <div id="admin-content" class="flex-grow">
+            <!-- เริ่มต้นแสดงหน้าแดชบอร์ด -->
+            <div id="admin-dashboard" class="admin-section">
+                <div class="card p-4 mb-4">
+                    <h3 class="text-lg font-semibold mb-3">สถานะระบบ</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-blue-50 p-3 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">หัวชาร์จทั้งหมด</span>
+                                <span class="text-lg font-semibold">2</span>
+                            </div>
+                            <div class="flex items-center mt-1">
+                                <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">ว่าง: 1</span>
+                                <span class="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded-full ml-1">ไม่ว่าง: 1</span>
+                            </div>
+                        </div>
+                        <div class="bg-green-50 p-3 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">ลูกค้าทั้งหมด</span>
+                                <span class="text-lg font-semibold">24</span>
+                            </div>
+                            <div class="flex items-center mt-1">
+                                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">ใช้งานวันนี้: 5</span>
+                            </div>
+                        </div>
+                        <div class="bg-purple-50 p-3 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">รายได้วันนี้</span>
+                                <span class="text-lg font-semibold">฿1,250</span>
+                            </div>
+                            <div class="flex items-center mt-1">
+                                <i class="fas fa-arrow-up text-green-500 text-xs mr-1"></i>
+                                <span class="text-xs text-green-500">+15% จากเมื่อวาน</span>
+                            </div>
+                        </div>
+                        <div class="bg-yellow-50 p-3 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">พลังงาน Solar</span>
+                                <span class="text-lg font-semibold">5.2 kW</span>
+                            </div>
+                            <div class="flex items-center mt-1">
+                                <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">กำลังผลิต</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-4 mb-4">
+                    <h3 class="text-lg font-semibold mb-3">กิจกรรมล่าสุด</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center p-2 hover:bg-gray-50 rounded-lg">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-plug text-blue-500"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="text-sm font-medium">เริ่มชาร์จ EV-001</p>
+                                <p class="text-xs text-gray-500">15 นาทีที่แล้ว</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-2 hover:bg-gray-50 rounded-lg">
+                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-user-plus text-green-500"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="text-sm font-medium">ลูกค้าใหม่ลงทะเบียน</p>
+                                <p class="text-xs text-gray-500">2 ชั่วโมงที่แล้ว</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-2 hover:bg-gray-50 rounded-lg">
+                            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-wallet text-purple-500"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="text-sm font-medium">การชำระเงิน ฿350</p>
+                                <p class="text-xs text-gray-500">3 ชั่วโมงที่แล้ว</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ส่วนทดสอบหัวชาร์จ (ซ่อนไว้) -->
+            <div id="admin-charger-test" class="admin-section hidden">
+                <div class="card p-4 mb-4">
+                    <h3 class="text-lg font-semibold mb-3">ทดสอบหัวชาร์จ</h3>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">เลือกหัวชาร์จ</label>
+                        <div class="relative">
+                            <select id="test-charger-select" class="input-field appearance-none pr-10 w-full">
+                                <option value="EV-001">EV-001 (Type 2)</option>
+                                <option value="EV-002">EV-002 (CCS2)</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">การทดสอบ</label>
+                        <div class="space-y-2">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="test-connection" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                                <label for="test-connection" class="ml-2 text-sm text-gray-700">ทดสอบการเชื่อมต่อ</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="test-charging" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                                <label for="test-charging" class="ml-2 text-sm text-gray-700">ทดสอบการชาร์จ</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="test-emergency" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                                <label for="test-emergency" class="ml-2 text-sm text-gray-700">ทดสอบระบบฉุกเฉิน</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">กำลังไฟทดสอบ (kW)</label>
+                        <input type="number" id="test-power" class="input-field w-full" value="11" min="1" max="50">
+                    </div>
+                    <button id="start-charger-test" class="btn-primary w-full">
+                        <i class="fas fa-play-circle mr-2"></i> เริ่มการทดสอบ
+                    </button>
+                </div>
+                <div id="test-results" class="card p-4 mb-4 hidden">
+                    <h3 class="text-lg font-semibold mb-3">ผลการทดสอบ</h3>
+                    <div id="test-status" class="mb-4 p-3 bg-blue-50 rounded-lg">
+                        <p class="text-center text-blue-700"><i class="fas fa-spinner fa-spin mr-2"></i> กำลังทดสอบ...</p>
+                    </div>
+                    <div id="test-logs" class="bg-gray-100 p-3 rounded-lg text-sm font-mono h-40 overflow-y-auto">
+                        <!-- ผลการทดสอบจะแสดงที่นี่ -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ส่วนจัดการลูกค้า (ซ่อนไว้) -->
+            <div id="admin-customer" class="admin-section hidden">
+                <div class="card p-4 mb-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-lg font-semibold">จัดการลูกค้า</h3>
+                        <button id="add-customer-btn" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm flex items-center">
+                            <i class="fas fa-plus mr-1"></i> เพิ่มลูกค้า
+                        </button>
+                    </div>
+                    <div class="mb-4">
+                        <div class="relative">
+                            <input type="text" id="customer-search" class="input-field pl-10 w-full" placeholder="ค้นหาลูกค้า...">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">อีเมล</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-3 py-2 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2">
+                                                <span class="text-blue-700 font-medium">ส</span>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">สมชาย ใจดี</div>
+                                                <div class="text-xs text-gray-500">ลงทะเบียน: 15/05/2023</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">somchai@example.com</td>
+                                    <td class="px-3 py-2 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">ใช้งาน</span>
+                                    </td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm">
+                                        <button class="text-blue-600 hover:text-blue-800 mr-2 edit-customer-btn"><i class="fas fa-edit"></i></button>
+                                        <button class="text-red-600 hover:text-red-800 delete-customer-btn"><i class="fas fa-trash-alt"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-3 py-2 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                                                <span class="text-purple-700 font-medium">ว</span>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">วิภา รักดี</div>
+                                                <div class="text-xs text-gray-500">ลงทะเบียน: 20/06/2023</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">wipa@example.com</td>
+                                    <td class="px-3 py-2 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">ใช้งาน</span>
+                                    </td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm">
+                                        <button class="text-blue-600 hover:text-blue-800 mr-2 edit-customer-btn"><i class="fas fa-edit"></i></button>
+                                        <button class="text-red-600 hover:text-red-800 delete-customer-btn"><i class="fas fa-trash-alt"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-3 py-2 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-2">
+                                                <span class="text-red-700 font-medium">ป</span>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">ประเสริฐ มั่งมี</div>
+                                                <div class="text-xs text-gray-500">ลงทะเบียน: 10/07/2023</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">prasert@example.com</td>
+                                    <td class="px-3 py-2 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">ระงับ</span>
+                                    </td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm">
+                                        <button class="text-blue-600 hover:text-blue-800 mr-2 edit-customer-btn"><i class="fas fa-edit"></i></button>
+                                        <button class="text-red-600 hover:text-red-800 delete-customer-btn"><i class="fas fa-trash-alt"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 flex items-center justify-between">
+                        <div class="text-sm text-gray-500">แสดง 1-3 จาก 24 รายการ</div>
+                        <div class="flex">
+                            <button class="px-3 py-1 border border-gray-300 bg-white text-gray-500 rounded-l-lg hover:bg-gray-50 disabled:opacity-50" disabled>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="px-3 py-1 border border-gray-300 bg-white text-gray-500 rounded-r-lg hover:bg-gray-50">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ส่วนกำหนดราคา (ซ่อนไว้) -->
+            <div id="admin-pricing" class="admin-section hidden">
+                <div class="card p-4 mb-4">
+                    <h3 class="text-lg font-semibold mb-3">กำหนดราคา</h3>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ราคาไฟฟ้า PEA (บาท/kWh)</label>
+                        <input type="number" id="pea-price" class="input-field w-full" value="4.50" step="0.01" min="0">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ราคาไฟฟ้า Solar Cell (บาท/kWh)</label>
+                        <input type="number" id="solar-price" class="input-field w-full" value="2.50" step="0.01" min="0">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ค่าบริการ (บาท/ครั้ง)</label>
+                        <input type="number" id="service-fee" class="input-field w-full" value="20.00" step="1" min="0">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ส่วนลดสมาชิก (%)</label>
+                        <input type="number" id="member-discount" class="input-field w-full" value="5" step="1" min="0" max="100">
+                    </div>
+                    <button id="save-pricing" class="btn-primary w-full">
+                        <i class="fas fa-save mr-2"></i> บันทึกการตั้งค่า
+                    </button>
+                </div>
+                <div class="card p-4 mb-4">
+                    <h3 class="text-lg font-semibold mb-3">แพ็คเกจพิเศษ</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                            <div>
+                                <h4 class="font-medium">แพ็คเกจรายเดือน</h4>
+                                <p class="text-sm text-gray-500">ชาร์จไม่อั้น 30 วัน</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold">฿1,500</p>
+                                <button class="text-blue-600 hover:text-blue-800 text-sm edit-package-btn">แก้ไข</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                            <div>
+                                <h4 class="font-medium">แพ็คเกจ 10 ครั้ง</h4>
+                                <p class="text-sm text-gray-500">ใช้ได้ 10 ครั้ง ไม่จำกัดเวลา</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold">฿800</p>
+                                <button class="text-blue-600 hover:text-blue-800 text-sm edit-package-btn">แก้ไข</button>
+                            </div>
+                        </div>
+                        <button id="add-package-btn" class="w-full border border-dashed border-gray-300 p-3 rounded-lg text-gray-500 hover:text-gray-700 hover:border-gray-400">
+                            <i class="fas fa-plus mr-2"></i> เพิ่มแพ็คเกจใหม่
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ส่วนประวัติการทำงาน (ซ่อนไว้) -->
+            <div id="admin-logs" class="admin-section hidden">
+                <div class="card p-4 mb-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-lg font-semibold">ประวัติการทำงาน</h3>
+                        <div>
+                            <select id="log-type-filter" class="text-sm border border-gray-300 rounded-lg px-2 py-1">
+                                <option value="all">ทั้งหมด</option>
+                                <option value="system">ระบบ</option>
+                                <option value="charger">หัวชาร์จ</option>
+                                <option value="user">ผู้ใช้</option>
+                                <option value="payment">การชำระเงิน</option>
+                                <option value="error">ข้อผิดพลาด</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="overflow-y-auto h-96">
+                        <div class="space-y-2">
+                            <div class="p-3 border-l-4 border-red-500 bg-red-50 rounded-r-lg">
+                                <div class="flex justify-between">
+                                    <span class="text-xs font-semibold text-red-800 bg-red-100 px-2 py-0.5 rounded-full">ข้อผิดพลาด</span>
+                                    <span class="text-xs text-gray-500">15/08/2023 14:32:45</span>
+                                </div>
+                                <p class="text-sm mt-1">การเชื่อมต่อกับหัวชาร์จ EV-002 ล้มเหลว</p>
+                                <p class="text-xs text-gray-500 mt-1">รหัสข้อผิดพลาด: ERR-1042</p>
+                            </div>
+                            <div class="p-3 border-l-4 border-green-500 bg-green-50 rounded-r-lg">
+                                <div class="flex justify-between">
+                                    <span class="text-xs font-semibold text-green-800 bg-green-100 px-2 py-0.5 rounded-full">หัวชาร์จ</span>
+                                    <span class="text-xs text-gray-500">15/08/2023 14:30:12</span>
+                                </div>
+                                <p class="text-sm mt-1">เริ่มชาร์จที่หัวชาร์จ EV-001 สำเร็จ</p>
+                                <p class="text-xs text-gray-500 mt-1">ผู้ใช้: somchai@example.com</p>
+                            </div>
+                            <div class="p-3 border-l-4 border-blue-500 bg-blue-50 rounded-r-lg">
+                                <div class="flex justify-between">
+                                    <span class="text-xs font-semibold text-blue-800 bg-blue-100 px-2 py-0.5 rounded-full">ระบบ</span>
+                                    <span class="text-xs text-gray-500">15/08/2023 14:00:00</span>
+                                </div>
+                                <p class="text-sm mt-1">เริ่มต้นระบบสำเร็จ</p>
+                                <p class="text-xs text-gray-500 mt-1">เวอร์ชัน: 1.2.5</p>
+                            </div>
+                            <div class="p-3 border-l-4 border-purple-500 bg-purple-50 rounded-r-lg">
+                                <div class="flex justify-between">
+                                    <span class="text-xs font-semibold text-purple-800 bg-purple-100 px-2 py-0.5 rounded-full">การชำระเงิน</span>
+                                    <span class="text-xs text-gray-500">15/08/2023 13:45:22</span>
+                                </div>
+                                <p class="text-sm mt-1">การชำระเงินสำเร็จ: ฿350</p>
+                                <p class="text-xs text-gray-500 mt-1">ผู้ใช้: wipa@example.com</p>
+                            </div>
+                            <div class="p-3 border-l-4 border-yellow-500 bg-yellow-50 rounded-r-lg">
+                                <div class="flex justify-between">
+                                    <span class="text-xs font-semibold text-yellow-800 bg-yellow-100 px-2 py-0.5 rounded-full">ผู้ใช้</span>
+                                    <span class="text-xs text-gray-500">15/08/2023 13:30:15</span>
+                                </div>
+                                <p class="text-sm mt-1">ผู้ใช้ใหม่ลงทะเบียน</p>
+                                <p class="text-xs text-gray-500 mt-1">อีเมล: newuser@example.com</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button id="export-logs-btn" class="text-sm text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-download mr-1"></i> ส่งออกประวัติการทำงาน
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ส่วนธุรกรรม (ซ่อนไว้) -->
+            <div id="admin-transactions" class="admin-section hidden">
+                <div class="card p-4 mb-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-lg font-semibold">ธุรกรรม</h3>
+                        <div class="flex space-x-2">
+                            <input type="date" id="transaction-date" class="text-sm border border-gray-300 rounded-lg px-2 py-1">
+                            <select id="transaction-type" class="text-sm border border-gray-300 rounded-lg px-2 py-1">
+                                <option value="all">ทั้งหมด</option>
+                                <option value="charge">ชาร์จ</option>
+                                <option value="topup">เติมเงิน</option>
+                                <option value="refund">คืนเงิน</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รหัส</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วันที่</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภท</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ผู้ใช้</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">จำนวนเงิน</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">TXN-001234</td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">15/08/2023 14:30</td>
+                                    <td class="px-3 py-2 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">ชาร์จ</span>
+                                    </td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">somchai@example.com</td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">฿120.50</td>
+                                    <td class="px-3 py-2 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">สำเร็จ</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">TXN-001233</td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">15/08/2023 13:45</td>
+                                    <td class="px-3 py-2 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">เติมเงิน</span>
+                                    </td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">wipa@example.com</td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">฿500.00</td>
+                                    <td class="px-3 py-2 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">สำเร็จ</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">TXN-001232</td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">15/08/2023 12:15</td>
+                                    <td class="px-3 py-2 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">คืนเงิน</span>
+                                    </td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">prasert@example.com</td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">฿75.00</td>
+                                    <td class="px-3 py-2 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">สำเร็จ</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">TXN-001231</td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">15/08/2023 11:30</td>
+                                    <td class="px-3 py-2 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">ชาร์จ</span>
+                                    </td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">prasert@example.com</td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">฿85.75</td>
+                                    <td class="px-3 py-2 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">ยกเลิก</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 flex items-center justify-between">
+                        <div class="text-sm text-gray-500">แสดง 1-4 จาก 120 รายการ</div>
+                        <div class="flex">
+                            <button class="px-3 py-1 border border-gray-300 bg-white text-gray-500 rounded-l-lg hover:bg-gray-50 disabled:opacity-50" disabled>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="px-3 py-1 border border-gray-300 bg-white text-gray-500 rounded-r-lg hover:bg-gray-50">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-4 mb-4">
+                    <h3 class="text-lg font-semibold mb-3">สรุปธุรกรรม</h3>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="bg-blue-50 p-3 rounded-lg">
+                            <h4 class="text-sm font-medium text-gray-700">รายได้วันนี้</h4>
+                            <p class="text-xl font-bold text-blue-700">฿1,250.00</p>
+                            <p class="text-xs text-gray-500 mt-1">จาก 15 ธุรกรรม</p>
+                        </div>
+                        <div class="bg-green-50 p-3 rounded-lg">
+                            <h4 class="text-sm font-medium text-gray-700">รายได้สัปดาห์นี้</h4>
+                            <p class="text-xl font-bold text-green-700">฿8,750.00</p>
+                            <p class="text-xs text-gray-500 mt-1">จาก 95 ธุรกรรม</p>
+                        </div>
+                        <div class="bg-purple-50 p-3 rounded-lg">
+                            <h4 class="text-sm font-medium text-gray-700">รายได้เดือนนี้</h4>
+                            <p class="text-xl font-bold text-purple-700">฿32,450.00</p>
+                            <p class="text-xs text-gray-500 mt-1">จาก 320 ธุรกรรม</p>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button id="export-report-btn" class="text-sm text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-download mr-1"></i> ส่งออกรายงาน
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ส่วน Solar Manager (ซ่อนไว้) -->
+            <div id="admin-solar" class="admin-section hidden">
+                <div class="card p-4 mb-4">
+                    <h3 class="text-lg font-semibold mb-3">Solar Manager (Sun2000)</h3>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">การเชื่อมต่อ Huawei FusionSolar</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">IP Address</label>
+                                <input type="text" id="solar-ip" class="input-field w-full" value="192.168.1.100">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Port</label>
+                                <input type="number" id="solar-port" class="input-field w-full" value="502">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ข้อมูลการเข้าถึง</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Username</label>
+                                <input type="text" id="solar-username" class="input-field w-full" value="installer">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Password</label>
+                                <input type="password" id="solar-password" class="input-field w-full" value="********">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button id="test-solar-connection" class="btn-primary flex-1">
+                            <i class="fas fa-plug mr-2"></i> ทดสอบการเชื่อมต่อ
+                        </button>
+                        <button id="save-solar-config" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex-1 flex items-center justify-center">
+                            <i class="fas fa-save mr-2"></i> บันทึกการตั้งค่า
+                        </button>
+                    </div>
+                </div>
+                <div class="card p-4 mb-4">
+                    <h3 class="text-lg font-semibold mb-3">สถานะ Solar Cell</h3>
+                    <div id="solar-status" class="p-3 bg-yellow-50 rounded-lg mb-4">
+                        <p class="text-center text-yellow-700"><i class="fas fa-exclamation-triangle mr-2"></i> ยังไม่ได้เชื่อมต่อ</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-blue-50 p-3 rounded-lg">
+                            <h4 class="text-sm font-medium text-gray-700">กำลังการผลิตปัจจุบัน</h4>
+                            <p class="text-xl font-bold text-blue-700">-- kW</p>
+                            <div class="flex items-center mt-1">
+                                <span class="text-xs text-gray-500">สูงสุดวันนี้: -- kW</span>
+                            </div>
+                        </div>
+                        <div class="bg-green-50 p-3 rounded-lg">
+                            <h4 class="text-sm font-medium text-gray-700">พลังงานสะสมวันนี้</h4>
+                            <p class="text-xl font-bold text-green-700">-- kWh</p>
+                            <div class="flex items-center mt-1">
+                                <span class="text-xs text-gray-500">เป้าหมาย: 30 kWh</span>
+                            </div>
+                        </div>
+                        <div class="bg-purple-50 p-3 rounded-lg">
+                            <h4 class="text-sm font-medium text-gray-700">พลังงานสะสมเดือนนี้</h4>
+                            <p class="text-xl font-bold text-purple-700">-- kWh</p>
+                            <div class="flex items-center mt-1">
+                                <span class="text-xs text-gray-500">เป้าหมาย: 900 kWh</span>
+                            </div>
+                        </div>
+                        <div class="bg-amber-50 p-3 rounded-lg">
+                            <h4 class="text-sm font-medium text-gray-700">สถานะอินเวอร์เตอร์</h4>
+                            <p class="text-xl font-bold text-amber-700">--</p>
+                            <div class="flex items-center mt-1">
+                                <span class="text-xs text-gray-500">อุณหภูมิ: -- °C</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-4 mb-4">
+                    <h3 class="text-lg font-semibold mb-3">การตั้งค่า Solar Cell</h3>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">สัดส่วนการใช้พลังงาน</label>
+                        <div class="flex items-center">
+                            <span class="text-sm font-medium text-blue-600 mr-2">PEA</span>
+                            <input type="range" id="solar-energy-slider" min="0" max="100" value="50" class="flex-grow">
+                            <span class="text-sm font-medium text-yellow-600 ml-2">Solar</span>
+                        </div>
+                        <div class="flex justify-between mt-1">
+                            <span class="text-xs text-gray-500"><span id="solar-pea-percent">50</span>% PEA</span>
+                            <span class="text-xs text-gray-500"><span id="solar-solar-percent">50</span>% Solar</span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">โหมดการทำงาน</label>
+                        <div class="relative">
+                            <select id="solar-mode" class="input-field appearance-none pr-10 w-full">
+                                <option value="auto">อัตโนมัติ (ปรับตามกำลังผลิต)</option>
+                                <option value="manual">กำหนดเอง (ตามสัดส่วนที่ตั้งไว้)</option>
+                                <option value="pea-only">ใช้ไฟฟ้า PEA เท่านั้น</option>
+                                <option value="solar-only">ใช้ Solar Cell เท่านั้น</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="save-solar-settings" class="btn-primary w-full">
+                        <i class="fas fa-save mr-2"></i> บันทึกการตั้งค่า
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- ===== Page 1: Login ===== -->
     <div id="login-page" class="page active p-8 justify-center items-center">
@@ -367,7 +1028,7 @@
             </button>
         </div>
         
-        <footer class="footer p-4 border-t bg-white grid grid-cols-3 text-center z-10">
+        <footer class="footer p-4 border-t bg-white grid grid-cols-4 text-center z-10">
             <a href="#" onclick="showPage('main-page')" class="text-blue-600 flex flex-col items-center justify-center">
                 <i class="fas fa-map-location-dot text-2xl"></i>
                 <span class="text-xs mt-1">แผนที่</span>
@@ -379,6 +1040,10 @@
             <a href="#" onclick="showPage('profile-page')" class="text-gray-400 flex flex-col items-center justify-center">
                 <i class="fas fa-user text-2xl"></i>
                 <span class="text-xs mt-1">โปรไฟล์</span>
+            </a>
+            <a href="#" onclick="showPage('admin-page')" class="text-gray-400 flex flex-col items-center justify-center">
+                <i class="fas fa-cog text-2xl"></i>
+                <span class="text-xs mt-1">ผู้ดูแล</span>
             </a>
         </footer>
     </div>
@@ -868,7 +1533,7 @@
             </div>
         </main>
         
-        <footer class="footer p-4 border-t bg-white grid grid-cols-3 text-center z-10">
+        <footer class="footer p-4 border-t bg-white grid grid-cols-4 text-center z-10">
             <a href="#" onclick="showPage('main-page')" class="text-gray-400 flex flex-col items-center justify-center">
                 <i class="fas fa-map-location-dot text-2xl"></i>
                 <span class="text-xs mt-1">แผนที่</span>
@@ -880,6 +1545,10 @@
             <a href="#" onclick="showPage('profile-page')" class="text-gray-400 flex flex-col items-center justify-center">
                 <i class="fas fa-user text-2xl"></i>
                 <span class="text-xs mt-1">โปรไฟล์</span>
+            </a>
+            <a href="#" onclick="showPage('admin-page')" class="text-gray-400 flex flex-col items-center justify-center">
+                <i class="fas fa-cog text-2xl"></i>
+                <span class="text-xs mt-1">ผู้ดูแล</span>
             </a>
         </footer>
     </div>
@@ -1075,7 +1744,7 @@
             </div>
         </main>
         
-        <footer class="footer p-4 border-t bg-white grid grid-cols-3 text-center z-10">
+        <footer class="footer p-4 border-t bg-white grid grid-cols-4 text-center z-10">
             <a href="#" onclick="showPage('main-page')" class="text-gray-400 flex flex-col items-center justify-center">
                 <i class="fas fa-map-location-dot text-2xl"></i>
                 <span class="text-xs mt-1">แผนที่</span>
@@ -1087,6 +1756,10 @@
             <a href="#" onclick="showPage('profile-page')" class="text-blue-600 flex flex-col items-center justify-center">
                 <i class="fas fa-user text-2xl"></i>
                 <span class="text-xs mt-1">โปรไฟล์</span>
+            </a>
+            <a href="#" onclick="showPage('admin-page')" class="text-gray-400 flex flex-col items-center justify-center">
+                <i class="fas fa-cog text-2xl"></i>
+                <span class="text-xs mt-1">ผู้ดูแล</span>
             </a>
         </footer>
     </div>
@@ -1978,6 +2651,412 @@
         }, 1000);
     }
 
+    // Admin Page Logic
+    document.getElementById('btn-charger-test').addEventListener('click', function() {
+        // ซ่อนทุกส่วนใน admin-content
+        document.querySelectorAll('.admin-section').forEach(section => {
+            section.classList.add('hidden');
+        });
+        // แสดงส่วนทดสอบหัวชาร์จ
+        document.getElementById('admin-charger-test').classList.remove('hidden');
+    });
+
+    document.getElementById('btn-customer-manage').addEventListener('click', function() {
+        document.querySelectorAll('.admin-section').forEach(section => {
+            section.classList.add('hidden');
+        });
+        document.getElementById('admin-customer').classList.remove('hidden');
+    });
+
+    document.getElementById('btn-price-config').addEventListener('click', function() {
+        document.querySelectorAll('.admin-section').forEach(section => {
+            section.classList.add('hidden');
+        });
+        document.getElementById('admin-pricing').classList.remove('hidden');
+    });
+
+    document.getElementById('btn-logs').addEventListener('click', function() {
+        document.querySelectorAll('.admin-section').forEach(section => {
+            section.classList.add('hidden');
+        });
+        document.getElementById('admin-logs').classList.remove('hidden');
+    });
+
+    document.getElementById('btn-transactions').addEventListener('click', function() {
+        document.querySelectorAll('.admin-section').forEach(section => {
+            section.classList.add('hidden');
+        });
+        document.getElementById('admin-transactions').classList.remove('hidden');
+    });
+
+    document.getElementById('btn-solar-manager').addEventListener('click', function() {
+        document.querySelectorAll('.admin-section').forEach(section => {
+            section.classList.add('hidden');
+        });
+        document.getElementById('admin-solar').classList.remove('hidden');
+    });
+
+    // ทดสอบหัวชาร์จ
+    document.getElementById('start-charger-test').addEventListener('click', function() {
+        document.getElementById('test-results').classList.remove('hidden');
+        const testLogs = document.getElementById('test-logs');
+        const testStatus = document.getElementById('test-status');
+        const selectedCharger = document.getElementById('test-charger-select').value;
+        const testPower = document.getElementById('test-power').value;
+        
+        // เพิ่มข้อความลงในพื้นที่แสดงผล
+        testLogs.innerHTML = `<p>[${new Date().toLocaleTimeString()}] เริ่มทดสอบหัวชาร์จ ${selectedCharger} ที่กำลังไฟ ${testPower} kW</p>`;
+        
+        // จำลองการทดสอบ
+        setTimeout(() => {
+            testLogs.innerHTML += `<p>[${new Date().toLocaleTimeString()}] ตรวจสอบการเชื่อมต่อ...</p>`;
+        }, 1000);
+        
+        setTimeout(() => {
+            testLogs.innerHTML += `<p>[${new Date().toLocaleTimeString()}] การเชื่อมต่อปกติ</p>`;
+            testLogs.innerHTML += `<p>[${new Date().toLocaleTimeString()}] เริ่มทดสอบการชาร์จ...</p>`;
+        }, 2000);
+        
+        setTimeout(() => {
+            testLogs.innerHTML += `<p>[${new Date().toLocaleTimeString()}] ทดสอบการชาร์จสำเร็จ</p>`;
+            testLogs.innerHTML += `<p>[${new Date().toLocaleTimeString()}] ทดสอบระบบฉุกเฉิน...</p>`;
+        }, 3000);
+        
+        setTimeout(() => {
+            testLogs.innerHTML += `<p>[${new Date().toLocaleTimeString()}] ทดสอบระบบฉุกเฉินสำเร็จ</p>`;
+            testLogs.innerHTML += `<p>[${new Date().toLocaleTimeString()}] การทดสอบทั้งหมดเสร็จสิ้น</p>`;
+            testStatus.innerHTML = `<p class="text-center text-green-700"><i class="fas fa-check-circle mr-2"></i> ทดสอบสำเร็จ</p>`;
+        }, 4000);
+    });
+
+    // Solar Energy Slider
+    document.getElementById('solar-energy-slider').addEventListener('input', function() {
+        const value = this.value;
+        document.getElementById('solar-pea-percent').textContent = 100 - value;
+        document.getElementById('solar-solar-percent').textContent = value;
+    });
+    
+    // บันทึกการตั้งค่าราคา
+    document.getElementById('save-pricing').addEventListener('click', function() {
+        const peaPrice = document.getElementById('pea-price').value;
+        const solarPrice = document.getElementById('solar-price').value;
+        const serviceFee = document.getElementById('service-fee').value;
+        const memberDiscount = document.getElementById('member-discount').value;
+        
+        if (!peaPrice || !solarPrice || !serviceFee || !memberDiscount) {
+            alert('กรุณากรอกข้อมูลให้ครบทุกช่อง');
+            return;
+        }
+        
+        // ในสถานการณ์จริง ควรส่งข้อมูลไปยัง API
+        alert('บันทึกการตั้งค่าราคาเรียบร้อย');
+    });
+    
+    // เพิ่มแพ็คเกจพิเศษ
+    document.getElementById('add-package-btn').addEventListener('click', function() {
+        // ในสถานการณ์จริง ควรเปิดฟอร์มให้กรอกข้อมูลแพ็คเกจ
+        const packageName = prompt('ชื่อแพ็คเกจ:');
+        if (!packageName) return;
+        
+        const packagePrice = prompt('ราคา (บาท):');
+        if (!packagePrice) return;
+        
+        const packageDetail = prompt('รายละเอียด:');
+        if (!packageDetail) return;
+        
+        // จำลองการเพิ่มแพ็คเกจใหม่ลงในตาราง
+        const packageTable = document.querySelector('#admin-pricing .special-packages');
+        const newPackage = document.createElement('div');
+        newPackage.className = 'bg-white p-4 rounded-lg shadow mb-4';
+        newPackage.innerHTML = `
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-lg">${packageName}</h3>
+                    <p class="text-gray-600">${packageDetail}</p>
+                    <p class="text-blue-600 font-bold mt-2">฿ ${packagePrice}</p>
+                </div>
+                <button class="text-blue-600 hover:text-blue-800 edit-package-btn">
+                    <i class="fas fa-edit"></i> แก้ไข
+                </button>
+            </div>
+        `;
+        
+        // เพิ่มแพ็คเกจใหม่ต่อจากปุ่ม "เพิ่มแพ็คเกจใหม่"
+        packageTable.insertBefore(newPackage, document.getElementById('add-package-btn').parentNode);
+        
+        // เพิ่ม event listener สำหรับปุ่มแก้ไขแพ็คเกจ
+        const editBtn = newPackage.querySelector('.edit-package-btn');
+        editBtn.addEventListener('click', handleEditPackage);
+        
+        alert('เพิ่มแพ็คเกจพิเศษเรียบร้อย');
+    });
+    
+    // เพิ่ม event listener สำหรับปุ่มแก้ไขแพ็คเกจที่มีอยู่แล้ว
+    document.querySelectorAll('.edit-package-btn').forEach(btn => {
+        btn.addEventListener('click', handleEditPackage);
+    });
+    
+    // ฟังก์ชันสำหรับแก้ไขแพ็คเกจ
+    function handleEditPackage() {
+        const packageDiv = this.closest('.bg-white');
+        const nameEl = packageDiv.querySelector('h3');
+        const detailEl = packageDiv.querySelector('p.text-gray-600');
+        const priceEl = packageDiv.querySelector('p.text-blue-600');
+        
+        const currentName = nameEl.textContent;
+        const currentDetail = detailEl.textContent;
+        const currentPrice = priceEl.textContent.replace('฿ ', '');
+        
+        const newName = prompt('ชื่อแพ็คเกจ:', currentName);
+        if (!newName) return;
+        
+        const newPrice = prompt('ราคา (บาท):', currentPrice);
+        if (!newPrice) return;
+        
+        const newDetail = prompt('รายละเอียด:', currentDetail);
+        if (!newDetail) return;
+        
+        // อัปเดตข้อมูลในแพ็คเกจ
+        nameEl.textContent = newName;
+        detailEl.textContent = newDetail;
+        priceEl.textContent = `฿ ${newPrice}`;
+        
+        alert('แก้ไขแพ็คเกจพิเศษเรียบร้อย');
+    }
+    
+    // บันทึกการตั้งค่า Solar Manager
+    document.getElementById('save-solar-settings').addEventListener('click', function() {
+        const solarIp = document.getElementById('solar-ip').value;
+        const solarPort = document.getElementById('solar-port').value;
+        const solarUsername = document.getElementById('solar-username').value;
+        const solarPassword = document.getElementById('solar-password').value;
+        const operationMode = document.getElementById('operation-mode').value;
+        
+        if (!solarIp || !solarPort || !solarUsername || !solarPassword) {
+            alert('กรุณากรอกข้อมูลการเชื่อมต่อให้ครบทุกช่อง');
+            return;
+        }
+        
+        // ในสถานการณ์จริง ควรส่งข้อมูลไปยัง API
+        alert('บันทึกการตั้งค่า Solar Manager เรียบร้อย');
+    });
+    
+    // ทดสอบการเชื่อมต่อ Solar Manager
+    document.getElementById('test-solar-connection').addEventListener('click', function() {
+        const solarIp = document.getElementById('solar-ip').value;
+        const solarPort = document.getElementById('solar-port').value;
+        const solarUsername = document.getElementById('solar-username').value;
+        const solarPassword = document.getElementById('solar-password').value;
+        
+        if (!solarIp || !solarPort || !solarUsername || !solarPassword) {
+            alert('กรุณากรอกข้อมูลการเชื่อมต่อให้ครบทุกช่อง');
+            return;
+        }
+        
+        // จำลองการทดสอบการเชื่อมต่อ
+        alert('กำลังทดสอบการเชื่อมต่อ...');
+        setTimeout(() => {
+            alert('เชื่อมต่อกับ Solar Manager สำเร็จ');
+        }, 1500);
+    });
+
+    // ค้นหาลูกค้า
+    document.getElementById('customer-search').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const customerRows = document.querySelectorAll('#customer-table tbody tr');
+        
+        customerRows.forEach(row => {
+            const name = row.querySelector('td:first-child').textContent.toLowerCase();
+            const email = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            
+            if (name.includes(searchTerm) || email.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+    
+    // เพิ่มลูกค้าใหม่
+    document.getElementById('add-customer-btn').addEventListener('click', function() {
+        // ในสถานการณ์จริง ควรเปิดฟอร์มให้กรอกข้อมูลลูกค้า
+        const customerName = prompt('ชื่อลูกค้า:');
+        if (!customerName) return;
+        
+        const customerEmail = prompt('อีเมล:');
+        if (!customerEmail) return;
+        
+        // จำลองการเพิ่มลูกค้าใหม่ลงในตาราง
+        const customerTable = document.querySelector('#customer-table tbody');
+        const newRow = document.createElement('tr');
+        newRow.className = 'border-b hover:bg-gray-50';
+        newRow.innerHTML = `
+            <td class="py-3 px-4">${customerName}</td>
+            <td class="py-3 px-4">${customerEmail}</td>
+            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">ใช้งาน</span></td>
+            <td class="py-3 px-4">
+                <button class="text-blue-600 hover:text-blue-800 mr-2 edit-customer-btn">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="text-red-600 hover:text-red-800 delete-customer-btn">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </td>
+        `;
+        
+        customerTable.appendChild(newRow);
+        
+        // เพิ่ม event listener สำหรับปุ่มแก้ไขและลบลูกค้า
+        const editBtn = newRow.querySelector('.edit-customer-btn');
+        const deleteBtn = newRow.querySelector('.delete-customer-btn');
+        
+        editBtn.addEventListener('click', handleEditCustomer);
+        deleteBtn.addEventListener('click', handleDeleteCustomer);
+        
+        alert('เพิ่มลูกค้าใหม่เรียบร้อย');
+    });
+    
+    // เพิ่ม event listener สำหรับปุ่มแก้ไขและลบลูกค้าที่มีอยู่แล้ว
+    document.querySelectorAll('.edit-customer-btn').forEach(btn => {
+        btn.addEventListener('click', handleEditCustomer);
+    });
+    
+    document.querySelectorAll('.delete-customer-btn').forEach(btn => {
+        btn.addEventListener('click', handleDeleteCustomer);
+    });
+    
+    // ฟังก์ชันสำหรับแก้ไขข้อมูลลูกค้า
+    function handleEditCustomer() {
+        const row = this.closest('tr');
+        const name = row.querySelector('td:first-child').textContent;
+        const email = row.querySelector('td:nth-child(2)').textContent;
+        
+        const newName = prompt('ชื่อลูกค้า:', name);
+        if (!newName) return;
+        
+        const newEmail = prompt('อีเมล:', email);
+        if (!newEmail) return;
+        
+        // อัปเดตข้อมูลในตาราง
+        row.querySelector('td:first-child').textContent = newName;
+        row.querySelector('td:nth-child(2)').textContent = newEmail;
+        
+        alert('แก้ไขข้อมูลลูกค้าเรียบร้อย');
+    }
+    
+    // ฟังก์ชันสำหรับลบลูกค้า
+    function handleDeleteCustomer() {
+        const row = this.closest('tr');
+        const name = row.querySelector('td:first-child').textContent;
+        
+        if (confirm(`ต้องการลบลูกค้า ${name} ใช่หรือไม่?`)) {
+            row.remove();
+            alert('ลบลูกค้าเรียบร้อย');
+        }
+    }
+    
+    // ส่งออกรายงาน
+    document.getElementById('export-report-btn').addEventListener('click', function() {
+        // ในสถานการณ์จริง ควรสร้างไฟล์รายงานและดาวน์โหลด
+        alert('กำลังส่งออกรายงาน... (จำลอง)');
+        setTimeout(() => {
+            alert('ส่งออกรายงานเรียบร้อย');
+        }, 1500);
+    });
+    
+    // ส่งออกบันทึกการทำงาน
+    document.getElementById('export-logs-btn').addEventListener('click', function() {
+        // ในสถานการณ์จริง ควรสร้างไฟล์บันทึกและดาวน์โหลด
+        alert('กำลังส่งออกบันทึกการทำงาน... (จำลอง)');
+        setTimeout(() => {
+            alert('ส่งออกบันทึกการทำงานเรียบร้อย');
+        }, 1500);
+    });
+    
+    // กรองบันทึกการทำงาน
+    document.getElementById('log-filter').addEventListener('change', function() {
+        const filterValue = this.value;
+        const logItems = document.querySelectorAll('.log-item');
+        
+        logItems.forEach(item => {
+            if (filterValue === 'all') {
+                item.style.display = '';
+            } else {
+                if (item.classList.contains(filterValue)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            }
+        });
+    });
+    
+    // กรองรายการธุรกรรม
+    document.getElementById('transaction-date-filter').addEventListener('change', function() {
+        filterTransactions();
+    });
+    
+    document.getElementById('transaction-type-filter').addEventListener('change', function() {
+        filterTransactions();
+    });
+    
+    function filterTransactions() {
+        const dateFilter = document.getElementById('transaction-date-filter').value;
+        const typeFilter = document.getElementById('transaction-type-filter').value;
+        const transactionRows = document.querySelectorAll('#transaction-table tbody tr');
+        
+        transactionRows.forEach(row => {
+            const type = row.querySelector('td:nth-child(3)').textContent;
+            const date = row.querySelector('td:nth-child(2)').textContent;
+            
+            let showByDate = true;
+            let showByType = true;
+            
+            if (dateFilter !== 'all') {
+                // ในสถานการณ์จริง ควรมีการเปรียบเทียบวันที่อย่างเหมาะสม
+                showByDate = dateFilter === 'today' ? date.includes('วันนี้') : true;
+            }
+            
+            if (typeFilter !== 'all') {
+                showByType = type === typeFilter;
+            }
+            
+            if (showByDate && showByType) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+    
+    // Admin Access Control
+    function checkAdminAccess() {
+        // ในสถานการณ์จริง ควรตรวจสอบสิทธิ์จากระบบ authentication
+        // สำหรับตัวอย่างนี้ จะใช้ prompt เพื่อถามรหัสผ่าน
+        const adminPassword = "admin1234";
+        const inputPassword = prompt("กรุณาใส่รหัสผ่านผู้ดูแลระบบ");
+        
+        if (inputPassword === adminPassword) {
+            return true;
+        } else {
+            alert("รหัสผ่านไม่ถูกต้อง ไม่สามารถเข้าถึงหน้าผู้ดูแลระบบได้");
+            return false;
+        }
+    }
+    
+    // Override showPage function to add admin access check
+    const originalShowPage = showPage;
+    showPage = function(pageId) {
+        if (pageId === 'admin-page' && !checkAdminAccess()) {
+            // ถ้าไม่ผ่านการตรวจสอบสิทธิ์ ให้กลับไปหน้าหลัก
+            originalShowPage('main-page');
+            return;
+        }
+        
+        // เรียกใช้ฟังก์ชัน showPage เดิม
+        originalShowPage(pageId);
+    };
+    
     // Initialize
     showPage('login-page');
 </script>
