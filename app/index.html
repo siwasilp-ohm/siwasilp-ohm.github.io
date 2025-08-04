@@ -14,6 +14,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
+    <!-- Leaflet.js for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <style>
         body {
             font-family: 'Sarabun', sans-serif;
@@ -27,14 +31,19 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
         .page {
             display: none;
             flex-grow: 1;
             flex-direction: column;
+            overflow-y: auto;
         }
         .page.active {
             display: flex;
+        }
+        .page-no-scroll {
+            overflow-y: hidden;
         }
         .btn-primary {
             background-color: #2563eb; /* blue-600 */
@@ -54,43 +63,26 @@
             padding: 0.75rem 1rem;
             width: 100%;
         }
+        .input-field:disabled {
+            background-color: #e2e8f0; /* slate-200 */
+            cursor: not-allowed;
+        }
+        #map { height: 100%; width: 100%; }
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+        }
+        .leaflet-popup-content {
+            margin: 15px;
+            text-align: center;
+        }
         /* Charging Animation */
-        .battery-outline {
-            width: 100px;
-            height: 200px;
-            border: 5px solid #374151; /* gray-700 */
-            border-radius: 15px;
-            position: relative;
-            margin: auto;
-        }
-        .battery-outline::after {
-            content: '';
-            width: 40px;
-            height: 10px;
-            background: #374151;
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-radius: 5px;
-        }
-        .battery-level {
-            position: absolute;
+        .battery-outline { width: 100px; height: 200px; border: 5px solid #374151; border-radius: 15px; position: relative; margin: auto; }
+        .battery-outline::after { content: ''; width: 40px; height: 10px; background: #374151; position: absolute; top: -15px; left: 50%; transform: translateX(-50%); border-radius: 5px; }
+        .battery-level { position: absolute; bottom: 0; left: 0; right: 0; width: 100%; background: linear-gradient(to top, #4ade80, #86efac); border-radius: 0 0 10px 10px; transition: height 1s ease-in-out; }
+        .footer {
+            position: sticky;
             bottom: 0;
-            left: 0;
-            right: 0;
             width: 100%;
-            background: linear-gradient(to top, #4ade80, #86efac); /* green-400 to green-300 */
-            border-radius: 0 0 10px 10px;
-            transition: height 1s ease-in-out;
-        }
-        .pulsing-icon {
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
@@ -104,19 +96,17 @@
             <i class="fas fa-bolt-lightning text-5xl text-blue-600 mb-4"></i>
             <h1 class="text-3xl font-bold text-gray-800">ยินดีต้อนรับ</h1>
             <p class="text-gray-500 mb-8">เข้าสู่ระบบเพื่อเริ่มใช้งาน</p>
-            
             <form id="login-form" class="flex flex-col gap-4">
                 <input type="email" placeholder="อีเมล" class="input-field" value="user@example.com">
                 <input type="password" placeholder="รหัสผ่าน" class="input-field" value="password">
                 <button type="submit" class="btn-primary mt-4">เข้าสู่ระบบ</button>
-                <a href="https://siwasilp-ohm.github.io/app/admin.html" class="text-sm text-blue-600 hover:underline mt-2">Dashbroad admin</a>
             </form>
         </div>
     </div>
 
     <!-- ===== Page 2: Main Dashboard (Map) ===== -->
-    <div id="main-page" class="page">
-        <header class="p-4 flex justify-between items-center border-b">
+    <div id="main-page" class="page page-no-scroll">
+        <header class="p-4 flex justify-between items-center border-b bg-white z-10">
             <div>
                 <p class="text-sm text-gray-500">ยอดเงินคงเหลือ</p>
                 <p class="text-xl font-bold text-gray-800">฿ 250.75</p>
@@ -126,22 +116,12 @@
             </button>
         </header>
         <div class="flex-grow relative">
-            <!-- Map Placeholder -->
-            <div class="absolute inset-0 bg-gray-200 flex items-center justify-center">
-                <img src="https://placehold.co/420x600/e2e8f0/64748b?text=Map+Area" alt="Map Placeholder" class="w-full h-full object-cover">
-                 <!-- Charger Pin -->
-                 <div class="absolute" style="top: 45%; left: 50%; transform: translate(-50%, -50%);">
-                    <button onclick="showPage('charger-detail-page')" class="text-center">
-                        <i class="fas fa-map-marker-alt text-5xl text-blue-600 drop-shadow-lg"></i>
-                        <span class="block bg-white px-2 py-1 rounded-md shadow-md mt-2 text-sm font-semibold">EV-001</span>
-                    </button>
-                </div>
-            </div>
+            <div id="map"></div>
         </div>
-        <footer class="p-4 border-t bg-white grid grid-cols-3 text-center">
-            <a href="#" class="text-blue-600"><i class="fas fa-map-location-dot text-2xl"></i><span class="block text-xs mt-1">แผนที่</span></a>
-            <a href="#" class="text-gray-400"><i class="fas fa-car-side text-2xl"></i><span class="block text-xs mt-1">รถของฉัน</span></a>
-            <a href="#" class="text-gray-400"><i class="fas fa-user text-2xl"></i><span class="block text-xs mt-1">โปรไฟล์</span></a>
+        <footer class="footer p-4 border-t bg-white grid grid-cols-3 text-center z-10">
+            <a href="#" onclick="showPage('main-page')" class="text-blue-600"><i class="fas fa-map-location-dot text-2xl"></i><span class="block text-xs mt-1">แผนที่</span></a>
+            <a href="#" onclick="showPage('my-cars-page')" class="text-gray-400"><i class="fas fa-car-side text-2xl"></i><span class="block text-xs mt-1">รถของฉัน</span></a>
+            <a href="#" onclick="showPage('profile-page')" class="text-gray-400"><i class="fas fa-user text-2xl"></i><span class="block text-xs mt-1">โปรไฟล์</span></a>
         </footer>
     </div>
 
@@ -152,21 +132,20 @@
         </header>
         <div class="text-center">
             <i class="fas fa-charging-station text-6xl text-blue-600"></i>
-            <h2 class="text-3xl font-bold mt-4">สถานีชาร์จ EV-001</h2>
+            <h2 id="charger-detail-name" class="text-3xl font-bold mt-4"></h2>
             <p class="text-green-600 font-semibold mt-1"><i class="fas fa-check-circle"></i> ว่าง</p>
         </div>
         <div class="my-8 space-y-4">
             <div class="flex justify-between items-center bg-slate-100 p-4 rounded-lg">
-                <span class="text-gray-600">ประเภทหัวชาร์จ</span>
-                <span class="font-bold">Type 2 (AC)</span>
+                <span class="text-gray-600">ราคา</span><span class="font-bold text-blue-600">฿ 7.5 / kWh</span>
             </div>
-            <div class="flex justify-between items-center bg-slate-100 p-4 rounded-lg">
-                <span class="text-gray-600">กำลังไฟสูงสุด</span>
-                <span class="font-bold">22 kW</span>
-            </div>
-            <div class="flex justify-between items-center bg-slate-100 p-4 rounded-lg">
-                <span class="text-gray-600">ราคา</span>
-                <span class="font-bold text-blue-600">฿ 7.5 / kWh</span>
+            <div class="bg-slate-100 p-4 rounded-lg">
+                <label for="energy-slider" class="block font-semibold text-gray-700 mb-2">เลือกแหล่งพลังงาน</label>
+                <div class="flex justify-between text-sm font-medium mb-2">
+                    <span class="text-yellow-500"><i class="fa-solid fa-solar-panel"></i> Solar <span id="solar-percent">50</span>%</span>
+                    <span class="text-blue-500"><i class="fa-solid fa-tower-broadcast"></i> PEA <span id="pea-percent">50</span>%</span>
+                </div>
+                <input id="energy-slider" type="range" min="0" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
             </div>
         </div>
         <div class="mt-auto">
@@ -178,50 +157,25 @@
 
     <!-- ===== Page 4: Charging Session ===== -->
     <div id="charging-session-page" class="page p-8 bg-gray-800 text-white justify-between">
-        <div class="text-center">
-            <h2 class="text-3xl font-bold">กำลังชาร์จ...</h2>
-            <p class="text-blue-300">รถยนต์: Toyota bZ4X (กข 1234)</p>
-        </div>
-        
+        <div class="text-center"><h2 class="text-3xl font-bold">กำลังชาร์จ...</h2></div>
         <div class="relative text-center">
-            <div class="battery-outline">
-                <div id="battery-level-indicator" class="battery-level" style="height: 20%;"></div>
-            </div>
+            <div class="battery-outline"><div id="battery-level-indicator" class="battery-level" style="height: 20%;"></div></div>
             <p id="soc-text" class="text-5xl font-bold mt-6">20%</p>
         </div>
-
         <div class="grid grid-cols-3 gap-4 text-center">
-            <div>
-                <p class="text-gray-400">เวลา</p>
-                <p id="charge-time" class="text-2xl font-semibold">00:00:00</p>
-            </div>
-            <div>
-                <p class="text-gray-400">พลังงาน</p>
-                <p id="charge-kwh" class="text-2xl font-semibold">0.00 kWh</p>
-            </div>
-            <div>
-                <p class="text-gray-400">ค่าบริการ</p>
-                <p id="charge-cost" class="text-2xl font-semibold">฿ 0.00</p>
-            </div>
+            <div><p class="text-gray-400">เวลา</p><p id="charge-time" class="text-2xl font-semibold">00:00:00</p></div>
+            <div><p class="text-gray-400">พลังงาน</p><p id="charge-kwh" class="text-2xl font-semibold">0.00 kWh</p></div>
+            <div><p class="text-gray-400">ค่าบริการ</p><p id="charge-cost" class="text-2xl font-semibold">฿ 0.00</p></div>
         </div>
-
-        <button onclick="showPage('main-page')" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl text-lg">
-            <i class="fas fa-stop-circle mr-2"></i> หยุดชาร์จ
-        </button>
+        <button onclick="showPage('main-page')" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl text-lg"><i class="fas fa-stop-circle mr-2"></i> หยุดชาร์จ</button>
     </div>
     
     <!-- ===== Page 5: Wallet & Top-up ===== -->
     <div id="wallet-page" class="page p-6 flex-col">
-        <header class="mb-6 flex items-center">
-            <button onclick="showPage('main-page')" class="text-gray-600 mr-4"><i class="fas fa-arrow-left"></i></button>
-            <h2 class="text-2xl font-bold">เติมเงินเข้า Wallet</h2>
-        </header>
-        <div class="bg-blue-600 text-white p-6 rounded-xl shadow-lg mb-8">
-            <p class="text-blue-200">ยอดเงินปัจจุบัน</p>
-            <p class="text-4xl font-bold">฿ 250.75</p>
-        </div>
+        <header class="mb-6 flex items-center"><button onclick="showPage('main-page')" class="text-gray-600 mr-4"><i class="fas fa-arrow-left"></i></button><h2 class="text-2xl font-bold">เติมเงิน</h2></header>
+        <div class="bg-blue-600 text-white p-6 rounded-xl shadow-lg mb-8"><p class="text-blue-200">ยอดเงินปัจจุบัน</p><p class="text-4xl font-bold">฿ 250.75</p></div>
         
-        <div>
+        <div id="topup-step1">
             <label class="font-semibold text-gray-700">ระบุจำนวนเงิน (บาท)</label>
             <input type="number" id="topup-amount" class="input-field mt-2 text-xl text-center" placeholder="เช่น 300, 500, 1000">
         </div>
@@ -229,11 +183,117 @@
         <div id="qr-code-area" class="hidden my-8 text-center">
             <p class="text-gray-600 mb-2">สแกน QR Code นี้เพื่อชำระเงิน</p>
             <img src="https://placehold.co/250x250/ffffff/000000?text=PromptPay+QR" alt="QR Code" class="mx-auto rounded-lg shadow-md">
-            <p class="text-sm text-gray-500 mt-4">QR Code จะหมดอายุใน 15:00 นาที</p>
+        </div>
+
+        <div id="upload-slip-area" class="hidden my-8 text-center">
+            <label for="slip-upload" class="w-full bg-green-100 text-green-700 font-semibold py-3 rounded-lg cursor-pointer block">
+                <i class="fa-solid fa-cloud-arrow-up mr-2"></i>
+                <span id="slip-filename">อัปโหลดสลิป</span>
+            </label>
+            <input type="file" id="slip-upload" class="hidden" accept="image/*">
         </div>
 
         <div class="mt-auto">
-            <button onclick="generateQR()" class="btn-primary w-full text-lg">สร้าง QR Code</button>
+            <button id="btn-generate-qr" onclick="generateQR()" class="btn-primary w-full text-lg">สร้าง QR Code</button>
+            <button id="btn-verify-slip" onclick="verifySlip()" class="hidden btn-primary w-full text-lg bg-green-600 hover:bg-green-700">ยืนยันการชำระเงิน</button>
+        </div>
+    </div>
+
+    <!-- ===== Page 6: My Cars ===== -->
+    <div id="my-cars-page" class="page flex-col">
+        <main class="flex-grow p-6">
+            <h2 class="text-2xl font-bold mb-6">รถของฉัน</h2>
+            <div id="car-list" class="space-y-4 mb-6">
+                <!-- Mockup Car 1 -->
+                <div class="bg-slate-100 p-4 rounded-lg flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-car-on text-3xl text-blue-500"></i>
+                        <div>
+                            <p class="font-bold">กข 1234 กรุงเทพมหานคร</p>
+                            <p class="text-sm text-gray-600">Tesla Model 3 - Type 2</p>
+                        </div>
+                    </div>
+                    <button class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </div>
+            <button onclick="showPage('add-car-page')" class="w-full bg-blue-100 text-blue-700 font-semibold py-3 rounded-lg mb-8"><i class="fa-solid fa-plus mr-2"></i>เพิ่มรถคันใหม่</button>
+            
+            <h3 class="text-xl font-bold mb-4">ประวัติการทำธุรกรรม</h3>
+            <div class="space-y-3">
+                <div class="border-b pb-3"><div class="flex justify-between items-center"><p class="font-semibold">ชาร์จที่ EV-001</p><p class="text-red-600 font-bold">- ฿ 120.50</p></div><p class="text-sm text-gray-500">1 สิงหาคม 2568, 14:30 น.</p></div>
+                <div class="border-b pb-3"><div class="flex justify-between items-center"><p class="font-semibold">เติมเงิน</p><p class="text-green-600 font-bold">+ ฿ 500.00</p></div><p class="text-sm text-gray-500">30 กรกฎาคม 2568, 09:15 น.</p></div>
+            </div>
+        </main>
+        <footer class="footer p-4 border-t bg-white grid grid-cols-3 text-center z-10">
+            <a href="#" onclick="showPage('main-page')" class="text-gray-400"><i class="fas fa-map-location-dot text-2xl"></i><span class="block text-xs mt-1">แผนที่</span></a>
+            <a href="#" onclick="showPage('my-cars-page')" class="text-blue-600"><i class="fas fa-car-side text-2xl"></i><span class="block text-xs mt-1">รถของฉัน</span></a>
+            <a href="#" onclick="showPage('profile-page')" class="text-gray-400"><i class="fas fa-user text-2xl"></i><span class="block text-xs mt-1">โปรไฟล์</span></a>
+        </footer>
+    </div>
+    
+    <!-- ===== Page 7: Profile ===== -->
+    <div id="profile-page" class="page flex-col">
+        <main class="flex-grow p-6">
+            <h2 class="text-2xl font-bold mb-6">โปรไฟล์ของฉัน</h2>
+            <div class="flex flex-col items-center mb-8">
+                <label for="profile-upload" class="cursor-pointer">
+                    <img id="profile-picture" src="https://placehold.co/100x100/e2e8f0/64748b?text=User" class="rounded-full mb-2 object-cover w-24 h-24" alt="Profile Picture">
+                </label>
+                <input type="file" id="profile-upload" class="hidden" accept="image/*">
+                <label for="profile-upload" class="text-sm text-blue-600 hover:underline cursor-pointer">เปลี่ยนรูปโปรไฟล์</label>
+            </div>
+            <form class="space-y-4">
+                <div><label class="font-semibold text-gray-700">ชื่อ-นามสกุล</label><input type="text" class="input-field mt-1" value="สมชาย ใจดี"></div>
+                <div><label class="font-semibold text-gray-700">อีเมล</label><input type="email" class="input-field mt-1" value="user@example.com" disabled></div>
+                <div><label class="font-semibold text-gray-700">เบอร์โทร</label><input type="tel" class="input-field mt-1" value="081-234-5678"></div>
+                <div><label class="font-semibold text-gray-700">ที่อยู่</label><textarea class="input-field mt-1" rows="3">123/45 ถ.มิตรภาพ ต.ในเมือง อ.เมือง จ.นครราชสีมา 30000</textarea></div>
+                <button type="button" class="btn-primary w-full mt-6">บันทึกข้อมูล</button>
+                <button type="button" class="w-full bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg mt-2">เปลี่ยนรหัสผ่าน</button>
+                <button type="button" onclick="confirm('คุณแน่ใจหรือไม่ว่าต้องการลบบัญชี? การกระทำนี้ไม่สามารถย้อนกลับได้')" class="w-full bg-red-100 text-red-700 font-semibold py-3 rounded-lg mt-4">ลบบัญชี</button>
+            </form>
+        </main>
+        <footer class="footer p-4 border-t bg-white grid grid-cols-3 text-center z-10">
+            <a href="#" onclick="showPage('main-page')" class="text-gray-400"><i class="fas fa-map-location-dot text-2xl"></i><span class="block text-xs mt-1">แผนที่</span></a>
+            <a href="#" onclick="showPage('my-cars-page')" class="text-gray-400"><i class="fas fa-car-side text-2xl"></i><span class="block text-xs mt-1">รถของฉัน</span></a>
+            <a href="#" onclick="showPage('profile-page')" class="text-blue-600"><i class="fas fa-user text-2xl"></i><span class="block text-xs mt-1">โปรไฟล์</span></a>
+        </footer>
+    </div>
+
+    <!-- ===== Page 8: Add New Car ===== -->
+    <div id="add-car-page" class="page p-6">
+        <header class="mb-6 flex items-center">
+            <button onclick="showPage('my-cars-page')" class="text-gray-600 mr-4"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="text-2xl font-bold">เพิ่มรถคันใหม่</h2>
+        </header>
+        <form id="add-car-form" class="space-y-4">
+            <div>
+                <label class="font-semibold">ยี่ห้อ</label>
+                <select id="car-brand-select" class="input-field mt-1"></select>
+            </div>
+            <div>
+                <label class="font-semibold">รุ่น</label>
+                <select id="car-model-select" class="input-field mt-1"></select>
+            </div>
+            <div><label class="font-semibold">ทะเบียนรถ</label><input type="text" class="input-field mt-1" placeholder="เช่น 1กข 9999"></div>
+            <div>
+                <label class="font-semibold">ประเภทหัวชาร์จ</label>
+                <select id="car-connector-select" class="input-field mt-1">
+                    <option>Type 2 (AC)</option>
+                    <option>CCS2 (DC)</option>
+                    <option>CHAdeMO (DC)</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-primary w-full mt-6">บันทึกรถ</button>
+        </form>
+    </div>
+
+    <!-- ===== Page 9: Thank You ===== -->
+    <div id="thank-you-page" class="page p-8 justify-center items-center text-center">
+        <div class="w-full">
+            <i class="fas fa-check-circle text-7xl text-green-500 mb-6"></i>
+            <h1 class="text-3xl font-bold text-gray-800">สำเร็จ!</h1>
+            <p class="text-gray-500 mb-8">การชำระเงินของคุณได้รับการยืนยันแล้ว<br>ขอบคุณที่ใช้บริการ</p>
+            <button onclick="showPage('main-page')" class="btn-primary mt-4">กลับสู่หน้าหลัก</button>
         </div>
     </div>
 
@@ -242,89 +302,203 @@
 <script>
     const pages = document.querySelectorAll('.page');
     let chargeInterval;
+    let map;
+    let mapInitialized = false;
 
-    function showPage(pageId) {
-        // Stop charging simulation if leaving the page
-        if (chargeInterval) {
-            clearInterval(chargeInterval);
-            chargeInterval = null;
+    const chargers = {
+        'EV-001': { coords: [14.876299, 102.021012], status: 'ว่าง', available: true },
+        'EV-002': { coords: [14.875469, 102.015571], status: 'ไม่ว่าง', available: false }
+    };
+    
+    const carData = {
+        "Tesla": ["Model 3", "Model Y", "Cybertruck"],
+        "BYD": ["Atto 3", "Dolphin", "Seal"],
+        "NETA": ["V", "S"],
+        "MG": ["ZS EV", "EP", "MG4", "Maxus 9"],
+        "Ora": ["Good Cat", "Good Cat GT"],
+        "Volvo": ["XC40 Recharge", "C40 Recharge", "EX30"],
+        "BMW": ["iX3", "i4", "iX", "i7"],
+        "Mercedes-Benz": ["EQS", "EQB", "EQA", "EQE"],
+        "อื่น ๆ": ["กรุณาระบุ"]
+    };
+
+    function initMap() {
+        if (mapInitialized) return;
+        map = L.map('map').setView([14.8758, 102.0183], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        for (const id in chargers) {
+            const charger = chargers[id];
+            const marker = L.marker(charger.coords).addTo(map);
+            
+            const popupContent = `
+                <div class="text-center">
+                    <img src="https://placehold.co/150x100/e2e8f0/64748b?text=${id}" class="rounded-lg mb-2" alt="Charger ${id}">
+                    <h3 class="font-bold text-lg">${id}</h3>
+                    <p class="font-semibold ${charger.available ? 'text-green-600' : 'text-red-600'}">${charger.status}</p>
+                    ${charger.available ? `<button class="btn-primary text-sm mt-2 px-4 py-2" onclick="showChargerDetails('${id}')">เลือกตู้ชาร์จนี้</button>` : ''}
+                </div>
+            `;
+            marker.bindPopup(popupContent);
         }
-
-        pages.forEach(page => {
-            page.classList.remove('active');
-        });
-        document.getElementById(pageId).classList.add('active');
-
-        // Start charging simulation if entering the page
-        if (pageId === 'charging-session-page') {
-            startChargingSimulation();
-        }
+        mapInitialized = true;
     }
 
-    document.getElementById('login-form').addEventListener('submit', function(e) {
+    function showPage(pageId) {
+        if (chargeInterval) { clearInterval(chargeInterval); chargeInterval = null; }
+        
+        pages.forEach(page => page.classList.remove('active'));
+        const targetPage = document.getElementById(pageId);
+        if(targetPage) targetPage.classList.add('active');
+
+        document.querySelectorAll('footer').forEach(footer => {
+            const links = footer.querySelectorAll('a');
+            links.forEach(link => {
+                link.classList.remove('text-blue-600');
+                link.classList.add('text-gray-400');
+                if (link.getAttribute('onclick').includes(pageId)) {
+                    link.classList.add('text-blue-600');
+                    link.classList.remove('text-gray-400');
+                }
+            });
+        });
+
+        if (pageId === 'main-page') {
+            setTimeout(() => {
+                initMap();
+                map.invalidateSize();
+            }, 10);
+        }
+        if (pageId === 'charging-session-page') startChargingSimulation();
+        if (pageId === 'add-car-page') populateCarBrands();
+    }
+
+    function showChargerDetails(chargerId) {
+        map.closePopup();
+        document.getElementById('charger-detail-name').innerText = `สถานีชาร์จ ${chargerId}`;
+        showPage('charger-detail-page');
+    }
+
+    // Event Listeners
+    document.getElementById('login-form').addEventListener('submit', (e) => {
         e.preventDefault();
         showPage('main-page');
     });
     
+    document.getElementById('energy-slider').addEventListener('input', function(e) {
+        const peaValue = e.target.value;
+        const solarValue = 100 - peaValue;
+        document.getElementById('pea-percent').textContent = peaValue;
+        document.getElementById('solar-percent').textContent = solarValue;
+    });
+
+    // Wallet Page Logic
     function generateQR() {
-        const amount = document.getElementById('topup-amount').value;
-        if (amount && amount > 0) {
-            // In a real app, you would call a backend API to get a real QR code
+        if (document.getElementById('topup-amount').value > 0) {
             document.getElementById('qr-code-area').classList.remove('hidden');
+            document.getElementById('upload-slip-area').classList.remove('hidden');
+            document.getElementById('btn-generate-qr').classList.add('hidden');
+            document.getElementById('btn-verify-slip').classList.remove('hidden');
+            document.getElementById('topup-step1').classList.add('hidden');
         } else {
-            alert('กรุณาระบุจำนวนเงินที่ถูกต้อง');
+            alert('กรุณาระบุจำนวนเงิน');
         }
     }
 
+    document.getElementById('slip-upload').addEventListener('change', function(e) {
+        const filename = e.target.files[0] ? e.target.files[0].name : 'อัปโหลดสลิป';
+        document.getElementById('slip-filename').textContent = filename;
+    });
+
+    function verifySlip() {
+        const slipFile = document.getElementById('slip-upload').files[0];
+        if (!slipFile) {
+            alert('กรุณาอัปโหลดสลิปเพื่อยืนยัน');
+            return;
+        }
+        showPage('thank-you-page');
+    }
+
+    // Profile Page Logic
+    document.getElementById('profile-upload').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profile-picture').src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Add Car Page Logic
+    const brandSelect = document.getElementById('car-brand-select');
+    const modelSelect = document.getElementById('car-model-select');
+
+    function populateCarBrands() {
+        brandSelect.innerHTML = '<option value="">-- เลือกยี่ห้อ --</option>';
+        for (const brand in carData) {
+            const option = document.createElement('option');
+            option.value = brand;
+            option.textContent = brand;
+            brandSelect.appendChild(option);
+        }
+        updateCarModels();
+    }
+
+    function updateCarModels() {
+        const selectedBrand = brandSelect.value;
+        modelSelect.innerHTML = '<option value="">-- เลือกรุ่น --</option>';
+        if (selectedBrand && carData[selectedBrand]) {
+            carData[selectedBrand].forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                modelSelect.appendChild(option);
+            });
+        }
+    }
+
+    brandSelect.addEventListener('change', updateCarModels);
+    
+    document.getElementById('add-car-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Here you would get form data and save it
+        alert('บันทึกรถเรียบร้อย!');
+        showPage('my-cars-page');
+    });
+
+
+    // Charging Simulation
     function startChargingSimulation() {
-        let seconds = 0;
-        let kwh = 0;
-        let cost = 0;
-        let soc = 20;
-        const pricePerKwh = 7.5; // Example price
+        let seconds = 0, kwh = 0, cost = 0, soc = 20;
+        const timeEl = document.getElementById('charge-time'), kwhEl = document.getElementById('charge-kwh'),
+              costEl = document.getElementById('charge-cost'), socTextEl = document.getElementById('soc-text'),
+              batteryLevelEl = document.getElementById('battery-level-indicator');
 
-        const timeEl = document.getElementById('charge-time');
-        const kwhEl = document.getElementById('charge-kwh');
-        const costEl = document.getElementById('charge-cost');
-        const socTextEl = document.getElementById('soc-text');
-        const batteryLevelEl = document.getElementById('battery-level-indicator');
-
-        // Reset UI
-        timeEl.textContent = '00:00:00';
-        kwhEl.textContent = '0.00 kWh';
-        costEl.textContent = '฿ 0.00';
-        socTextEl.textContent = '20%';
-        batteryLevelEl.style.height = '20%';
+        timeEl.textContent = '00:00:00'; kwhEl.textContent = '0.00 kWh'; costEl.textContent = '฿ 0.00';
+        socTextEl.textContent = '20%'; batteryLevelEl.style.height = '20%';
 
         chargeInterval = setInterval(() => {
             seconds++;
-            // Simulate 22kW charging (22kWh per 3600 seconds)
-            kwh += 22 / 3600; 
-            cost = kwh * pricePerKwh;
-            // Simulate battery capacity of 70kWh
-            soc += (22 / 3600) / 70 * 100; 
+            kwh += 22 / 3600; cost = kwh * 7.5; soc += (22 / 3600) / 70 * 100;
 
-            if (soc >= 100) {
-                soc = 100;
-                clearInterval(chargeInterval);
-                alert("ชาร์จเต็มแล้ว!");
-            }
+            if (soc >= 100) { soc = 100; clearInterval(chargeInterval); alert("ชาร์จเต็มแล้ว!"); }
 
-            // Update UI
-            const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
-            const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-            const s = String(seconds % 60).padStart(2, '0');
+            const h = String(Math.floor(seconds / 3600)).padStart(2, '0'),
+                  m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0'),
+                  s = String(seconds % 60).padStart(2, '0');
             
-            timeEl.textContent = `${h}:${m}:${s}`;
-            kwhEl.textContent = `${kwh.toFixed(2)} kWh`;
-            costEl.textContent = `฿ ${cost.toFixed(2)}`;
-            socTextEl.textContent = `${Math.floor(soc)}%`;
+            timeEl.textContent = `${h}:${m}:${s}`; kwhEl.textContent = `${kwh.toFixed(2)} kWh`;
+            costEl.textContent = `฿ ${cost.toFixed(2)}`; socTextEl.textContent = `${Math.floor(soc)}%`;
             batteryLevelEl.style.height = `${soc}%`;
-
         }, 1000);
     }
 
-    // Initialize with login page
+    // Initialize
     showPage('login-page');
 </script>
 
