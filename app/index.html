@@ -3,26 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EV Charge - User Mockup</title>
+    <meta name="theme-color" content="#2563eb">
+    <meta name="description" content="แอปพลิเคชันสำหรับการชาร์จรถยนต์ไฟฟ้า EV Charge">
+    <title>EV Charge - ชาร์จรถไฟฟ้าง่ายๆ</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1d4ed8'
+                    }
+                }
+            }
+        }
+    </script>
     
     <!-- Google Fonts & Font Awesome -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer">
 
     <!-- Leaflet.js for Map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1d4ed8;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --light-bg: #f8fafc;
+            --border-radius: 0.75rem;
+            --transition-speed: 0.3s;
+        }
+        
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
         body {
             font-family: 'Sarabun', sans-serif;
-            background-color: #f8fafc; /* slate-50 */
+            background-color: var(--light-bg);
+            color: #1e293b;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
+        
         .app-container {
             max-width: 420px;
             height: 100vh;
@@ -32,57 +67,176 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            position: relative;
         }
+        
         .page {
             display: none;
             flex-grow: 1;
             flex-direction: column;
             overflow-y: auto;
+            scroll-behavior: smooth;
+            transition: transform var(--transition-speed) ease;
         }
+        
         .page.active {
             display: flex;
+            animation: fadeIn 0.3s ease-in-out;
         }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
         .page-no-scroll {
             overflow-y: hidden;
         }
+        
         .btn-primary {
-            background-color: #2563eb; /* blue-600 */
+            background-color: var(--primary-color);
             color: white;
             font-weight: 600;
             padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            transition: background-color 0.3s;
+            border-radius: var(--border-radius);
+            transition: all var(--transition-speed);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.1);
         }
-        .btn-primary:hover {
-            background-color: #1d4ed8; /* blue-700 */
+        
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: var(--secondary-color);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px rgba(37, 99, 235, 0.15);
         }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+        }
+        
         .input-field {
-            background-color: #f1f5f9; /* slate-100 */
-            border: 1px solid #e2e8f0; /* slate-200 */
+            background-color: #f1f5f9;
+            border: 1px solid #e2e8f0;
             border-radius: 0.5rem;
             padding: 0.75rem 1rem;
             width: 100%;
+            transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+            font-size: 1rem;
         }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
         .input-field:disabled {
-            background-color: #e2e8f0; /* slate-200 */
+            background-color: #e2e8f0;
             cursor: not-allowed;
+            opacity: 0.7;
         }
-        #map { height: 100%; width: 100%; }
+        
+        #map { 
+            height: 100%; 
+            width: 100%; 
+            z-index: 1;
+        }
+        
         .leaflet-popup-content-wrapper {
             border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
+        
         .leaflet-popup-content {
             margin: 15px;
             text-align: center;
         }
+        
         /* Charging Animation */
-        .battery-outline { width: 100px; height: 200px; border: 5px solid #374151; border-radius: 15px; position: relative; margin: auto; }
-        .battery-outline::after { content: ''; width: 40px; height: 10px; background: #374151; position: absolute; top: -15px; left: 50%; transform: translateX(-50%); border-radius: 5px; }
-        .battery-level { position: absolute; bottom: 0; left: 0; right: 0; width: 100%; background: linear-gradient(to top, #4ade80, #86efac); border-radius: 0 0 10px 10px; transition: height 1s ease-in-out; }
+        .battery-outline { 
+            width: 100px; 
+            height: 200px; 
+            border: 5px solid #374151; 
+            border-radius: 15px; 
+            position: relative; 
+            margin: auto; 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .battery-outline::after { 
+            content: ''; 
+            width: 40px; 
+            height: 10px; 
+            background: #374151; 
+            position: absolute; 
+            top: -15px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            border-radius: 5px; 
+        }
+        
+        .battery-level { 
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            width: 100%; 
+            background: linear-gradient(to top, #4ade80, #86efac); 
+            border-radius: 0 0 10px 10px; 
+            transition: height 1s ease-in-out; 
+            box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        
         .footer {
             position: sticky;
             bottom: 0;
             width: 100%;
+            background-color: white;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 10;
+        }
+        
+        /* Custom Slider Styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Card Styling */
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -92,208 +246,835 @@
 
     <!-- ===== Page 1: Login ===== -->
     <div id="login-page" class="page active p-8 justify-center items-center">
-        <div class="w-full text-center">
-            <i class="fas fa-bolt-lightning text-5xl text-blue-600 mb-4"></i>
-            <h1 class="text-3xl font-bold text-gray-800">ยินดีต้อนรับ</h1>
-            <p class="text-gray-500 mb-8">เข้าสู่ระบบเพื่อเริ่มใช้งาน</p>
-            <form id="login-form" class="flex flex-col gap-4">
-                <input type="email" placeholder="อีเมล" class="input-field" value="user@example.com">
-                <input type="password" placeholder="รหัสผ่าน" class="input-field" value="password">
-                <button type="submit" class="btn-primary mt-4">เข้าสู่ระบบ</button>
+        <div class="w-full max-w-sm mx-auto text-center">
+            <div class="mb-8 transform hover:scale-105 transition-transform duration-300">
+                <i class="fas fa-bolt-lightning text-6xl text-blue-600 mb-4 drop-shadow-md"></i>
+                <h1 class="text-3xl font-bold text-gray-800">EV Charge</h1>
+                <p class="text-gray-500 mt-2">ชาร์จรถไฟฟ้าง่ายๆ ทุกที่ ทุกเวลา</p>
+            </div>
+            
+            <form id="login-form" class="flex flex-col gap-4 card p-6">
+                <div class="text-left">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <input type="email" id="email" name="email" placeholder="your.email@example.com" 
+                               class="input-field pl-10" value="user@example.com" required>
+                    </div>
+                    <p id="email-error" class="text-red-500 text-xs mt-1 hidden">กรุณากรอกอีเมลให้ถูกต้อง</p>
+                </div>
+                
+                <div class="text-left">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" id="password" name="password" placeholder="รหัสผ่านของคุณ" 
+                               class="input-field pl-10" value="password" required>
+                        <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <p id="password-error" class="text-red-500 text-xs mt-1 hidden">รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร</p>
+                </div>
+                
+                <div class="flex items-center justify-between mt-2">
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-blue-600 rounded border-gray-300">
+                        <label for="remember-me" class="ml-2 block text-sm text-gray-700">จดจำฉัน</label>
+                    </div>
+                    <a href="#" class="text-sm text-blue-600 hover:underline">ลืมรหัสผ่าน?</a>
+                </div>
+                
+                <button type="submit" class="btn-primary mt-6 py-3">
+                    <i class="fas fa-sign-in-alt mr-2"></i>เข้าสู่ระบบ
+                </button>
+                
+                <p class="text-sm text-gray-600 mt-4">
+                    ยังไม่มีบัญชี? <a href="#" class="text-blue-600 hover:underline">สมัครใช้งาน</a>
+                </p>
             </form>
         </div>
     </div>
 
     <!-- ===== Page 2: Main Dashboard (Map) ===== -->
     <div id="main-page" class="page page-no-scroll">
-        <header class="p-4 flex justify-between items-center border-b bg-white z-10">
-            <div>
-                <p class="text-sm text-gray-500">ยอดเงินคงเหลือ</p>
-                <p class="text-xl font-bold text-gray-800">฿ 250.75</p>
+        <header class="p-4 flex justify-between items-center border-b bg-white z-10 shadow-sm">
+            <div class="flex items-center">
+                <div class="bg-blue-100 p-2 rounded-full mr-3">
+                    <i class="fa-solid fa-wallet text-blue-600"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500">ยอดเงินคงเหลือ</p>
+                    <p class="text-xl font-bold text-gray-800">฿ 250.75</p>
+                </div>
             </div>
-            <button onclick="showPage('wallet-page')" class="bg-green-100 text-green-700 px-4 py-2 rounded-full font-semibold">
-                <i class="fa-solid fa-wallet mr-2"></i>เติมเงิน
+            <button onclick="showPage('wallet-page')" class="bg-green-100 text-green-700 px-4 py-2 rounded-full font-semibold hover:bg-green-200 transition-colors flex items-center">
+                <i class="fa-solid fa-plus mr-2"></i>เติมเงิน
             </button>
         </header>
+        
+        <!-- Search and Filter Bar -->
+        <div class="p-3 bg-white border-b z-10 shadow-sm">
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" id="search-station" placeholder="ค้นหาสถานีชาร์จ" 
+                       class="input-field pl-10 py-2 text-sm" onkeyup="searchStations()">
+                <button id="filter-button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-blue-600">
+                    <i class="fas fa-filter"></i>
+                </button>
+            </div>
+            
+            <!-- Filter Options (Hidden by default) -->
+            <div id="filter-options" class="mt-3 p-3 bg-gray-50 rounded-lg hidden">
+                <div class="flex flex-wrap gap-2 mb-2">
+                    <button class="filter-option bg-white px-3 py-1 rounded-full text-xs border border-gray-200 hover:border-blue-400 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-bolt text-yellow-500 mr-1"></i>ว่าง
+                    </button>
+                    <button class="filter-option bg-white px-3 py-1 rounded-full text-xs border border-gray-200 hover:border-blue-400 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-plug text-blue-500 mr-1"></i>Type 2
+                    </button>
+                    <button class="filter-option bg-white px-3 py-1 rounded-full text-xs border border-gray-200 hover:border-blue-400 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-solar-panel text-orange-500 mr-1"></i>พลังงานสะอาด
+                    </button>
+                    <button class="filter-option bg-white px-3 py-1 rounded-full text-xs border border-gray-200 hover:border-blue-400 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-star text-yellow-400 mr-1"></i>คะแนนสูง
+                    </button>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-500">ระยะทาง: <span id="distance-value">5</span> กม.</span>
+                    <input type="range" min="1" max="20" value="5" class="w-2/3" id="distance-slider">
+                </div>
+            </div>
+        </div>
+        
         <div class="flex-grow relative">
             <div id="map"></div>
+            
+            <!-- Current Location Button -->
+            <button id="current-location" class="absolute bottom-24 right-4 bg-white p-3 rounded-full shadow-lg z-20 hover:bg-gray-100 transition-colors">
+                <i class="fas fa-location-crosshairs text-blue-600"></i>
+            </button>
+            
+            <!-- Nearest Station Button -->
+            <button id="nearest-station" class="absolute bottom-40 right-4 bg-white p-3 rounded-full shadow-lg z-20 hover:bg-gray-100 transition-colors">
+                <i class="fas fa-bolt text-yellow-500"></i>
+            </button>
         </div>
+        
         <footer class="footer p-4 border-t bg-white grid grid-cols-3 text-center z-10">
-            <a href="#" onclick="showPage('main-page')" class="text-blue-600"><i class="fas fa-map-location-dot text-2xl"></i><span class="block text-xs mt-1">แผนที่</span></a>
-            <a href="#" onclick="showPage('my-cars-page')" class="text-gray-400"><i class="fas fa-car-side text-2xl"></i><span class="block text-xs mt-1">รถของฉัน</span></a>
-            <a href="#" onclick="showPage('profile-page')" class="text-gray-400"><i class="fas fa-user text-2xl"></i><span class="block text-xs mt-1">โปรไฟล์</span></a>
+            <a href="#" onclick="showPage('main-page')" class="text-blue-600 flex flex-col items-center justify-center">
+                <i class="fas fa-map-location-dot text-2xl"></i>
+                <span class="text-xs mt-1">แผนที่</span>
+            </a>
+            <a href="#" onclick="showPage('my-cars-page')" class="text-gray-400 flex flex-col items-center justify-center">
+                <i class="fas fa-car-side text-2xl"></i>
+                <span class="text-xs mt-1">รถของฉัน</span>
+            </a>
+            <a href="#" onclick="showPage('profile-page')" class="text-gray-400 flex flex-col items-center justify-center">
+                <i class="fas fa-user text-2xl"></i>
+                <span class="text-xs mt-1">โปรไฟล์</span>
+            </a>
         </footer>
     </div>
 
     <!-- ===== Page 3: Charger Details & Start Charging ===== -->
     <div id="charger-detail-page" class="page p-6 flex-col">
-        <header class="mb-6">
-            <button onclick="showPage('main-page')" class="text-gray-600"><i class="fas fa-arrow-left mr-2"></i> กลับ</button>
+        <header class="mb-4 flex items-center">
+            <button onclick="showPage('main-page')" class="text-gray-600 hover:text-blue-600 transition-colors p-2 rounded-full hover:bg-blue-50">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2 class="text-xl font-bold ml-2">รายละเอียดสถานีชาร์จ</h2>
         </header>
-        <div class="text-center">
-            <i class="fas fa-charging-station text-6xl text-blue-600"></i>
-            <h2 id="charger-detail-name" class="text-3xl font-bold mt-4"></h2>
-            <p class="text-green-600 font-semibold mt-1"><i class="fas fa-check-circle"></i> ว่าง</p>
-        </div>
-        <div class="my-8 space-y-4">
-            <div class="flex justify-between items-center bg-slate-100 p-4 rounded-lg">
-                <span class="text-gray-600">ราคา</span><span class="font-bold text-blue-600">฿ 7.5 / kWh</span>
+        
+        <div class="card p-5 mb-6">
+            <div class="flex items-center mb-4">
+                <div class="bg-blue-100 p-3 rounded-full mr-4">
+                    <i class="fas fa-charging-station text-3xl text-blue-600"></i>
+                </div>
+                <div>
+                    <h2 id="charger-detail-name" class="text-2xl font-bold"></h2>
+                    <div class="flex items-center mt-1">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <i class="fas fa-check-circle mr-1"></i> ว่าง
+                        </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 ml-2">
+                            <i class="fas fa-plug mr-1"></i> Type 2
+                        </span>
+                    </div>
+                </div>
             </div>
-            <div class="bg-slate-100 p-4 rounded-lg">
+            
+            <div class="flex items-center justify-between text-sm mb-3">
+                <div class="flex items-center">
+                    <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
+                    <span>ห่างจากคุณ 1.2 กม.</span>
+                </div>
+                <div class="flex items-center">
+                    <i class="fas fa-star text-yellow-400 mr-1"></i>
+                    <span>4.8 (24 รีวิว)</span>
+                </div>
+            </div>
+            
+            <div class="border-t border-b border-gray-100 py-3 my-3">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-gray-600">ราคา</span>
+                    <span class="font-bold text-blue-600 text-lg">฿ 7.5 / kWh</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">กำลังไฟสูงสุด</span>
+                    <span class="font-semibold">22 kW</span>
+                </div>
+            </div>
+            
+            <div class="mt-3">
                 <label for="energy-slider" class="block font-semibold text-gray-700 mb-2">เลือกแหล่งพลังงาน</label>
                 <div class="flex justify-between text-sm font-medium mb-2">
-                    <span class="text-yellow-500"><i class="fa-solid fa-solar-panel"></i> Solar <span id="solar-percent">50</span>%</span>
-                    <span class="text-blue-500"><i class="fa-solid fa-tower-broadcast"></i> PEA <span id="pea-percent">50</span>%</span>
+                    <span class="flex items-center text-yellow-500">
+                        <i class="fa-solid fa-solar-panel mr-1"></i> Solar <span id="solar-percent" class="ml-1">50</span>%
+                    </span>
+                    <span class="flex items-center text-blue-500">
+                        <i class="fa-solid fa-tower-broadcast mr-1"></i> PEA <span id="pea-percent" class="ml-1">50</span>%
+                    </span>
                 </div>
-                <input id="energy-slider" type="range" min="0" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-yellow-100 to-blue-100 rounded-lg"></div>
+                    <input id="energy-slider" type="range" min="0" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer relative z-10">
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                    <i class="fas fa-info-circle mr-1"></i> การเลือกพลังงานสะอาดช่วยลดการปล่อยคาร์บอนไดออกไซด์
+                </p>
             </div>
         </div>
+        
+        <div class="card p-4 mb-6">
+            <h3 class="font-semibold mb-2">เลือกรถของคุณ</h3>
+            <select class="input-field mb-2">
+                <option>Tesla Model 3 - กข 1234 กรุงเทพมหานคร</option>
+                <option>+ เพิ่มรถคันใหม่</option>
+            </select>
+            <div class="flex items-center text-sm text-gray-600">
+                <i class="fas fa-battery-three-quarters text-green-500 mr-2"></i>
+                <span>แบตเตอรี่ปัจจุบัน: 45%</span>
+            </div>
+        </div>
+        
         <div class="mt-auto">
-            <button onclick="showPage('charging-session-page')" class="btn-primary w-full text-lg">
+            <button onclick="showPage('charging-session-page')" class="btn-primary w-full text-lg py-4">
                 <i class="fas fa-bolt mr-2"></i> เริ่มชาร์จเลย
             </button>
         </div>
     </div>
 
     <!-- ===== Page 4: Charging Session ===== -->
-    <div id="charging-session-page" class="page p-8 bg-gray-800 text-white justify-between">
-        <div class="text-center"><h2 class="text-3xl font-bold">กำลังชาร์จ...</h2></div>
-        <div class="relative text-center">
-            <div class="battery-outline"><div id="battery-level-indicator" class="battery-level" style="height: 20%;"></div></div>
-            <p id="soc-text" class="text-5xl font-bold mt-6">20%</p>
+    <div id="charging-session-page" class="page bg-gray-900 text-white">
+        <header class="p-4 flex justify-between items-center">
+            <h2 class="text-xl font-bold">กำลังชาร์จ...</h2>
+            <div class="bg-gray-800 px-3 py-1 rounded-full text-sm">
+                <i class="fas fa-clock mr-1"></i> <span id="charge-time">00:00:00</span>
+            </div>
+        </header>
+        
+        <div class="p-6 flex-grow flex flex-col justify-center items-center">
+            <div class="relative mb-8 w-full max-w-xs">
+                <div class="battery-outline">
+                    <div id="battery-level-indicator" class="battery-level" style="height: 20%;"></div>
+                </div>
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-full">
+                    <p id="soc-text" class="text-6xl font-bold">20%</p>
+                    <p class="text-gray-400 mt-2">ระดับแบตเตอรี่</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-6 w-full max-w-xs">
+                <div class="bg-gray-800 p-4 rounded-xl text-center">
+                    <p class="text-gray-400 text-sm">พลังงาน</p>
+                    <p id="charge-kwh" class="text-2xl font-semibold mt-1">0.00 kWh</p>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-xl text-center">
+                    <p class="text-gray-400 text-sm">ค่าบริการ</p>
+                    <p id="charge-cost" class="text-2xl font-semibold mt-1">฿ 0.00</p>
+                </div>
+            </div>
+            
+            <div class="mt-8 w-full max-w-xs">
+                <div class="bg-gray-800 p-4 rounded-xl mb-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-400">เวลาที่เหลือโดยประมาณ</span>
+                        <span class="font-semibold">45 นาที</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2.5 mt-2">
+                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: 25%"></div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between text-sm mb-6">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-yellow-400 mr-2"></div>
+                        <span>Solar: 65%</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-blue-400 mr-2"></div>
+                        <span>PEA: 35%</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="grid grid-cols-3 gap-4 text-center">
-            <div><p class="text-gray-400">เวลา</p><p id="charge-time" class="text-2xl font-semibold">00:00:00</p></div>
-            <div><p class="text-gray-400">พลังงาน</p><p id="charge-kwh" class="text-2xl font-semibold">0.00 kWh</p></div>
-            <div><p class="text-gray-400">ค่าบริการ</p><p id="charge-cost" class="text-2xl font-semibold">฿ 0.00</p></div>
+        
+        <div class="p-6">
+            <button onclick="showPage('main-page')" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl text-lg flex items-center justify-center">
+                <i class="fas fa-stop-circle mr-2"></i> หยุดชาร์จ
+            </button>
         </div>
-        <button onclick="showPage('main-page')" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl text-lg"><i class="fas fa-stop-circle mr-2"></i> หยุดชาร์จ</button>
     </div>
     
     <!-- ===== Page 5: Wallet & Top-up ===== -->
     <div id="wallet-page" class="page p-6 flex-col">
-        <header class="mb-6 flex items-center"><button onclick="showPage('main-page')" class="text-gray-600 mr-4"><i class="fas fa-arrow-left"></i></button><h2 class="text-2xl font-bold">เติมเงิน</h2></header>
-        <div class="bg-blue-600 text-white p-6 rounded-xl shadow-lg mb-8"><p class="text-blue-200">ยอดเงินปัจจุบัน</p><p class="text-4xl font-bold">฿ 250.75</p></div>
+        <header class="mb-6 flex items-center">
+            <button onclick="showPage('main-page')" class="text-gray-600 hover:text-blue-600 transition-colors p-2 rounded-full hover:bg-blue-50 mr-2">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2 class="text-2xl font-bold">เติมเงิน</h2>
+        </header>
         
-        <div id="topup-step1">
-            <label class="font-semibold text-gray-700">ระบุจำนวนเงิน (บาท)</label>
-            <input type="number" id="topup-amount" class="input-field mt-2 text-xl text-center" placeholder="เช่น 300, 500, 1000">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-500 text-white p-6 rounded-xl shadow-lg mb-8">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-blue-100">ยอดเงินคงเหลือ</p>
+                <div class="bg-white bg-opacity-20 rounded-full px-3 py-1 text-xs">
+                    <i class="fas fa-history mr-1"></i> ประวัติธุรกรรม
+                </div>
+            </div>
+            <p class="text-4xl font-bold">฿ 250.75</p>
+            <div class="flex items-center mt-2 text-sm">
+                <i class="fas fa-bolt-lightning mr-2 text-yellow-300"></i>
+                <span class="text-blue-100">เพียงพอสำหรับการชาร์จอีกประมาณ 33 kWh</span>
+            </div>
         </div>
         
-        <div id="qr-code-area" class="hidden my-8 text-center">
-            <p class="text-gray-600 mb-2">สแกน QR Code นี้เพื่อชำระเงิน</p>
-            <img src="https://placehold.co/250x250/ffffff/000000?text=PromptPay+QR" alt="QR Code" class="mx-auto rounded-lg shadow-md">
+        <div id="topup-step1" class="card p-5 mb-6">
+            <h3 class="font-semibold text-gray-700 mb-4">เลือกจำนวนเงิน</h3>
+            
+            <div class="grid grid-cols-3 gap-3 mb-4">
+                <button class="quick-amount bg-gray-100 hover:bg-blue-50 hover:border-blue-400 border border-gray-200 rounded-lg py-3 text-center transition-colors" data-amount="100">
+                    <span class="block font-bold">฿ 100</span>
+                </button>
+                <button class="quick-amount bg-gray-100 hover:bg-blue-50 hover:border-blue-400 border border-gray-200 rounded-lg py-3 text-center transition-colors" data-amount="300">
+                    <span class="block font-bold">฿ 300</span>
+                </button>
+                <button class="quick-amount bg-gray-100 hover:bg-blue-50 hover:border-blue-400 border border-gray-200 rounded-lg py-3 text-center transition-colors" data-amount="500">
+                    <span class="block font-bold">฿ 500</span>
+                </button>
+            </div>
+            
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 text-xl font-bold">฿</span>
+                <input type="number" id="topup-amount" class="input-field pl-8 pr-4 py-3 text-xl text-center font-bold" placeholder="ระบุจำนวนเงิน" min="20" max="10000">
+            </div>
+            <p class="text-xs text-gray-500 mt-2 text-center">ขั้นต่ำ ฿20 สูงสุด ฿10,000 ต่อครั้ง</p>
+        </div>
+        
+        <div id="qr-code-area" class="hidden card p-5 mb-6 text-center">
+            <h3 class="font-semibold text-gray-700 mb-3">สแกน QR Code เพื่อชำระเงิน</h3>
+            <div class="bg-white p-3 rounded-lg inline-block mb-3 shadow-md">
+                <img src="https://placehold.co/250x250/ffffff/000000?text=PromptPay+QR" alt="QR Code" class="mx-auto rounded-lg">
+            </div>
+            <p class="text-sm text-gray-600 mb-4">หรือบันทึก QR Code เพื่อชำระผ่านแอปธนาคารของคุณ</p>
+            <div class="flex justify-center space-x-3">
+                <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm transition-colors">
+                    <i class="fas fa-download mr-1"></i> บันทึก QR
+                </button>
+                <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm transition-colors">
+                    <i class="fas fa-share-alt mr-1"></i> แชร์
+                </button>
+            </div>
         </div>
 
-        <div id="upload-slip-area" class="hidden my-8 text-center">
-            <label for="slip-upload" class="w-full bg-green-100 text-green-700 font-semibold py-3 rounded-lg cursor-pointer block">
-                <i class="fa-solid fa-cloud-arrow-up mr-2"></i>
-                <span id="slip-filename">อัปโหลดสลิป</span>
-            </label>
-            <input type="file" id="slip-upload" class="hidden" accept="image/*">
+        <div id="upload-slip-area" class="hidden card p-5 mb-6">
+            <h3 class="font-semibold text-gray-700 mb-3">อัปโหลดหลักฐานการชำระเงิน</h3>
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors cursor-pointer mb-4" id="drop-area">
+                <i class="fas fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
+                <p class="text-gray-500">ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</p>
+                <p class="text-xs text-gray-400 mt-1">รองรับไฟล์ JPG, PNG ขนาดไม่เกิน 5MB</p>
+                <input type="file" id="slip-upload" class="hidden" accept="image/*">
+            </div>
+            <div id="preview-container" class="hidden mb-4">
+                <div class="relative">
+                    <img id="slip-preview" src="" alt="Slip Preview" class="w-full h-48 object-contain bg-gray-100 rounded-lg">
+                    <button id="remove-slip" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <p id="slip-filename" class="text-sm text-gray-500 mt-2 text-center truncate">ชื่อไฟล์</p>
+            </div>
         </div>
 
         <div class="mt-auto">
-            <button id="btn-generate-qr" onclick="generateQR()" class="btn-primary w-full text-lg">สร้าง QR Code</button>
-            <button id="btn-verify-slip" onclick="verifySlip()" class="hidden btn-primary w-full text-lg bg-green-600 hover:bg-green-700">ยืนยันการชำระเงิน</button>
+            <button id="btn-generate-qr" onclick="generateQR()" class="btn-primary w-full text-lg py-4">
+                <i class="fas fa-qrcode mr-2"></i> สร้าง QR Code
+            </button>
+            <button id="btn-verify-slip" onclick="verifySlip()" class="hidden btn-primary w-full text-lg py-4 bg-green-600 hover:bg-green-700">
+                <i class="fas fa-check-circle mr-2"></i> ยืนยันการชำระเงิน
+            </button>
         </div>
     </div>
 
     <!-- ===== Page 6: My Cars ===== -->
     <div id="my-cars-page" class="page flex-col">
         <main class="flex-grow p-6">
-            <h2 class="text-2xl font-bold mb-6">รถของฉัน</h2>
+            <header class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold">รถของฉัน</h2>
+                <div class="relative">
+                    <button class="text-gray-600 hover:text-blue-600 transition-colors p-2 rounded-full hover:bg-blue-50">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </header>
+            
             <div id="car-list" class="space-y-4 mb-6">
                 <!-- Mockup Car 1 -->
-                <div class="bg-slate-100 p-4 rounded-lg flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <i class="fa-solid fa-car-on text-3xl text-blue-500"></i>
-                        <div>
-                            <p class="font-bold">กข 1234 กรุงเทพมหานคร</p>
-                            <p class="text-sm text-gray-600">Tesla Model 3 - Type 2</p>
+                <div class="card p-4 border-l-4 border-blue-500 hover:shadow-md transition-all">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-blue-100 rounded-full p-3 flex items-center justify-center w-12 h-12">
+                                <i class="fas fa-car text-blue-600 text-lg"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center">
+                                    <p class="font-bold">Tesla Model 3</p>
+                                    <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full ml-2">ค่าเริ่มต้น</span>
+                                </div>
+                                <p class="text-sm text-gray-600">กข 1234 กรุงเทพมหานคร</p>
+                                <div class="flex items-center mt-1 text-xs text-gray-500">
+                                    <span class="flex items-center mr-3">
+                                        <i class="fas fa-bolt mr-1 text-yellow-500"></i> Type 2
+                                    </span>
+                                    <span class="flex items-center">
+                                        <i class="fas fa-battery-three-quarters mr-1 text-green-500"></i> 75 kWh
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <button class="text-gray-400 hover:text-blue-500 transition-colors p-2 mr-1">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button class="text-gray-400 hover:text-red-500 transition-colors p-2">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </div>
-                    <button class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                </div>
+                
+                <!-- Mockup Car 2 -->
+                <div class="card p-4 border-l-4 border-gray-300 hover:shadow-md transition-all">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-gray-100 rounded-full p-3 flex items-center justify-center w-12 h-12">
+                                <i class="fas fa-car text-gray-600 text-lg"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold">Nissan Leaf</p>
+                                <p class="text-sm text-gray-600">ขค 5678 กรุงเทพมหานคร</p>
+                                <div class="flex items-center mt-1 text-xs text-gray-500">
+                                    <span class="flex items-center mr-3">
+                                        <i class="fas fa-bolt mr-1 text-yellow-500"></i> CHAdeMO
+                                    </span>
+                                    <span class="flex items-center">
+                                        <i class="fas fa-battery-three-quarters mr-1 text-green-500"></i> 40 kWh
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <button class="text-gray-400 hover:text-blue-500 transition-colors p-2 mr-1">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button class="text-gray-400 hover:text-red-500 transition-colors p-2">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <button onclick="showPage('add-car-page')" class="w-full bg-blue-100 text-blue-700 font-semibold py-3 rounded-lg mb-8"><i class="fa-solid fa-plus mr-2"></i>เพิ่มรถคันใหม่</button>
             
-            <h3 class="text-xl font-bold mb-4">ประวัติการทำธุรกรรม</h3>
-            <div class="space-y-3">
-                <div class="border-b pb-3"><div class="flex justify-between items-center"><p class="font-semibold">ชาร์จที่ EV-001</p><p class="text-red-600 font-bold">- ฿ 120.50</p></div><p class="text-sm text-gray-500">1 สิงหาคม 2568, 14:30 น.</p></div>
-                <div class="border-b pb-3"><div class="flex justify-between items-center"><p class="font-semibold">เติมเงิน</p><p class="text-green-600 font-bold">+ ฿ 500.00</p></div><p class="text-sm text-gray-500">30 กรกฎาคม 2568, 09:15 น.</p></div>
+            <button onclick="showPage('add-car-page')" class="btn-primary w-full py-4 mb-8">
+                <i class="fas fa-plus-circle mr-2"></i>เพิ่มรถคันใหม่
+            </button>
+            
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold">ประวัติการทำธุรกรรม</h3>
+                <a href="#" class="text-blue-500 text-sm">ดูทั้งหมด</a>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="card p-4">
+                    <div class="flex items-start">
+                        <div class="bg-blue-100 rounded-full p-2 mr-3 flex items-center justify-center w-10 h-10">
+                            <i class="fas fa-charging-station text-blue-600"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <div class="flex justify-between mb-1">
+                                <span class="font-semibold">ชาร์จที่ EV-001</span>
+                                <span class="text-red-600 font-bold">- ฿ 120.50</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-500 flex items-center">
+                                    <i class="fas fa-car text-gray-400 mr-1"></i> Tesla Model 3
+                                </span>
+                                <span class="text-gray-500">1 สิงหาคม 2568, 14:30 น.</span>
+                            </div>
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>12.5 kWh</span>
+                                <span>20 นาที</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card p-4">
+                    <div class="flex items-start">
+                        <div class="bg-green-100 rounded-full p-2 mr-3 flex items-center justify-center w-10 h-10">
+                            <i class="fas fa-wallet text-green-600"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <div class="flex justify-between mb-1">
+                                <span class="font-semibold">เติมเงิน</span>
+                                <span class="text-green-600 font-bold">+ ฿ 500.00</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-500">QR PromptPay</span>
+                                <span class="text-gray-500">30 กรกฎาคม 2568, 09:15 น.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
+        
         <footer class="footer p-4 border-t bg-white grid grid-cols-3 text-center z-10">
-            <a href="#" onclick="showPage('main-page')" class="text-gray-400"><i class="fas fa-map-location-dot text-2xl"></i><span class="block text-xs mt-1">แผนที่</span></a>
-            <a href="#" onclick="showPage('my-cars-page')" class="text-blue-600"><i class="fas fa-car-side text-2xl"></i><span class="block text-xs mt-1">รถของฉัน</span></a>
-            <a href="#" onclick="showPage('profile-page')" class="text-gray-400"><i class="fas fa-user text-2xl"></i><span class="block text-xs mt-1">โปรไฟล์</span></a>
+            <a href="#" onclick="showPage('main-page')" class="text-gray-400 flex flex-col items-center justify-center">
+                <i class="fas fa-map-location-dot text-2xl"></i>
+                <span class="text-xs mt-1">แผนที่</span>
+            </a>
+            <a href="#" onclick="showPage('my-cars-page')" class="text-blue-600 flex flex-col items-center justify-center">
+                <i class="fas fa-car-side text-2xl"></i>
+                <span class="text-xs mt-1">รถของฉัน</span>
+            </a>
+            <a href="#" onclick="showPage('profile-page')" class="text-gray-400 flex flex-col items-center justify-center">
+                <i class="fas fa-user text-2xl"></i>
+                <span class="text-xs mt-1">โปรไฟล์</span>
+            </a>
         </footer>
     </div>
     
     <!-- ===== Page 7: Profile ===== -->
     <div id="profile-page" class="page flex-col">
         <main class="flex-grow p-6">
-            <h2 class="text-2xl font-bold mb-6">โปรไฟล์ของฉัน</h2>
-            <div class="flex flex-col items-center mb-8">
-                <label for="profile-upload" class="cursor-pointer">
-                    <img id="profile-picture" src="https://placehold.co/100x100/e2e8f0/64748b?text=User" class="rounded-full mb-2 object-cover w-24 h-24" alt="Profile Picture">
-                </label>
-                <input type="file" id="profile-upload" class="hidden" accept="image/*">
-                <label for="profile-upload" class="text-sm text-blue-600 hover:underline cursor-pointer">เปลี่ยนรูปโปรไฟล์</label>
+            <header class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold">โปรไฟล์ของฉัน</h2>
+                <div class="relative">
+                    <button class="text-gray-600 hover:text-blue-600 transition-colors p-2 rounded-full hover:bg-blue-50">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Profile Card -->
+            <div class="card p-6 mb-6">
+                <div class="flex flex-col items-center">
+                    <div class="relative mb-3">
+                        <div class="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-md">
+                            <img id="profile-picture" src="https://placehold.co/200x200/e2e8f0/64748b?text=User" class="w-full h-full object-cover" alt="Profile Picture">
+                        </div>
+                        <label for="profile-upload" class="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full p-2 cursor-pointer shadow-md hover:bg-blue-600 transition-colors">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                        <input type="file" id="profile-upload" class="hidden" accept="image/*">
+                    </div>
+                    <h3 class="text-xl font-bold">สมชาย ใจดี</h3>
+                    <p class="text-gray-500 text-sm mb-3">user@example.com</p>
+                    <div class="flex space-x-2">
+                        <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">สมาชิก</span>
+                        <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">ยืนยันแล้ว</span>
+                    </div>
+                </div>
             </div>
-            <form class="space-y-4">
-                <div><label class="font-semibold text-gray-700">ชื่อ-นามสกุล</label><input type="text" class="input-field mt-1" value="สมชาย ใจดี"></div>
-                <div><label class="font-semibold text-gray-700">อีเมล</label><input type="email" class="input-field mt-1" value="user@example.com" disabled></div>
-                <div><label class="font-semibold text-gray-700">เบอร์โทร</label><input type="tel" class="input-field mt-1" value="081-234-5678"></div>
-                <div><label class="font-semibold text-gray-700">ที่อยู่</label><textarea class="input-field mt-1" rows="3">123/45 ถ.มิตรภาพ ต.ในเมือง อ.เมือง จ.นครราชสีมา 30000</textarea></div>
-                <button type="button" class="btn-primary w-full mt-6">บันทึกข้อมูล</button>
-                <button type="button" class="w-full bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg mt-2">เปลี่ยนรหัสผ่าน</button>
-                <button type="button" onclick="confirm('คุณแน่ใจหรือไม่ว่าต้องการลบบัญชี? การกระทำนี้ไม่สามารถย้อนกลับได้')" class="w-full bg-red-100 text-red-700 font-semibold py-3 rounded-lg mt-4">ลบบัญชี</button>
+            
+            <!-- Profile Form -->
+            <form class="space-y-5">
+                <div class="card p-5">
+                    <h3 class="font-semibold text-gray-700 mb-4">ข้อมูลส่วนตัว</h3>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="fullname">
+                            <i class="fas fa-user text-gray-400 mr-2"></i>ชื่อ-นามสกุล
+                        </label>
+                        <input type="text" id="fullname" class="input-field w-full" value="สมชาย ใจดี">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="email">
+                            <i class="fas fa-envelope text-gray-400 mr-2"></i>อีเมล
+                        </label>
+                        <input type="email" id="email" class="input-field w-full bg-gray-50" value="user@example.com" disabled>
+                        <p class="text-xs text-gray-500 mt-1">อีเมลไม่สามารถเปลี่ยนแปลงได้</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="phone">
+                            <i class="fas fa-phone text-gray-400 mr-2"></i>เบอร์โทร
+                        </label>
+                        <input type="tel" id="phone" class="input-field w-full" value="081-234-5678">
+                    </div>
+                </div>
+                
+                <div class="card p-5">
+                    <h3 class="font-semibold text-gray-700 mb-4">ที่อยู่</h3>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="address">
+                            <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i>ที่อยู่ปัจจุบัน
+                        </label>
+                        <textarea id="address" class="input-field w-full" rows="3">123/45 ถ.มิตรภาพ ต.ในเมือง อ.เมือง จ.นครราชสีมา 30000</textarea>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn-primary w-full py-4">
+                    <i class="fas fa-save mr-2"></i>บันทึกข้อมูล
+                </button>
             </form>
+            
+            <div class="mt-6 space-y-3">
+                <button type="button" id="change-password-btn" class="w-full bg-gray-100 text-gray-800 font-semibold py-3 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors">
+                    <i class="fas fa-lock mr-2"></i>เปลี่ยนรหัสผ่าน
+                </button>
+                
+                <!-- Modal เปลี่ยนรหัสผ่าน -->
+                <div id="password-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-lg w-full max-w-md mx-4 overflow-hidden shadow-xl transform transition-all">
+                        <div class="bg-blue-500 text-white px-6 py-4 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold">เปลี่ยนรหัสผ่าน</h3>
+                            <button id="close-password-modal" class="text-white hover:text-gray-200 transition-colors">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <form id="change-password-form" class="p-6 space-y-4">
+                            <div>
+                                <label class="block text-gray-700 text-sm font-medium mb-2" for="current-password">
+                                    <i class="fas fa-lock text-gray-400 mr-2"></i>รหัสผ่านปัจจุบัน
+                                </label>
+                                <div class="relative">
+                                    <input type="password" id="current-password" class="input-field w-full pr-10" placeholder="รหัสผ่านปัจจุบัน">
+                                    <button type="button" class="toggle-password absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-medium mb-2" for="new-password">
+                                    <i class="fas fa-key text-gray-400 mr-2"></i>รหัสผ่านใหม่
+                                </label>
+                                <div class="relative">
+                                    <input type="password" id="new-password" class="input-field w-full pr-10" placeholder="รหัสผ่านใหม่">
+                                    <button type="button" class="toggle-password absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="mt-1 text-xs text-gray-500">รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร ประกอบด้วยตัวอักษรพิมพ์ใหญ่ พิมพ์เล็ก และตัวเลข</div>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-medium mb-2" for="confirm-password">
+                                    <i class="fas fa-check-circle text-gray-400 mr-2"></i>ยืนยันรหัสผ่านใหม่
+                                </label>
+                                <div class="relative">
+                                    <input type="password" id="confirm-password" class="input-field w-full pr-10" placeholder="ยืนยันรหัสผ่านใหม่">
+                                    <button type="button" class="toggle-password absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="password-error" class="text-red-500 text-sm hidden"></div>
+                            <div class="flex justify-end pt-2">
+                                <button type="button" id="cancel-password-change" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg mr-2 hover:bg-gray-300 transition-colors">ยกเลิก</button>
+                                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">บันทึก</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <button type="button" onclick="confirm('คุณแน่ใจหรือไม่ว่าต้องการลบบัญชี? การกระทำนี้ไม่สามารถย้อนกลับได้')" class="w-full bg-red-100 text-red-700 font-semibold py-3 rounded-lg flex items-center justify-center hover:bg-red-200 transition-colors">
+                    <i class="fas fa-trash-alt mr-2"></i>ลบบัญชี
+                </button>
+            </div>
         </main>
+        
         <footer class="footer p-4 border-t bg-white grid grid-cols-3 text-center z-10">
-            <a href="#" onclick="showPage('main-page')" class="text-gray-400"><i class="fas fa-map-location-dot text-2xl"></i><span class="block text-xs mt-1">แผนที่</span></a>
-            <a href="#" onclick="showPage('my-cars-page')" class="text-gray-400"><i class="fas fa-car-side text-2xl"></i><span class="block text-xs mt-1">รถของฉัน</span></a>
-            <a href="#" onclick="showPage('profile-page')" class="text-blue-600"><i class="fas fa-user text-2xl"></i><span class="block text-xs mt-1">โปรไฟล์</span></a>
+            <a href="#" onclick="showPage('main-page')" class="text-gray-400 flex flex-col items-center justify-center">
+                <i class="fas fa-map-location-dot text-2xl"></i>
+                <span class="text-xs mt-1">แผนที่</span>
+            </a>
+            <a href="#" onclick="showPage('my-cars-page')" class="text-gray-400 flex flex-col items-center justify-center">
+                <i class="fas fa-car-side text-2xl"></i>
+                <span class="text-xs mt-1">รถของฉัน</span>
+            </a>
+            <a href="#" onclick="showPage('profile-page')" class="text-blue-600 flex flex-col items-center justify-center">
+                <i class="fas fa-user text-2xl"></i>
+                <span class="text-xs mt-1">โปรไฟล์</span>
+            </a>
         </footer>
     </div>
 
     <!-- ===== Page 8: Add New Car ===== -->
-    <div id="add-car-page" class="page p-6">
+    <div id="add-car-page" class="page p-6 flex-col">
         <header class="mb-6 flex items-center">
-            <button onclick="showPage('my-cars-page')" class="text-gray-600 mr-4"><i class="fas fa-arrow-left"></i></button>
+            <button onclick="showPage('my-cars-page')" class="text-gray-600 hover:text-blue-600 transition-colors p-2 rounded-full hover:bg-blue-50 mr-2">
+                <i class="fas fa-arrow-left"></i>
+            </button>
             <h2 class="text-2xl font-bold">เพิ่มรถคันใหม่</h2>
         </header>
-        <form id="add-car-form" class="space-y-4">
-            <div>
-                <label class="font-semibold">ยี่ห้อ</label>
-                <select id="car-brand-select" class="input-field mt-1"></select>
+        
+        <div class="card p-5 mb-6">
+            <div class="flex items-center mb-4">
+                <div class="bg-blue-100 rounded-full p-3 mr-3 flex items-center justify-center w-10 h-10">
+                    <i class="fas fa-info-circle text-blue-600"></i>
+                </div>
+                <p class="text-sm text-gray-600">การเพิ่มรถของคุณจะช่วยให้การชาร์จเป็นไปอย่างรวดเร็วและสะดวกยิ่งขึ้น</p>
             </div>
-            <div>
-                <label class="font-semibold">รุ่น</label>
-                <select id="car-model-select" class="input-field mt-1"></select>
+        </div>
+        
+        <form id="add-car-form" class="space-y-5">
+            <div class="card p-5">
+                <h3 class="font-semibold text-gray-700 mb-4">ข้อมูลรถ</h3>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="car-brand-select">ยี่ห้อ</label>
+                    <div class="relative">
+                        <select id="car-brand-select" class="input-field appearance-none pr-10 w-full">
+                            <!-- จะถูกเติมโดย JavaScript -->
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="car-model-select">รุ่น</label>
+                    <div class="relative">
+                        <select id="car-model-select" class="input-field appearance-none pr-10 w-full">
+                            <!-- จะถูกเติมโดย JavaScript -->
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="car-plate">ทะเบียนรถ</label>
+                    <input type="text" id="car-plate" class="input-field w-full" placeholder="เช่น กข 1234 กรุงเทพมหานคร">
+                </div>
             </div>
-            <div><label class="font-semibold">ทะเบียนรถ</label><input type="text" class="input-field mt-1" placeholder="เช่น 1กข 9999"></div>
-            <div>
-                <label class="font-semibold">ประเภทหัวชาร์จ</label>
-                <select id="car-connector-select" class="input-field mt-1">
-                    <option>Type 2 (AC)</option>
-                    <option>CCS2 (DC)</option>
-                    <option>CHAdeMO (DC)</option>
-                </select>
+            
+            <div class="card p-5">
+                <h3 class="font-semibold text-gray-700 mb-4">ข้อมูลการชาร์จ</h3>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="car-connector-select">ประเภทหัวชาร์จ</label>
+                    <div class="relative">
+                        <select id="car-connector-select" class="input-field appearance-none pr-10 w-full">
+                            <option value="type2">Type 2 (AC)</option>
+                            <option value="ccs2">CCS2 (DC)</option>
+                            <option value="chademo">CHAdeMO (DC)</option>
+                            <option value="nacs">NACS / Tesla</option>
+                            <option value="gbdc">GB/T (DC)</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="car-battery">ความจุแบตเตอรี่ (kWh)</label>
+                    <input type="number" id="car-battery" class="input-field w-full" placeholder="เช่น 60">
+                </div>
+                
+                <div class="flex items-center mb-4">
+                    <input type="checkbox" id="car-default" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                    <label for="car-default" class="ml-2 text-sm text-gray-700">ตั้งเป็นรถคันหลัก</label>
+                </div>
             </div>
-            <button type="submit" class="btn-primary w-full mt-6">บันทึกรถ</button>
+            
+            <div class="mt-auto">
+                <button type="submit" class="btn-primary w-full text-lg py-4">
+                    <i class="fas fa-save mr-2"></i> บันทึกรถ
+                </button>
+            </div>
         </form>
     </div>
 
     <!-- ===== Page 9: Thank You ===== -->
-    <div id="thank-you-page" class="page p-8 justify-center items-center text-center">
-        <div class="w-full">
-            <i class="fas fa-check-circle text-7xl text-green-500 mb-6"></i>
-            <h1 class="text-3xl font-bold text-gray-800">สำเร็จ!</h1>
-            <p class="text-gray-500 mb-8">การชำระเงินของคุณได้รับการยืนยันแล้ว<br>ขอบคุณที่ใช้บริการ</p>
-            <button onclick="showPage('main-page')" class="btn-primary mt-4">กลับสู่หน้าหลัก</button>
+    <div id="thank-you-page" class="page p-6 flex-col items-center justify-center text-center">
+        <div class="mb-8 animate-fade-in">
+            <div class="w-24 h-24 bg-gradient-to-r from-green-500 to-green-400 text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg animate-pulse">
+                <i class="fas fa-check text-5xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">ขอบคุณสำหรับการชำระเงิน</h2>
+            <p class="text-gray-600">การเติมเงินของคุณสำเร็จแล้ว</p>
+            <div class="flex items-center justify-center mt-4">
+                <span class="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full flex items-center">
+                    <i class="fas fa-clock mr-1"></i> เติมเงินเมื่อ 30 วินาทีที่แล้ว
+                </span>
+            </div>
+        </div>
+        
+        <div class="card p-5 mb-8 w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-semibold text-gray-700">รายละเอียดการเติมเงิน</h3>
+                <span class="text-xs text-gray-500">#TXN-123456</span>
+            </div>
+            
+            <div class="flex justify-between py-2 border-b border-gray-100">
+                <span class="text-gray-600">จำนวนเงินที่เติม</span>
+                <span class="font-bold">฿ 500.00</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-gray-100">
+                <span class="text-gray-600">ค่าธรรมเนียม</span>
+                <span class="font-bold">฿ 0.00</span>
+            </div>
+            <div class="flex justify-between py-2">
+                <span class="text-gray-600">วิธีการชำระเงิน</span>
+                <span class="font-bold">QR PromptPay</span>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-blue-600 to-blue-500 text-white p-6 rounded-xl shadow-lg mb-8 w-full">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-blue-100">ยอดเงินคงเหลือ</p>
+                <div class="bg-white bg-opacity-20 rounded-full px-3 py-1 text-xs">
+                    <i class="fas fa-arrow-up text-green-300 mr-1"></i> +฿500
+                </div>
+            </div>
+            <p class="text-4xl font-bold">฿ 750.75</p>
+            <div class="flex items-center mt-2 text-sm">
+                <i class="fas fa-bolt-lightning mr-2 text-yellow-300"></i>
+                <span class="text-blue-100">เพียงพอสำหรับการชาร์จอีกประมาณ 100 kWh</span>
+            </div>
+        </div>
+        
+        <div class="w-full space-y-3">
+            <button onclick="showPage('main-page')" class="btn-primary w-full text-lg py-4">
+                <i class="fas fa-map-marker-alt mr-2"></i> ค้นหาสถานีชาร์จ
+            </button>
+            <button onclick="showPage('wallet-page')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 w-full py-3 rounded-lg transition-colors">
+                <i class="fas fa-wallet mr-2"></i> กลับไปยังกระเป๋าเงิน
+            </button>
         </div>
     </div>
 
@@ -426,15 +1207,325 @@
     document.getElementById('profile-upload').addEventListener('change', function(event) {
         const file = event.target.files[0];
         if (file) {
+            // ตรวจสอบประเภทไฟล์
+            const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!validImageTypes.includes(file.type)) {
+                alert('กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น (JPEG, PNG, GIF, WEBP)');
+                return;
+            }
+            
+            // ตรวจสอบขนาดไฟล์ (ไม่เกิน 5MB)
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            if (file.size > maxSize) {
+                alert('ขนาดไฟล์ต้องไม่เกิน 5MB');
+                return;
+            }
+            
+            // แสดงตัวโหลดขณะประมวลผลรูปภาพ
+            const profilePicture = document.getElementById('profile-picture');
+            profilePicture.src = 'https://placehold.co/200x200/e2e8f0/64748b?text=Loading...';
+            
             const reader = new FileReader();
             reader.onload = function(e) {
-                document.getElementById('profile-picture').src = e.target.result;
-            }
+                // สร้างรูปภาพใหม่เพื่อตรวจสอบขนาด
+                const img = new Image();
+                img.onload = function() {
+                    // อัปเดตรูปโปรไฟล์
+                    profilePicture.src = e.target.result;
+                    
+                    // แสดงข้อความแจ้งเตือนว่าอัปโหลดสำเร็จ
+                    const profileCard = document.querySelector('#profile-page .card');
+                    const successAlert = document.createElement('div');
+                    successAlert.className = 'bg-green-100 text-green-700 p-3 rounded-lg mt-4 flex items-center justify-between';
+                    successAlert.innerHTML = `
+                        <span><i class="fas fa-check-circle mr-2"></i>อัปโหลดรูปโปรไฟล์สำเร็จ</span>
+                        <button class="text-green-700 hover:text-green-900" onclick="this.parentElement.remove();"><i class="fas fa-times"></i></button>
+                    `;
+                    
+                    // ลบข้อความแจ้งเตือนเก่า (ถ้ามี)
+                    const oldAlert = profileCard.querySelector('.bg-green-100');
+                    if (oldAlert) oldAlert.remove();
+                    
+                    // เพิ่มข้อความแจ้งเตือนใหม่
+                    profileCard.appendChild(successAlert);
+                    
+                    // ซ่อนข้อความแจ้งเตือนหลังจาก 3 วินาที
+                    setTimeout(() => {
+                        successAlert.remove();
+                    }, 3000);
+                };
+                img.src = e.target.result;
+            };
             reader.readAsDataURL(file);
         }
     });
-
-    // Add Car Page Logic
+    
+    // เพิ่มฟังก์ชันสำหรับการบันทึกข้อมูลโปรไฟล์
+     document.querySelector('#profile-page .btn-primary').addEventListener('click', function() {
+         // จำลองการบันทึกข้อมูล
+         const saveButton = this;
+         const originalText = saveButton.innerHTML;
+         
+         // แสดงไอคอนโหลด
+         saveButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>กำลังบันทึก...';
+         saveButton.disabled = true;
+         
+         // จำลองการส่งข้อมูลไปยังเซิร์ฟเวอร์
+         setTimeout(() => {
+             // แสดงข้อความแจ้งเตือนว่าบันทึกสำเร็จ
+             const form = document.querySelector('#profile-page form');
+             const successAlert = document.createElement('div');
+             successAlert.className = 'bg-green-100 text-green-700 p-3 rounded-lg mt-4 flex items-center justify-between';
+             successAlert.innerHTML = `
+                 <span><i class="fas fa-check-circle mr-2"></i>บันทึกข้อมูลสำเร็จ</span>
+                 <button class="text-green-700 hover:text-green-900" onclick="this.parentElement.remove();"><i class="fas fa-times"></i></button>
+             `;
+             
+             // ลบข้อความแจ้งเตือนเก่า (ถ้ามี)
+             const oldAlert = form.querySelector('.bg-green-100');
+             if (oldAlert) oldAlert.remove();
+             
+             // เพิ่มข้อความแจ้งเตือนใหม่
+             form.appendChild(successAlert);
+             
+             // คืนค่าปุ่มบันทึก
+             saveButton.innerHTML = originalText;
+             saveButton.disabled = false;
+             
+             // ซ่อนข้อความแจ้งเตือนหลังจาก 3 วินาที
+             setTimeout(() => {
+                 successAlert.remove();
+             }, 3000);
+         }, 1500);
+     });
+     
+     // ฟังก์ชันสำหรับ Modal เปลี่ยนรหัสผ่าน
+     const passwordModal = document.getElementById('password-modal');
+     const changePasswordBtn = document.getElementById('change-password-btn');
+     const closePasswordModal = document.getElementById('close-password-modal');
+     const cancelPasswordChange = document.getElementById('cancel-password-change');
+     const changePasswordForm = document.getElementById('change-password-form');
+     const passwordError = document.getElementById('password-error');
+     
+     // เปิด Modal
+     changePasswordBtn.addEventListener('click', function() {
+         passwordModal.classList.remove('hidden');
+         document.body.style.overflow = 'hidden'; // ป้องกันการเลื่อนหน้าเว็บเมื่อ Modal เปิด
+     });
+     
+     // ปิด Modal
+     function closeModal() {
+         passwordModal.classList.add('hidden');
+         document.body.style.overflow = '';
+         changePasswordForm.reset();
+         passwordError.classList.add('hidden');
+         passwordError.textContent = '';
+     }
+     
+     closePasswordModal.addEventListener('click', closeModal);
+     cancelPasswordChange.addEventListener('click', closeModal);
+     
+     // ปิด Modal เมื่อคลิกพื้นหลัง
+     passwordModal.addEventListener('click', function(e) {
+         if (e.target === passwordModal) {
+             closeModal();
+         }
+     });
+     
+     // ฟังก์ชันสำหรับการแสดง/ซ่อนรหัสผ่าน
+     const togglePasswordButtons = document.querySelectorAll('.toggle-password');
+     togglePasswordButtons.forEach(button => {
+         button.addEventListener('click', function() {
+             const input = this.parentElement.querySelector('input');
+             const icon = this.querySelector('i');
+             
+             if (input.type === 'password') {
+                 input.type = 'text';
+                 icon.classList.remove('fa-eye');
+                 icon.classList.add('fa-eye-slash');
+             } else {
+                 input.type = 'password';
+                 icon.classList.remove('fa-eye-slash');
+                 icon.classList.add('fa-eye');
+             }
+         });
+     });
+     
+     // ตรวจสอบความถูกต้องของรหัสผ่าน
+     changePasswordForm.addEventListener('submit', function(e) {
+         e.preventDefault();
+         
+         const currentPassword = document.getElementById('current-password').value;
+         const newPassword = document.getElementById('new-password').value;
+         const confirmPassword = document.getElementById('confirm-password').value;
+         
+         // ตรวจสอบว่ากรอกข้อมูลครบหรือไม่
+         if (!currentPassword || !newPassword || !confirmPassword) {
+             showPasswordError('กรุณากรอกข้อมูลให้ครบทุกช่อง');
+             return;
+         }
+         
+         // ตรวจสอบรหัสผ่านปัจจุบัน (จำลอง)
+         if (currentPassword !== 'password123') {
+             showPasswordError('รหัสผ่านปัจจุบันไม่ถูกต้อง');
+             return;
+         }
+         
+         // ตรวจสอบความซับซ้อนของรหัสผ่านใหม่
+         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+         if (!passwordRegex.test(newPassword)) {
+             showPasswordError('รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร ประกอบด้วยตัวอักษรพิมพ์ใหญ่ พิมพ์เล็ก และตัวเลข');
+             return;
+         }
+         
+         // ตรวจสอบว่ารหัสผ่านใหม่และยืนยันรหัสผ่านตรงกันหรือไม่
+         if (newPassword !== confirmPassword) {
+             showPasswordError('รหัสผ่านใหม่และยืนยันรหัสผ่านไม่ตรงกัน');
+             return;
+         }
+         
+         // จำลองการเปลี่ยนรหัสผ่าน
+         const submitButton = changePasswordForm.querySelector('button[type="submit"]');
+         const originalText = submitButton.textContent;
+         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>กำลังบันทึก...';
+         submitButton.disabled = true;
+         
+         setTimeout(() => {
+             closeModal();
+             
+             // แสดงข้อความแจ้งเตือนว่าเปลี่ยนรหัสผ่านสำเร็จ
+             const profileSection = document.querySelector('#profile-page main');
+             const successAlert = document.createElement('div');
+             successAlert.className = 'bg-green-100 text-green-700 p-3 rounded-lg mt-4 flex items-center justify-between fixed top-4 left-1/2 transform -translate-x-1/2 shadow-lg z-50 w-11/12 max-w-md';
+             successAlert.innerHTML = `
+                 <span><i class="fas fa-check-circle mr-2"></i>เปลี่ยนรหัสผ่านสำเร็จ</span>
+                 <button class="text-green-700 hover:text-green-900" onclick="this.parentElement.remove();"><i class="fas fa-times"></i></button>
+             `;
+             
+             // เพิ่มข้อความแจ้งเตือน
+             document.body.appendChild(successAlert);
+             
+             // คืนค่าปุ่มบันทึก
+             submitButton.innerHTML = originalText;
+             submitButton.disabled = false;
+             
+             // ซ่อนข้อความแจ้งเตือนหลังจาก 3 วินาที
+             setTimeout(() => {
+                 successAlert.remove();
+             }, 3000);
+         }, 1500);
+     });
+     
+     function showPasswordError(message) {
+          passwordError.textContent = message;
+          passwordError.classList.remove('hidden');
+      }
+      
+      // ฟังก์ชันสำหรับ Modal ยืนยันการลบบัญชี
+      const deleteAccountModal = document.getElementById('delete-account-modal');
+      const deleteAccountBtn = document.getElementById('delete-account-btn');
+      const closeDeleteModal = document.getElementById('close-delete-modal');
+      const cancelDeleteAccount = document.getElementById('cancel-delete-account');
+      const confirmDeleteAccount = document.getElementById('confirm-delete-account');
+      const deleteAccountForm = document.getElementById('delete-account-form');
+      const deleteAccountError = document.getElementById('delete-account-error');
+      
+      // เปิด Modal
+      deleteAccountBtn.addEventListener('click', function() {
+          deleteAccountModal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+      });
+      
+      // ปิด Modal
+      function closeDeleteModal() {
+          deleteAccountModal.classList.add('hidden');
+          document.body.style.overflow = '';
+          deleteAccountForm.reset();
+          deleteAccountError.classList.add('hidden');
+          deleteAccountError.textContent = '';
+      }
+      
+      closeDeleteModal.addEventListener('click', closeDeleteModal);
+      cancelDeleteAccount.addEventListener('click', closeDeleteModal);
+      
+      // ปิด Modal เมื่อคลิกพื้นหลัง
+      deleteAccountModal.addEventListener('click', function(e) {
+          if (e.target === deleteAccountModal) {
+              closeDeleteModal();
+          }
+      });
+      
+      // ตรวจสอบการยืนยันการลบบัญชี
+      deleteAccountForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          const confirmText = document.getElementById('confirm-delete-text').value;
+          const password = document.getElementById('delete-account-password').value;
+          
+          // ตรวจสอบว่ากรอกข้อมูลครบหรือไม่
+          if (!confirmText || !password) {
+              showDeleteAccountError('กรุณากรอกข้อมูลให้ครบทุกช่อง');
+              return;
+          }
+          
+          // ตรวจสอบข้อความยืนยัน
+          if (confirmText !== 'DELETE') {
+              showDeleteAccountError('กรุณาพิมพ์ "DELETE" เพื่อยืนยันการลบบัญชี');
+              return;
+          }
+          
+          // ตรวจสอบรหัสผ่าน (จำลอง)
+          if (password !== 'password123') {
+              showDeleteAccountError('รหัสผ่านไม่ถูกต้อง');
+              return;
+          }
+          
+          // จำลองการลบบัญชี
+          const submitButton = confirmDeleteAccount;
+          const originalText = submitButton.textContent;
+          submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>กำลังดำเนินการ...';
+          submitButton.disabled = true;
+          
+          setTimeout(() => {
+              closeDeleteModal();
+              
+              // แสดงข้อความแจ้งเตือนว่าลบบัญชีสำเร็จ
+              const successAlert = document.createElement('div');
+              successAlert.className = 'bg-red-100 text-red-700 p-3 rounded-lg mt-4 flex items-center justify-between fixed top-4 left-1/2 transform -translate-x-1/2 shadow-lg z-50 w-11/12 max-w-md';
+              successAlert.innerHTML = `
+                  <span><i class="fas fa-check-circle mr-2"></i>ลบบัญชีสำเร็จ กำลังออกจากระบบ...</span>
+              `;
+              
+              // เพิ่มข้อความแจ้งเตือน
+              document.body.appendChild(successAlert);
+              
+              // จำลองการออกจากระบบและกลับไปยังหน้าล็อกอิน
+              setTimeout(() => {
+                  window.location.href = '#login-page';
+                  showPage('login-page');
+                  successAlert.remove();
+                  
+                  // แสดงข้อความแจ้งเตือนที่หน้าล็อกอิน
+                  const loginAlert = document.createElement('div');
+                  loginAlert.className = 'bg-blue-100 text-blue-700 p-3 rounded-lg mb-4 flex items-center justify-between';
+                  loginAlert.innerHTML = `
+                      <span><i class="fas fa-info-circle mr-2"></i>บัญชีของคุณถูกลบเรียบร้อยแล้ว</span>
+                      <button class="text-blue-700 hover:text-blue-900" onclick="this.parentElement.remove();"><i class="fas fa-times"></i></button>
+                  `;
+                  
+                  // เพิ่มข้อความแจ้งเตือนที่หน้าล็อกอิน
+                  const loginForm = document.querySelector('#login-page form');
+                  loginForm.insertBefore(loginAlert, loginForm.firstChild);
+              }, 2000);
+          }, 1500);
+      });
+      
+      function showDeleteAccountError(message) {
+          deleteAccountError.textContent = message;
+          deleteAccountError.classList.remove('hidden');
+      }
+ 
+      // Add Car Page Logic
     const brandSelect = document.getElementById('car-brand-select');
     const modelSelect = document.getElementById('car-model-select');
 
