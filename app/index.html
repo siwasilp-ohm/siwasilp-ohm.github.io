@@ -635,6 +635,118 @@
                 </div>
             </header>
             
+            <!-- Modal แก้ไขข้อมูลรถ -->
+            <div id="edit-car-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                <div class="bg-white rounded-lg w-full max-w-md mx-4 overflow-hidden shadow-xl transform transition-all">
+                    <div class="bg-blue-500 text-white px-6 py-4 flex justify-between items-center">
+                        <h3 class="text-lg font-semibold">แก้ไขข้อมูลรถ</h3>
+                        <button id="close-edit-car-modal" class="text-white hover:text-gray-200 transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <form id="edit-car-form" class="p-6 space-y-4">
+                        <input type="hidden" id="edit-car-id">
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="edit-car-brand-select">ยี่ห้อ</label>
+                            <div class="relative">
+                                <select id="edit-car-brand-select" class="input-field appearance-none pr-10 w-full">
+                                    <!-- จะถูกเติมโดย JavaScript -->
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="edit-car-model-select">รุ่น</label>
+                            <div class="relative">
+                                <select id="edit-car-model-select" class="input-field appearance-none pr-10 w-full">
+                                    <!-- จะถูกเติมโดย JavaScript -->
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="edit-car-plate">ทะเบียนรถ</label>
+                            <input type="text" id="edit-car-plate" class="input-field w-full" placeholder="เช่น กข 1234 กรุงเทพมหานคร">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="edit-car-connector-select">ประเภทหัวชาร์จ</label>
+                            <div class="relative">
+                                <select id="edit-car-connector-select" class="input-field appearance-none pr-10 w-full">
+                                    <option value="type2">Type 2 (AC)</option>
+                                    <option value="ccs2">CCS2 (DC)</option>
+                                    <option value="chademo">CHAdeMO (DC)</option>
+                                    <option value="nacs">NACS / Tesla</option>
+                                    <option value="gbdc">GB/T (DC)</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="edit-car-battery">ความจุแบตเตอรี่ (kWh)</label>
+                            <input type="number" id="edit-car-battery" class="input-field w-full" placeholder="เช่น 60">
+                        </div>
+                        
+                        <div class="flex items-center mb-4">
+                            <input type="checkbox" id="edit-car-default" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                            <label for="edit-car-default" class="ml-2 text-sm text-gray-700">ตั้งเป็นรถคันหลัก</label>
+                        </div>
+                        
+                        <div id="edit-car-error" class="text-red-500 text-sm hidden"></div>
+                        
+                        <div class="flex justify-end pt-2">
+                            <button type="button" id="cancel-edit-car" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg mr-2 hover:bg-gray-300 transition-colors">ยกเลิก</button>
+                            <button type="submit" id="save-edit-car" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">บันทึก</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Modal ยืนยันการลบรถ -->
+            <div id="delete-car-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                <div class="bg-white rounded-lg w-full max-w-md mx-4 overflow-hidden shadow-xl transform transition-all">
+                    <div class="bg-red-500 text-white px-6 py-4 flex justify-between items-center">
+                        <h3 class="text-lg font-semibold">ยืนยันการลบรถ</h3>
+                        <button id="close-delete-car-modal" class="text-white hover:text-gray-200 transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div class="bg-red-50 text-red-700 p-4 rounded-lg mb-4">
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-exclamation-triangle text-xl mr-2"></i>
+                                <span class="font-semibold">คำเตือน</span>
+                            </div>
+                            <p class="text-sm">คุณกำลังจะลบรถคันนี้ออกจากบัญชีของคุณ การกระทำนี้ไม่สามารถย้อนกลับได้</p>
+                        </div>
+                        
+                        <div id="delete-car-info" class="bg-gray-100 p-4 rounded-lg mb-4">
+                            <p class="font-semibold" id="delete-car-name">Tesla Model 3</p>
+                            <p class="text-sm text-gray-600" id="delete-car-plate">กข 1234 กรุงเทพมหานคร</p>
+                        </div>
+                        
+                        <div id="delete-car-error" class="text-red-500 text-sm hidden"></div>
+                        
+                        <div class="flex justify-end pt-2">
+                            <button type="button" id="cancel-delete-car" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg mr-2 hover:bg-gray-300 transition-colors">ยกเลิก</button>
+                            <button type="button" id="confirm-delete-car" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">ลบรถ</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div id="car-list" class="space-y-4 mb-6">
                 <!-- Mockup Car 1 -->
                 <div class="card p-4 border-l-4 border-blue-500 hover:shadow-md transition-all">
@@ -660,10 +772,10 @@
                             </div>
                         </div>
                         <div class="flex items-center">
-                            <button class="text-gray-400 hover:text-blue-500 transition-colors p-2 mr-1">
+                            <button class="text-gray-400 hover:text-blue-500 transition-colors p-2 mr-1" onclick="openEditCarModal('car1')">
                                 <i class="fas fa-pen"></i>
                             </button>
-                            <button class="text-gray-400 hover:text-red-500 transition-colors p-2">
+                            <button class="text-gray-400 hover:text-red-500 transition-colors p-2" onclick="openDeleteCarModal('car1', 'Tesla Model 3', 'กข 1234 กรุงเทพมหานคร')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -691,10 +803,10 @@
                             </div>
                         </div>
                         <div class="flex items-center">
-                            <button class="text-gray-400 hover:text-blue-500 transition-colors p-2 mr-1">
+                            <button class="text-gray-400 hover:text-blue-500 transition-colors p-2 mr-1" onclick="openEditCarModal('car2')">
                                 <i class="fas fa-pen"></i>
                             </button>
-                            <button class="text-gray-400 hover:text-red-500 transition-colors p-2">
+                            <button class="text-gray-400 hover:text-red-500 transition-colors p-2" onclick="openDeleteCarModal('car2', 'Nissan Leaf', 'ขค 5678 กรุงเทพมหานคร')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -907,9 +1019,59 @@
                     </div>
                 </div>
                 
-                <button type="button" onclick="confirm('คุณแน่ใจหรือไม่ว่าต้องการลบบัญชี? การกระทำนี้ไม่สามารถย้อนกลับได้')" class="w-full bg-red-100 text-red-700 font-semibold py-3 rounded-lg flex items-center justify-center hover:bg-red-200 transition-colors">
+                <button type="button" id="delete-account-btn" class="w-full bg-red-100 text-red-700 font-semibold py-3 rounded-lg flex items-center justify-center hover:bg-red-200 transition-colors">
                     <i class="fas fa-trash-alt mr-2"></i>ลบบัญชี
                 </button>
+                
+                <!-- Modal ยืนยันการลบบัญชี -->
+                <div id="delete-account-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-lg w-full max-w-md mx-4 overflow-hidden shadow-xl transform transition-all">
+                        <div class="bg-red-500 text-white px-6 py-4 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold">ยืนยันการลบบัญชี</h3>
+                            <button id="close-delete-modal" class="text-white hover:text-gray-200 transition-colors">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="bg-red-50 text-red-700 p-4 rounded-lg mb-4">
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-exclamation-triangle text-xl mr-2"></i>
+                                    <span class="font-semibold">คำเตือน</span>
+                                </div>
+                                <p class="text-sm">การลบบัญชีเป็นการดำเนินการที่ไม่สามารถย้อนกลับได้ ข้อมูลทั้งหมดของคุณจะถูกลบออกจากระบบอย่างถาวร</p>
+                            </div>
+                            
+                            <form id="delete-account-form">
+                                <div class="mb-4">
+                                    <label class="block text-gray-700 text-sm font-medium mb-2" for="confirm-delete-text">
+                                        พิมพ์ "DELETE" เพื่อยืนยันการลบบัญชี
+                                    </label>
+                                    <input type="text" id="confirm-delete-text" class="input-field w-full" placeholder="DELETE">
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="block text-gray-700 text-sm font-medium mb-2" for="delete-account-password">
+                                        <i class="fas fa-lock text-gray-400 mr-2"></i>รหัสผ่านของคุณ
+                                    </label>
+                                    <div class="relative">
+                                        <input type="password" id="delete-account-password" class="input-field w-full pr-10" placeholder="รหัสผ่านของคุณ">
+                                        <button type="button" class="toggle-password absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div id="delete-account-error" class="text-red-500 text-sm hidden"></div>
+                                
+                                <div class="flex justify-end pt-2">
+                                    <button type="button" id="cancel-delete-account" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg mr-2 hover:bg-gray-300 transition-colors">ยกเลิก</button>
+                                    <button type="submit" id="confirm-delete-account" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">ลบบัญชี</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
         
@@ -1523,6 +1685,233 @@
       function showDeleteAccountError(message) {
           deleteAccountError.textContent = message;
           deleteAccountError.classList.remove('hidden');
+      }
+      
+      // ฟังก์ชันสำหรับ Modal แก้ไขข้อมูลรถ
+      const editCarModal = document.getElementById('edit-car-modal');
+      const closeEditCarModal = document.getElementById('close-edit-car-modal');
+      const cancelEditCar = document.getElementById('cancel-edit-car');
+      const editCarForm = document.getElementById('edit-car-form');
+      const editCarError = document.getElementById('edit-car-error');
+      const editCarBrandSelect = document.getElementById('edit-car-brand-select');
+      const editCarModelSelect = document.getElementById('edit-car-model-select');
+      
+      // ฟังก์ชันสำหรับ Modal ยืนยันการลบรถ
+      const deleteCarModal = document.getElementById('delete-car-modal');
+      const closeDeleteCarModal = document.getElementById('close-delete-car-modal');
+      const cancelDeleteCar = document.getElementById('cancel-delete-car');
+      const confirmDeleteCar = document.getElementById('confirm-delete-car');
+      const deleteCarError = document.getElementById('delete-car-error');
+      
+      // เปิด Modal แก้ไขข้อมูลรถ
+      function openEditCarModal(carId) {
+          // จำลองการดึงข้อมูลรถจาก API
+          const carData = {
+              id: carId,
+              brand: 'Tesla',
+              model: 'Model 3',
+              plate: 'กข 1234 กรุงเทพมหานคร',
+              connector: 'type2',
+              battery: 75,
+              isDefault: true
+          };
+          
+          // เติมข้อมูลรถลงใน form
+          document.getElementById('edit-car-id').value = carData.id;
+          
+          // เติมข้อมูลยี่ห้อและรุ่น
+          populateEditCarBrands();
+          editCarBrandSelect.value = carData.brand;
+          updateEditCarModels();
+          editCarModelSelect.value = carData.model;
+          
+          // เติมข้อมูลอื่น ๆ
+          document.getElementById('edit-car-plate').value = carData.plate;
+          document.getElementById('edit-car-connector-select').value = carData.connector;
+          document.getElementById('edit-car-battery').value = carData.battery;
+          document.getElementById('edit-car-default').checked = carData.isDefault;
+          
+          // แสดง Modal
+          editCarModal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+      }
+      
+      // ปิด Modal แก้ไขข้อมูลรถ
+      function closeEditCarModalFunc() {
+          editCarModal.classList.add('hidden');
+          document.body.style.overflow = '';
+          editCarForm.reset();
+          editCarError.classList.add('hidden');
+          editCarError.textContent = '';
+      }
+      
+      closeEditCarModal.addEventListener('click', closeEditCarModalFunc);
+      cancelEditCar.addEventListener('click', closeEditCarModalFunc);
+      
+      // ปิด Modal เมื่อคลิกพื้นหลัง
+      editCarModal.addEventListener('click', function(e) {
+          if (e.target === editCarModal) {
+              closeEditCarModalFunc();
+          }
+      });
+      
+      // เติมข้อมูลยี่ห้อรถสำหรับ Modal แก้ไข
+      function populateEditCarBrands() {
+          editCarBrandSelect.innerHTML = '<option value="">-- เลือกยี่ห้อ --</option>';
+          for (const brand in carData) {
+              const option = document.createElement('option');
+              option.value = brand;
+              option.textContent = brand;
+              editCarBrandSelect.appendChild(option);
+          }
+      }
+      
+      // อัปเดตข้อมูลรุ่นรถสำหรับ Modal แก้ไข
+      function updateEditCarModels() {
+          const selectedBrand = editCarBrandSelect.value;
+          editCarModelSelect.innerHTML = '<option value="">-- เลือกรุ่น --</option>';
+          if (selectedBrand && carData[selectedBrand]) {
+              carData[selectedBrand].forEach(model => {
+                  const option = document.createElement('option');
+                  option.value = model;
+                  option.textContent = model;
+                  editCarModelSelect.appendChild(option);
+              });
+          }
+      }
+      
+      // เมื่อเลือกยี่ห้อรถใน Modal แก้ไข ให้อัปเดตรุ่นรถ
+      editCarBrandSelect.addEventListener('change', updateEditCarModels);
+      
+      // บันทึกการแก้ไขข้อมูลรถ
+      editCarForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          const carId = document.getElementById('edit-car-id').value;
+          const brand = editCarBrandSelect.value;
+          const model = editCarModelSelect.value;
+          const plate = document.getElementById('edit-car-plate').value;
+          const connector = document.getElementById('edit-car-connector-select').value;
+          const battery = document.getElementById('edit-car-battery').value;
+          const isDefault = document.getElementById('edit-car-default').checked;
+          
+          // ตรวจสอบว่ากรอกข้อมูลครบหรือไม่
+          if (!brand || !model || !plate) {
+              showEditCarError('กรุณากรอกข้อมูลให้ครบทุกช่อง');
+              return;
+          }
+          
+          // จำลองการบันทึกข้อมูล
+          const submitButton = document.getElementById('save-edit-car');
+          const originalText = submitButton.textContent;
+          submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>กำลังบันทึก...';
+          submitButton.disabled = true;
+          
+          setTimeout(() => {
+              closeEditCarModalFunc();
+              
+              // แสดงข้อความแจ้งเตือนว่าบันทึกสำเร็จ
+              const successAlert = document.createElement('div');
+              successAlert.className = 'bg-green-100 text-green-700 p-3 rounded-lg mt-4 flex items-center justify-between fixed top-4 left-1/2 transform -translate-x-1/2 shadow-lg z-50 w-11/12 max-w-md';
+              successAlert.innerHTML = `
+                  <span><i class="fas fa-check-circle mr-2"></i>บันทึกข้อมูลรถสำเร็จ</span>
+                  <button class="text-green-700 hover:text-green-900" onclick="this.parentElement.remove();"><i class="fas fa-times"></i></button>
+              `;
+              
+              // เพิ่มข้อความแจ้งเตือน
+              document.body.appendChild(successAlert);
+              
+              // คืนค่าปุ่มบันทึก
+              submitButton.innerHTML = originalText;
+              submitButton.disabled = false;
+              
+              // ซ่อนข้อความแจ้งเตือนหลังจาก 3 วินาที
+              setTimeout(() => {
+                  successAlert.remove();
+              }, 3000);
+              
+              // อัปเดตข้อมูลในรายการรถ (จำลอง)
+              // ในสถานการณ์จริง ควรดึงข้อมูลใหม่จาก API
+          }, 1500);
+      });
+      
+      function showEditCarError(message) {
+          editCarError.textContent = message;
+          editCarError.classList.remove('hidden');
+      }
+      
+      // เปิด Modal ยืนยันการลบรถ
+      function openDeleteCarModal(carId, carName, carPlate) {
+          // เติมข้อมูลรถที่จะลบ
+          document.getElementById('delete-car-name').textContent = carName;
+          document.getElementById('delete-car-plate').textContent = carPlate;
+          
+          // เก็บ ID รถที่จะลบไว้ใน dataset ของปุ่มยืนยัน
+          confirmDeleteCar.dataset.carId = carId;
+          
+          // แสดง Modal
+          deleteCarModal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+      }
+      
+      // ปิด Modal ยืนยันการลบรถ
+      function closeDeleteCarModalFunc() {
+          deleteCarModal.classList.add('hidden');
+          document.body.style.overflow = '';
+          deleteCarError.classList.add('hidden');
+          deleteCarError.textContent = '';
+      }
+      
+      closeDeleteCarModal.addEventListener('click', closeDeleteCarModalFunc);
+      cancelDeleteCar.addEventListener('click', closeDeleteCarModalFunc);
+      
+      // ปิด Modal เมื่อคลิกพื้นหลัง
+      deleteCarModal.addEventListener('click', function(e) {
+          if (e.target === deleteCarModal) {
+              closeDeleteCarModalFunc();
+          }
+      });
+      
+      // ยืนยันการลบรถ
+      confirmDeleteCar.addEventListener('click', function() {
+          const carId = this.dataset.carId;
+          
+          // จำลองการลบรถ
+          const originalText = this.textContent;
+          this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>กำลังดำเนินการ...';
+          this.disabled = true;
+          
+          setTimeout(() => {
+              closeDeleteCarModalFunc();
+              
+              // แสดงข้อความแจ้งเตือนว่าลบสำเร็จ
+              const successAlert = document.createElement('div');
+              successAlert.className = 'bg-red-100 text-red-700 p-3 rounded-lg mt-4 flex items-center justify-between fixed top-4 left-1/2 transform -translate-x-1/2 shadow-lg z-50 w-11/12 max-w-md';
+              successAlert.innerHTML = `
+                  <span><i class="fas fa-check-circle mr-2"></i>ลบรถสำเร็จ</span>
+                  <button class="text-red-700 hover:text-red-900" onclick="this.parentElement.remove();"><i class="fas fa-times"></i></button>
+              `;
+              
+              // เพิ่มข้อความแจ้งเตือน
+              document.body.appendChild(successAlert);
+              
+              // คืนค่าปุ่มยืนยัน
+              this.innerHTML = originalText;
+              this.disabled = false;
+              
+              // ซ่อนข้อความแจ้งเตือนหลังจาก 3 วินาที
+              setTimeout(() => {
+                  successAlert.remove();
+              }, 3000);
+              
+              // ลบรถออกจากรายการ (จำลอง)
+              // ในสถานการณ์จริง ควรดึงข้อมูลใหม่จาก API
+          }, 1500);
+      });
+      
+      function showDeleteCarError(message) {
+          deleteCarError.textContent = message;
+          deleteCarError.classList.remove('hidden');
       }
  
       // Add Car Page Logic
