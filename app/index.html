@@ -256,14 +256,14 @@
                 <input type="file" id="profile-upload" class="hidden" accept="image/*">
                 <label for="profile-upload" class="text-sm text-blue-600 hover:underline cursor-pointer">เปลี่ยนรูปโปรไฟล์</label>
             </div>
-            <form class="space-y-4">
+            <form id="profile-form" class="space-y-4">
                 <div><label class="font-semibold text-gray-700">ชื่อ-นามสกุล</label><input type="text" class="input-field mt-1" value="สมชาย ใจดี"></div>
                 <div><label class="font-semibold text-gray-700">อีเมล</label><input type="email" class="input-field mt-1" value="user@example.com" disabled></div>
                 <div><label class="font-semibold text-gray-700">เบอร์โทร</label><input type="tel" class="input-field mt-1" value="081-234-5678"></div>
                 <div><label class="font-semibold text-gray-700">ที่อยู่</label><textarea class="input-field mt-1" rows="3">123/45 ถ.มิตรภาพ ต.ในเมือง อ.เมือง จ.นครราชสีมา 30000</textarea></div>
-                <button type="button" class="btn-primary w-full mt-6">บันทึกข้อมูล</button>
-                <button type="button" class="w-full bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg mt-2">เปลี่ยนรหัสผ่าน</button>
-                <button type="button" onclick="confirm('คุณแน่ใจหรือไม่ว่าต้องการลบบัญชี? การกระทำนี้ไม่สามารถย้อนกลับได้')" class="w-full bg-red-100 text-red-700 font-semibold py-3 rounded-lg mt-4">ลบบัญชี</button>
+                <button type="submit" class="btn-primary w-full mt-6">บันทึกข้อมูล</button>
+                <button type="button" onclick="showPage('change-password-page')" class="w-full bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg mt-2">เปลี่ยนรหัสผ่าน</button>
+                <button type="button" onclick="deleteAccount()" class="w-full bg-red-100 text-red-700 font-semibold py-3 rounded-lg mt-4">ลบบัญชี</button>
             </form>
         </main>
         <footer class="footer p-4 border-t bg-white grid grid-cols-4 text-center z-10">
@@ -332,7 +332,7 @@
         </div>
     </div>
 
-    <!-- ===== Page 11: Charge Summary (NEW) ===== -->
+    <!-- ===== Page 11: Charge Summary ===== -->
     <div id="charge-summary-page" class="page p-8 justify-center items-center text-center">
         <div class="w-full">
             <i class="fas fa-receipt text-7xl text-green-500 mb-6"></i>
@@ -348,6 +348,29 @@
 
             <button onclick="showPage('main-page')" class="btn-primary w-full mt-4">กลับสู่หน้าหลัก</button>
         </div>
+    </div>
+    
+    <!-- ===== Page 12: Change Password (NEW) ===== -->
+    <div id="change-password-page" class="page p-6">
+        <header class="mb-6 flex items-center">
+            <button onclick="showPage('profile-page')" class="text-gray-600 mr-4"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="text-2xl font-bold">เปลี่ยนรหัสผ่าน</h2>
+        </header>
+        <form id="change-password-form" class="space-y-4">
+            <div>
+                <label class="font-semibold">รหัสผ่านปัจจุบัน</label>
+                <input type="password" class="input-field mt-1">
+            </div>
+            <div>
+                <label class="font-semibold">รหัสผ่านใหม่</label>
+                <input type="password" class="input-field mt-1">
+            </div>
+            <div>
+                <label class="font-semibold">ยืนยันรหัสผ่านใหม่</label>
+                <input type="password" class="input-field mt-1">
+            </div>
+            <button type="submit" class="btn-primary w-full mt-6">ยืนยันการเปลี่ยนรหัสผ่าน</button>
+        </form>
     </div>
 
 </div>
@@ -580,6 +603,29 @@
             reader.readAsDataURL(file);
         }
     });
+
+    document.getElementById('profile-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('บันทึกข้อมูลเรียบร้อยแล้ว');
+    });
+
+    document.getElementById('change-password-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Add validation logic here
+        alert('เปลี่ยนรหัสผ่านเรียบร้อยแล้ว');
+        showPage('profile-page');
+    });
+
+    function deleteAccount() {
+        if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบบัญชี? การกระทำนี้ไม่สามารถย้อนกลับได้')) {
+            // Reset app state and go to login
+            alert('บัญชีของคุณถูกลบแล้ว');
+            appState.walletBalance = 0;
+            updateWalletUI();
+            showPage('login-page');
+        }
+    }
+
 
     // --- Add Car Page Logic ---
     const brandSelect = document.getElementById('car-brand-select');
