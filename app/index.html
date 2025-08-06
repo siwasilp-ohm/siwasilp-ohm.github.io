@@ -141,7 +141,6 @@
             <p class="text-green-600 font-semibold mt-1"><i class="fas fa-check-circle"></i> ว่าง</p>
         </div>
         <div class="my-6 space-y-4">
-             <!-- NEW: Car Selection -->
             <div class="bg-slate-100 p-4 rounded-lg">
                 <label for="car-select-charge" class="font-semibold text-gray-700">เลือกรถยนต์</label>
                 <select id="car-select-charge" class="input-field mt-1">
@@ -188,7 +187,7 @@
             <div><p class="text-gray-400">พลังงาน</p><p id="charge-kwh" class="text-2xl font-semibold">0.00 kWh</p></div>
             <div><p class="text-gray-400">ค่าบริการ</p><p id="charge-cost" class="text-2xl font-semibold">฿ 0.00</p></div>
         </div>
-        <button onclick="showPage('main-page')" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl text-lg"><i class="fas fa-stop-circle mr-2"></i> หยุดชาร์จ</button>
+        <button onclick="stopChargingAndShowSummary()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl text-lg"><i class="fas fa-stop-circle mr-2"></i> หยุดชาร์จ</button>
     </div>
     
     <!-- ===== Page 5: Wallet Page ===== -->
@@ -287,7 +286,7 @@
         </form>
     </div>
 
-    <!-- ===== Page 9: Payment Confirmation (NEW) ===== -->
+    <!-- ===== Page 9: Payment Confirmation ===== -->
     <div id="payment-confirmation-page" class="page p-6 flex-col">
         <header class="mb-6"><button onclick="showPage('charger-detail-page')" class="text-gray-600"><i class="fas fa-arrow-left mr-2"></i> กลับไปแก้ไข</button></header>
         <div class="text-center"><i class="fas fa-file-invoice-dollar text-6xl text-blue-600"></i><h2 class="text-3xl font-bold mt-4">ยืนยันการชำระเงิน</h2></div>
@@ -306,22 +305,48 @@
         <div class="text-center">
             <p class="text-gray-500">ยอดเงินในกระเป๋า</p>
             <p id="confirm-wallet-balance" class="text-lg font-semibold"></p>
-            <p id="confirm-wallet-error" class="text-red-500 text-sm mt-1 hidden">ยอดเงินไม่เพียงพอ กรุณาเติมเงิน</p>
+            <p id="confirm-wallet-error" class="text-red-500 text-sm mt-1 hidden">ยอดเงินไม่เพียงพอ</p>
         </div>
         <div class="mt-auto">
             <button id="btn-confirm-payment" onclick="confirmPaymentAndStartCharging()" class="btn-primary w-full text-lg">
                 <i class="fas fa-check-circle mr-2"></i> ยืนยันและชำระเงิน
             </button>
+            <div id="insufficient-balance-options" class="hidden space-y-3">
+                <button onclick="chargeWithAvailableBalance()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-lg">
+                    ชาร์จเท่าที่มี (฿ <span id="charge-with-balance-amount"></span>)
+                </button>
+                <button onclick="showPage('wallet-page')" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg">
+                    <i class="fas fa-wallet mr-2"></i> เติมเงิน
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- ===== Page 10: Thank You ===== -->
+    <!-- ===== Page 10: Thank You (Top-up) ===== -->
     <div id="thank-you-page" class="page p-8 justify-center items-center text-center">
         <div class="w-full">
             <i class="fas fa-check-circle text-7xl text-green-500 mb-6"></i>
             <h1 class="text-3xl font-bold text-gray-800">สำเร็จ!</h1>
             <p class="text-gray-500 mb-8">การชำระเงินของคุณได้รับการยืนยันแล้ว<br>ขอบคุณที่ใช้บริการ</p>
             <button onclick="showPage('main-page')" class="btn-primary mt-4">กลับสู่หน้าหลัก</button>
+        </div>
+    </div>
+
+    <!-- ===== Page 11: Charge Summary (NEW) ===== -->
+    <div id="charge-summary-page" class="page p-8 justify-center items-center text-center">
+        <div class="w-full">
+            <i class="fas fa-receipt text-7xl text-green-500 mb-6"></i>
+            <h1 class="text-3xl font-bold text-gray-800">ขอบคุณที่ใช้บริการ</h1>
+            <p class="text-gray-500 mb-8">สรุปรายการชาร์จของคุณ</p>
+            
+            <div class="space-y-3 text-left bg-slate-50 p-6 rounded-lg mb-8">
+                <div class="flex justify-between"><span class="text-gray-600">สถานะ</span><span id="summary-status" class="font-semibold text-green-600"></span></div>
+                <div class="flex justify-between border-t pt-3 mt-3"><span class="text-gray-600">เวลาที่ใช้</span><span id="summary-time" class="font-semibold"></span></div>
+                <div class="flex justify-between"><span class="text-gray-600">พลังงานที่ได้รับ</span><span id="summary-kwh" class="font-semibold"></span></div>
+                <div class="flex justify-between text-xl border-t pt-3 mt-3"><span class="font-bold">ค่าบริการ</span><span id="summary-cost" class="font-bold text-blue-700"></span></div>
+            </div>
+
+            <button onclick="showPage('main-page')" class="btn-primary w-full mt-4">กลับสู่หน้าหลัก</button>
         </div>
     </div>
 
@@ -335,8 +360,9 @@
 
     // --- App State & Config ---
     let appState = {
-        walletBalance: 250.75,
-        lastChargeCost: 0
+        walletBalance: 100.00, // Set lower for testing
+        lastChargeCost: 0,
+        targetChargeCost: 0 // To track the goal for the current session
     };
     const SOLAR_PRICE_PER_KWH = 2.00;
     const PEA_PRICE_PER_KWH = 6.00;
@@ -411,6 +437,15 @@
         if (pageId === 'charging-session-page') startChargingSimulation();
         if (pageId === 'add-car-page') populateCarBrands();
         if (pageId === 'charger-detail-page') updateEstimatedCost();
+        if (['main-page', 'wallet-page'].includes(pageId)) {
+            updateWalletUI();
+        }
+    }
+
+    function updateWalletUI() {
+        const balanceText = `฿ ${appState.walletBalance.toFixed(2)}`;
+        document.getElementById('wallet-balance-header').textContent = balanceText;
+        document.getElementById('wallet-balance-main').textContent = balanceText;
     }
 
     function showChargerDetails(chargerId) {
@@ -433,18 +468,21 @@
     const peaPercent = document.getElementById('pea-percent');
     const estimatedCostEl = document.getElementById('estimated-cost');
 
+    function getMixedPrice() {
+        const peaRatio = parseFloat(energySlider.value) / 100;
+        const solarRatio = 1 - peaRatio;
+        return (peaRatio * PEA_PRICE_PER_KWH) + (solarRatio * SOLAR_PRICE_PER_KWH);
+    }
+
     function updateEstimatedCost() {
         const selectedKwh = parseFloat(kwhSlider.value);
         const peaRatio = parseFloat(energySlider.value) / 100;
-        const solarRatio = 1 - peaRatio;
 
         kwhValue.textContent = selectedKwh;
         peaPercent.textContent = (peaRatio * 100).toFixed(0);
-        solarPercent.textContent = (solarRatio * 100).toFixed(0);
+        solarPercent.textContent = ((1 - peaRatio) * 100).toFixed(0);
         
-        const costFromPea = selectedKwh * peaRatio * PEA_PRICE_PER_KWH;
-        const costFromSolar = selectedKwh * solarRatio * SOLAR_PRICE_PER_KWH;
-        const totalCost = costFromPea + costFromSolar;
+        const totalCost = selectedKwh * getMixedPrice();
         
         estimatedCostEl.textContent = `฿ ${totalCost.toFixed(2)}`;
     }
@@ -453,7 +491,6 @@
 
     // --- Payment Confirmation Logic ---
     function showPaymentConfirmation() {
-        // Get values from charger detail page
         const chargerName = document.getElementById('charger-detail-name').textContent;
         const selectedCar = document.getElementById('car-select-charge').value;
         const selectedKwh = kwhSlider.value;
@@ -462,7 +499,6 @@
         const totalCostText = estimatedCostEl.textContent;
         const totalCost = parseFloat(totalCostText.replace('฿ ', ''));
         
-        // Populate confirmation page
         document.getElementById('confirm-charger').textContent = chargerName;
         document.getElementById('confirm-car').textContent = selectedCar;
         document.getElementById('confirm-kwh').textContent = `${selectedKwh} kWh`;
@@ -472,15 +508,19 @@
         
         appState.lastChargeCost = totalCost;
 
-        // Check if wallet balance is sufficient
         const confirmButton = document.getElementById('btn-confirm-payment');
+        const insufficientOptions = document.getElementById('insufficient-balance-options');
         const walletError = document.getElementById('confirm-wallet-error');
+
         if (appState.walletBalance >= totalCost) {
-            confirmButton.disabled = false;
+            confirmButton.classList.remove('hidden');
+            insufficientOptions.classList.add('hidden');
             walletError.classList.add('hidden');
         } else {
-            confirmButton.disabled = true;
+            confirmButton.classList.add('hidden');
+            insufficientOptions.classList.remove('hidden');
             walletError.classList.remove('hidden');
+            document.getElementById('charge-with-balance-amount').textContent = appState.walletBalance.toFixed(2);
         }
 
         showPage('payment-confirmation-page');
@@ -488,11 +528,15 @@
 
     function confirmPaymentAndStartCharging() {
         appState.walletBalance -= appState.lastChargeCost;
-        
-        // Update wallet display on all pages
-        document.getElementById('wallet-balance-header').textContent = `฿ ${appState.walletBalance.toFixed(2)}`;
-        document.getElementById('wallet-balance-main').textContent = `฿ ${appState.walletBalance.toFixed(2)}`;
-        
+        appState.targetChargeCost = appState.lastChargeCost;
+        updateWalletUI();
+        showPage('charging-session-page');
+    }
+
+    function chargeWithAvailableBalance() {
+        appState.targetChargeCost = appState.walletBalance;
+        appState.walletBalance = 0;
+        updateWalletUI();
         showPage('charging-session-page');
     }
 
@@ -574,9 +618,37 @@
     });
 
 
-    // --- Charging Simulation ---
+    // --- Charging Simulation & Summary ---
+    function stopChargingAndShowSummary(status = 'หยุดโดยผู้ใช้') {
+        if (chargeInterval) {
+            clearInterval(chargeInterval);
+            chargeInterval = null;
+        }
+
+        const finalTime = document.getElementById('charge-time').textContent;
+        const finalKwh = document.getElementById('charge-kwh').textContent;
+        const finalCost = document.getElementById('charge-cost').textContent;
+
+        const statusEl = document.getElementById('summary-status');
+        statusEl.textContent = status;
+        if (status === 'ชาร์จสมบูรณ์') {
+            statusEl.classList.remove('text-orange-600');
+            statusEl.classList.add('text-green-600');
+        } else {
+            statusEl.classList.remove('text-green-600');
+            statusEl.classList.add('text-orange-600');
+        }
+        document.getElementById('summary-time').textContent = finalTime;
+        document.getElementById('summary-kwh').textContent = finalKwh;
+        document.getElementById('summary-cost').textContent = finalCost;
+
+        showPage('charge-summary-page');
+    }
+
     function startChargingSimulation() {
         let seconds = 0, kwh = 0, cost = 0, soc = 20;
+        const targetCost = appState.targetChargeCost;
+
         const timeEl = document.getElementById('charge-time'), kwhEl = document.getElementById('charge-kwh'),
               costEl = document.getElementById('charge-cost'), socTextEl = document.getElementById('soc-text'),
               batteryLevelEl = document.getElementById('battery-level-indicator');
@@ -586,22 +658,41 @@
 
         chargeInterval = setInterval(() => {
             seconds++;
-            kwh += 22 / 3600; cost = kwh * 7.5; soc += (22 / 3600) / 70 * 100;
+            kwh += 22 / 3600; 
+            cost = kwh * getMixedPrice();
+            soc += (22 / 3600) / 70 * 100;
 
-            if (soc >= 100) { soc = 100; clearInterval(chargeInterval); alert("ชาร์จเต็มแล้ว!"); }
+            if (cost >= targetCost) {
+                cost = targetCost;
+                kwh = cost / getMixedPrice();
+                // Update UI one last time before stopping
+                costEl.textContent = `฿ ${cost.toFixed(2)}`;
+                kwhEl.textContent = `${kwh.toFixed(2)} kWh`;
+                stopChargingAndShowSummary('ชาร์จสมบูรณ์');
+                return;
+            }
+            
+            if (soc >= 100) {
+                soc = 100;
+                stopChargingAndShowSummary('แบตเตอรี่เต็ม');
+                return;
+            }
 
             const h = String(Math.floor(seconds / 3600)).padStart(2, '0'),
                   m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0'),
                   s = String(seconds % 60).padStart(2, '0');
             
-            timeEl.textContent = `${h}:${m}:${s}`; kwhEl.textContent = `${kwh.toFixed(2)} kWh`;
-            costEl.textContent = `฿ ${cost.toFixed(2)}`; socTextEl.textContent = `${Math.floor(soc)}%`;
+            timeEl.textContent = `${h}:${m}:${s}`;
+            kwhEl.textContent = `${kwh.toFixed(2)} kWh`;
+            costEl.textContent = `฿ ${cost.toFixed(2)}`;
+            socTextEl.textContent = `${Math.floor(soc)}%`;
             batteryLevelEl.style.height = `${soc}%`;
         }, 1000);
     }
 
     // Initialize
     showPage('login-page');
+    updateWalletUI();
 </script>
 
 </body>
