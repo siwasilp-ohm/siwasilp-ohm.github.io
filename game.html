@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roblox Adventure - Mini Game</title>
+    <title>🐍 Snake Game - เกมงูคลาสสิก</title>
     <style>
         * {
             margin: 0;
@@ -22,181 +22,105 @@
         }
 
         .game-container {
-            width: 900px;
-            height: 600px;
-            background: #2c3e50;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            position: relative;
-            overflow: hidden;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
         .header {
-            background: linear-gradient(90deg, #e74c3c, #f39c12);
-            padding: 10px 20px;
             color: white;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 36px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .score-display {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            color: white;
+            font-size: 18px;
             font-weight: bold;
         }
 
-        .logo {
-            font-size: 24px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        .score-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .stats {
-            display: flex;
-            gap: 20px;
-            font-size: 14px;
-        }
-
-        .game-area {
+        .game-board {
+            width: 600px;
+            height: 600px;
+            background: #1a1a1a;
+            border: 4px solid #333;
+            border-radius: 15px;
             position: relative;
-            height: 550px;
-            background: linear-gradient(180deg, #87CEEB 0%, #90EE90 50%, #8FBC8F 100%);
-            overflow: hidden;
+            margin: 0 auto 20px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
         }
 
-        .player {
+        .snake-segment {
             position: absolute;
-            width: 40px;
-            height: 40px;
-            background: #e74c3c;
-            border-radius: 8px;
-            bottom: 60px;
-            left: 50px;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            z-index: 10;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            transition: all 0.1s ease;
         }
 
-        .player::before {
-            content: '😊';
+        .snake-head {
+            background: linear-gradient(45deg, #e74c3c, #c0392b) !important;
+            border-radius: 50% !important;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.5) !important;
+        }
+
+        .food {
             position: absolute;
-            top: -5px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 20px;
-        }
-
-        .platform {
-            position: absolute;
-            background: #8B4513;
-            border-radius: 5px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .platform1 {
-            width: 200px;
-            height: 20px;
-            bottom: 40px;
-            left: 20px;
-        }
-
-        .platform2 {
-            width: 150px;
-            height: 20px;
-            bottom: 120px;
-            left: 300px;
-        }
-
-        .platform3 {
-            width: 180px;
-            height: 20px;
-            bottom: 200px;
-            left: 150px;
-        }
-
-        .platform4 {
-            width: 120px;
-            height: 20px;
-            bottom: 280px;
-            left: 450px;
-        }
-
-        .coin {
-            position: absolute;
-            width: 25px;
-            height: 25px;
-            background: #f1c40f;
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(45deg, #f1c40f, #f39c12);
             border-radius: 50%;
-            animation: spin 2s linear infinite, float 3s ease-in-out infinite;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(241, 196, 15, 0.4);
-        }
-
-        .coin::before {
-            content: '💎';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 15px;
-        }
-
-        .coin1 {
-            bottom: 85px;
-            left: 100px;
-        }
-
-        .coin2 {
-            bottom: 165px;
-            left: 350px;
-        }
-
-        .coin3 {
-            bottom: 245px;
-            left: 200px;
-        }
-
-        .coin4 {
-            bottom: 325px;
-            left: 500px;
-        }
-
-        .enemy {
-            position: absolute;
-            width: 35px;
-            height: 35px;
-            background: #e67e22;
-            border-radius: 6px;
-            animation: moveEnemy 4s linear infinite;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-        }
-
-        .enemy::before {
-            content: '👹';
-            position: absolute;
-            top: -3px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 18px;
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 15px rgba(241, 196, 15, 0.6);
         }
 
         .controls {
-            position: absolute;
-            bottom: 10px;
-            right: 20px;
             display: flex;
+            justify-content: center;
             gap: 10px;
+            margin-bottom: 20px;
         }
 
         .control-btn {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             background: rgba(255, 255, 255, 0.2);
-            border: 2px solid white;
-            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
             color: white;
-            font-size: 20px;
+            font-size: 24px;
+            font-weight: bold;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            transition: all 0.3s;
             backdrop-filter: blur(5px);
+            user-select: none;
         }
 
         .control-btn:hover {
@@ -208,285 +132,480 @@
             transform: scale(0.95);
         }
 
-        .clouds {
-            position: absolute;
-            top: 30px;
-            width: 100%;
-            height: 100px;
-            pointer-events: none;
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            gap: 10px;
+            justify-content: center;
         }
 
-        .cloud {
-            position: absolute;
-            background: white;
-            border-radius: 25px;
-            opacity: 0.8;
-            animation: floatCloud 15s linear infinite;
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
         }
 
-        .cloud1 {
-            width: 80px;
-            height: 40px;
-            top: 20px;
-            animation-delay: -5s;
-        }
-
-        .cloud2 {
-            width: 100px;
-            height: 50px;
-            top: 60px;
-            animation-delay: -10s;
-        }
-
-        .notification {
-            position: absolute;
-            top: 70px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(46, 204, 113, 0.9);
+        .action-btn {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
             color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
             font-weight: bold;
-            opacity: 0;
+            cursor: pointer;
             transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .action-btn.start {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .action-btn.pause {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .action-btn.reset {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
             z-index: 100;
+            backdrop-filter: blur(10px);
         }
 
-        .notification.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(-10px);
+        .game-over h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: #e74c3c;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .instructions {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            margin-top: 15px;
+            line-height: 1.5;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
-        @keyframes moveEnemy {
-            0% { left: -50px; }
-            100% { left: 100%; }
+        @keyframes gameOverAnimation {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
 
-        @keyframes floatCloud {
-            0% { left: -120px; }
-            100% { left: 100%; }
+        .show-game-over {
+            display: block !important;
+            animation: gameOverAnimation 0.3s ease-out;
         }
 
-        .jump {
-            animation: jumpAnimation 0.6s ease-out;
+        .speed-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px 10px;
+            border-radius: 10px;
         }
 
-        @keyframes jumpAnimation {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(-60px); }
-            100% { transform: translateY(0); }
+        @media (max-width: 768px) {
+            .game-board {
+                width: 400px;
+                height: 400px;
+            }
+            
+            .snake-segment, .food {
+                width: 15px;
+                height: 15px;
+            }
+            
+            .food {
+                width: 13px;
+                height: 13px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="game-container">
         <div class="header">
-            <div class="logo">🎮 ROBLOX ADVENTURE</div>
-            <div class="stats">
-                <div>💎 คะแนน: <span id="score">0</span></div>
-                <div>❤️ ชีวิต: <span id="lives">3</span></div>
-                <div>⭐ เลเวล: <span id="level">1</span></div>
+            <div class="title">🐍 เกมงูคลาสสิก</div>
+            <div class="creator-info">
+                <div style="font-size: 16px; margin-bottom: 5px; color: rgba(255, 255, 255, 0.9);">
+                    👨‍💻 สร้างโดย: <strong>Siwasilp Pornjumsilp (Ohm No.99)</strong>
+                </div>
+            </div>
+            <div class="score-display">
+                <div class="score-item">🍎 คะแนน: <span id="score">0</span></div>
+                <div class="score-item">📏 ความยาว: <span id="length">1</span></div>
+                <div class="score-item">🏆 สถิติ: <span id="highScore">0</span></div>
             </div>
         </div>
 
-        <div class="game-area">
-            <div class="clouds">
-                <div class="cloud cloud1"></div>
-                <div class="cloud cloud2"></div>
+        <div class="game-board" id="gameBoard">
+            <div class="speed-indicator" id="speedIndicator">ความเร็ว: ปกติ</div>
+            <div class="game-over" id="gameOver">
+                <h2>🎮 จบเกม!</h2>
+                <p>คะแนนของคุณ: <span id="finalScore">0</span></p>
+                <p>ความยาวสูงสุด: <span id="finalLength">1</span></p>
             </div>
+        </div>
 
-            <div class="player" id="player"></div>
-
-            <div class="platform platform1"></div>
-            <div class="platform platform2"></div>
-            <div class="platform platform3"></div>
-            <div class="platform platform4"></div>
-
-            <div class="coin coin1" data-value="10"></div>
-            <div class="coin coin2" data-value="15"></div>
-            <div class="coin coin3" data-value="20"></div>
-            <div class="coin coin4" data-value="25"></div>
-
-            <div class="enemy" style="bottom: 65px;"></div>
-
-            <div class="notification" id="notification"></div>
-
-            <div class="controls">
+        <div class="controls">
+            <div class="control-grid">
+                <div></div>
+                <div class="control-btn" id="upBtn">↑</div>
+                <div></div>
                 <div class="control-btn" id="leftBtn">←</div>
+                <div></div>
                 <div class="control-btn" id="rightBtn">→</div>
-                <div class="control-btn" id="jumpBtn">↑</div>
-                <div class="control-btn" id="resetBtn">🔄</div>
+                <div></div>
+                <div class="control-btn" id="downBtn">↓</div>
+                <div></div>
             </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="action-btn start" id="startBtn">เริ่มเกม</button>
+            <button class="action-btn pause" id="pauseBtn">หยุดชั่วคราว</button>
+            <button class="action-btn reset" id="resetBtn">เริ่มใหม่</button>
+        </div>
+
+        <div class="instructions">
+            🎯 <strong>วิธีเล่น:</strong> ใช้ลูกศรหรือ WASD เพื่อควบคุมงู<br>
+            🍎 เก็บอาหารเพื่อเพิ่มคะแนนและความยาว | 🚫 อย่าให้งูชนตัวเองหรือกำแพง<br>
+            ⚡ งูจะเร็วขึ้นเมื่อยาวขึ้น!
         </div>
     </div>
 
     <script>
-        let gameState = {
-            score: 0,
-            lives: 3,
-            level: 1,
-            playerX: 50,
-            playerY: 60,
-            isJumping: false
-        };
-
-        const player = document.getElementById('player');
-        const scoreEl = document.getElementById('score');
-        const livesEl = document.getElementById('lives');
-        const levelEl = document.getElementById('level');
-        const notification = document.getElementById('notification');
-
-        function updateDisplay() {
-            scoreEl.textContent = gameState.score;
-            livesEl.textContent = gameState.lives;
-            levelEl.textContent = gameState.level;
-        }
-
-        function showNotification(message, type = 'success') {
-            notification.textContent = message;
-            notification.className = 'notification show';
-            notification.style.background = type === 'success' ? 'rgba(46, 204, 113, 0.9)' : 'rgba(231, 76, 60, 0.9)';
-            
-            setTimeout(() => {
-                notification.className = 'notification';
-            }, 2000);
-        }
-
-        function movePlayer(direction) {
-            if (direction === 'left' && gameState.playerX > 0) {
-                gameState.playerX -= 20;
-            } else if (direction === 'right' && gameState.playerX < 850) {
-                gameState.playerX += 20;
-            }
-            
-            player.style.left = gameState.playerX + 'px';
-            checkCollisions();
-        }
-
-        function jumpPlayer() {
-            if (!gameState.isJumping) {
-                gameState.isJumping = true;
-                player.classList.add('jump');
+        class SnakeGame {
+            constructor() {
+                this.board = document.getElementById('gameBoard');
+                this.gameOverDiv = document.getElementById('gameOver');
+                this.scoreElement = document.getElementById('score');
+                this.lengthElement = document.getElementById('length');
+                this.highScoreElement = document.getElementById('highScore');
+                this.finalScoreElement = document.getElementById('finalScore');
+                this.finalLengthElement = document.getElementById('finalLength');
+                this.speedIndicator = document.getElementById('speedIndicator');
                 
-                setTimeout(() => {
-                    player.classList.remove('jump');
-                    gameState.isJumping = false;
-                }, 600);
-
-                checkCollisions();
-            }
-        }
-
-        function checkCollisions() {
-            // Check coin collection
-            document.querySelectorAll('.coin').forEach(coin => {
-                const coinRect = coin.getBoundingClientRect();
-                const playerRect = player.getBoundingClientRect();
+                this.boardSize = 600;
+                this.cellSize = 20;
+                this.gridSize = this.boardSize / this.cellSize;
                 
-                if (Math.abs(coinRect.left - playerRect.left) < 30 && 
-                    Math.abs(coinRect.top - playerRect.top) < 30) {
-                    
-                    const value = parseInt(coin.dataset.value);
-                    gameState.score += value;
-                    coin.style.display = 'none';
-                    showNotification(`+${value} คะแนน! 💎`);
-                    
-                    // Level up every 100 points
-                    if (gameState.score >= gameState.level * 100) {
-                        gameState.level++;
-                        showNotification(`เลเวลอัพ! เลเวล ${gameState.level} 🎉`);
+                this.reset();
+                this.loadHighScore();
+                this.bindEvents();
+            }
+
+            reset() {
+                this.snake = [{x: 15, y: 15}];
+                this.direction = {x: 0, y: 0};
+                this.nextDirection = {x: 0, y: 0};
+                this.food = this.generateFood();
+                this.score = 0;
+                this.gameRunning = false;
+                this.gameOver = false;
+                this.speed = 200;
+                
+                this.clearBoard();
+                this.updateScore();
+                this.draw();
+                this.gameOverDiv.classList.remove('show-game-over');
+            }
+
+            loadHighScore() {
+                const saved = localStorage.getItem('snakeHighScore');
+                this.highScore = saved ? parseInt(saved) : 0;
+                this.highScoreElement.textContent = this.highScore;
+            }
+
+            saveHighScore() {
+                if (this.score > this.highScore) {
+                    this.highScore = this.score;
+                    localStorage.setItem('snakeHighScore', this.highScore);
+                    this.highScoreElement.textContent = this.highScore;
+                }
+            }
+
+            generateFood() {
+                let newFood;
+                do {
+                    newFood = {
+                        x: Math.floor(Math.random() * this.gridSize),
+                        y: Math.floor(Math.random() * this.gridSize)
+                    };
+                } while (this.snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
+                return newFood;
+            }
+
+            clearBoard() {
+                const segments = this.board.querySelectorAll('.snake-segment');
+                const foods = this.board.querySelectorAll('.food');
+                segments.forEach(segment => segment.remove());
+                foods.forEach(food => food.remove());
+            }
+
+            draw() {
+                this.clearBoard();
+
+                // Draw snake
+                this.snake.forEach((segment, index) => {
+                    const segmentElement = document.createElement('div');
+                    segmentElement.classList.add('snake-segment');
+                    if (index === 0) {
+                        segmentElement.classList.add('snake-head');
                     }
-                    
-                    updateDisplay();
-                }
-            });
-        }
+                    segmentElement.style.left = segment.x * this.cellSize + 'px';
+                    segmentElement.style.top = segment.y * this.cellSize + 'px';
+                    this.board.appendChild(segmentElement);
+                });
 
-        function resetGame() {
-            gameState = {
-                score: 0,
-                lives: 3,
-                level: 1,
-                playerX: 50,
-                playerY: 60,
-                isJumping: false
-            };
-            
-            player.style.left = gameState.playerX + 'px';
-            
-            // Show all coins again
-            document.querySelectorAll('.coin').forEach(coin => {
-                coin.style.display = 'block';
-            });
-            
-            updateDisplay();
-            showNotification('เกมรีเซ็ตแล้ว! เริ่มใหม่ 🎮');
-        }
-
-        // Event listeners
-        document.getElementById('leftBtn').addEventListener('click', () => movePlayer('left'));
-        document.getElementById('rightBtn').addEventListener('click', () => movePlayer('right'));
-        document.getElementById('jumpBtn').addEventListener('click', jumpPlayer);
-        document.getElementById('resetBtn').addEventListener('click', resetGame);
-
-        // Keyboard controls
-        document.addEventListener('keydown', (e) => {
-            switch(e.code) {
-                case 'ArrowLeft':
-                case 'KeyA':
-                    movePlayer('left');
-                    break;
-                case 'ArrowRight':
-                case 'KeyD':
-                    movePlayer('right');
-                    break;
-                case 'ArrowUp':
-                case 'KeyW':
-                case 'Space':
-                    e.preventDefault();
-                    jumpPlayer();
-                    break;
-                case 'KeyR':
-                    resetGame();
-                    break;
+                // Draw food
+                const foodElement = document.createElement('div');
+                foodElement.classList.add('food');
+                foodElement.style.left = this.food.x * this.cellSize + 1 + 'px';
+                foodElement.style.top = this.food.y * this.cellSize + 1 + 'px';
+                this.board.appendChild(foodElement);
             }
-        });
 
-        // Auto-spawn enemies
-        function spawnEnemy() {
-            const enemy = document.createElement('div');
-            enemy.className = 'enemy';
-            enemy.style.bottom = Math.random() * 300 + 65 + 'px';
-            document.querySelector('.game-area').appendChild(enemy);
+            update() {
+                if (!this.gameRunning || this.gameOver) return;
 
-            setTimeout(() => {
-                if (enemy.parentNode) {
-                    enemy.remove();
+                // Update direction
+                this.direction = {...this.nextDirection};
+
+                if (this.direction.x === 0 && this.direction.y === 0) {
+                    setTimeout(() => this.update(), this.speed);
+                    return;
                 }
-            }, 4000);
+
+                // Move snake
+                const head = {...this.snake[0]};
+                head.x += this.direction.x;
+                head.y += this.direction.y;
+
+                // Check wall collision
+                if (head.x < 0 || head.x >= this.gridSize || 
+                    head.y < 0 || head.y >= this.gridSize) {
+                    this.endGame();
+                    return;
+                }
+
+                // Check self collision
+                if (this.snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                    this.endGame();
+                    return;
+                }
+
+                this.snake.unshift(head);
+
+                // Check food collision
+                if (head.x === this.food.x && head.y === this.food.y) {
+                    this.score += 10;
+                    this.food = this.generateFood();
+                    this.updateScore();
+                    this.updateSpeed();
+                } else {
+                    this.snake.pop();
+                }
+
+                this.draw();
+                setTimeout(() => this.update(), this.speed);
+            }
+
+            updateSpeed() {
+                const length = this.snake.length;
+                if (length >= 50) {
+                    this.speed = 80;
+                    this.speedIndicator.textContent = 'ความเร็ว: เร็วมาก!';
+                } else if (length >= 30) {
+                    this.speed = 100;
+                    this.speedIndicator.textContent = 'ความเร็ว: เร็ว';
+                } else if (length >= 20) {
+                    this.speed = 120;
+                    this.speedIndicator.textContent = 'ความเร็ว: ปานกลาง+';
+                } else if (length >= 10) {
+                    this.speed = 150;
+                    this.speedIndicator.textContent = 'ความเร็ว: ปานกลาง';
+                } else {
+                    this.speed = 200;
+                    this.speedIndicator.textContent = 'ความเร็ว: ปกติ';
+                }
+            }
+
+            updateScore() {
+                this.scoreElement.textContent = this.score;
+                this.lengthElement.textContent = this.snake.length;
+            }
+
+            endGame() {
+                this.gameRunning = false;
+                this.gameOver = true;
+                this.saveHighScore();
+                
+                this.finalScoreElement.textContent = this.score;
+                this.finalLengthElement.textContent = this.snake.length;
+                this.gameOverDiv.classList.add('show-game-over');
+            }
+
+            setDirection(newDirection) {
+                // Prevent reverse direction
+                if (this.direction.x === -newDirection.x && this.direction.y === -newDirection.y) {
+                    return;
+                }
+                this.nextDirection = newDirection;
+            }
+
+            start() {
+                if (!this.gameRunning && !this.gameOver) {
+                    this.gameRunning = true;
+                    this.update();
+                }
+            }
+
+            pause() {
+                this.gameRunning = !this.gameRunning;
+                if (this.gameRunning) {
+                    this.update();
+                }
+            }
+
+            bindEvents() {
+                // Keyboard controls
+                document.addEventListener('keydown', (e) => {
+                    switch(e.code) {
+                        case 'ArrowUp':
+                        case 'KeyW':
+                            e.preventDefault();
+                            this.setDirection({x: 0, y: -1});
+                            break;
+                        case 'ArrowDown':
+                        case 'KeyS':
+                            e.preventDefault();
+                            this.setDirection({x: 0, y: 1});
+                            break;
+                        case 'ArrowLeft':
+                        case 'KeyA':
+                            e.preventDefault();
+                            this.setDirection({x: -1, y: 0});
+                            break;
+                        case 'ArrowRight':
+                        case 'KeyD':
+                            e.preventDefault();
+                            this.setDirection({x: 1, y: 0});
+                            break;
+                        case 'Space':
+                            e.preventDefault();
+                            this.pause();
+                            break;
+                        case 'KeyR':
+                            e.preventDefault();
+                            this.reset();
+                            break;
+                    }
+                });
+
+                // Button controls
+                document.getElementById('upBtn').addEventListener('click', () => {
+                    this.setDirection({x: 0, y: -1});
+                });
+                document.getElementById('downBtn').addEventListener('click', () => {
+                    this.setDirection({x: 0, y: 1});
+                });
+                document.getElementById('leftBtn').addEventListener('click', () => {
+                    this.setDirection({x: -1, y: 0});
+                });
+                document.getElementById('rightBtn').addEventListener('click', () => {
+                    this.setDirection({x: 1, y: 0});
+                });
+
+                // Action buttons
+                document.getElementById('startBtn').addEventListener('click', () => {
+                    this.start();
+                });
+                document.getElementById('pauseBtn').addEventListener('click', () => {
+                    this.pause();
+                });
+                document.getElementById('resetBtn').addEventListener('click', () => {
+                    this.reset();
+                });
+
+                // Touch/swipe controls for mobile
+                let touchStartX = 0;
+                let touchStartY = 0;
+
+                this.board.addEventListener('touchstart', (e) => {
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                }, {passive: true});
+
+                this.board.addEventListener('touchend', (e) => {
+                    if (!touchStartX || !touchStartY) return;
+
+                    const touchEndX = e.changedTouches[0].clientX;
+                    const touchEndY = e.changedTouches[0].clientY;
+
+                    const diffX = touchStartX - touchEndX;
+                    const diffY = touchStartY - touchEndY;
+
+                    if (Math.abs(diffX) > Math.abs(diffY)) {
+                        if (diffX > 0) {
+                            this.setDirection({x: -1, y: 0}); // left
+                        } else {
+                            this.setDirection({x: 1, y: 0}); // right
+                        }
+                    } else {
+                        if (diffY > 0) {
+                            this.setDirection({x: 0, y: -1}); // up
+                        } else {
+                            this.setDirection({x: 0, y: 1}); // down
+                        }
+                    }
+
+                    touchStartX = 0;
+                    touchStartY = 0;
+                }, {passive: true});
+            }
         }
 
-        // Spawn enemies periodically
-        setInterval(spawnEnemy, 5000);
+        // Start the game
+        const game = new SnakeGame();
 
-        // Welcome message
+        // Auto-start after 2 seconds
         setTimeout(() => {
-            showNotification('ยินดีต้อนรับสู่ Roblox Adventure! 🎮');
-        }, 1000);
-
-        // Initialize display
-        updateDisplay();
+            if (!game.gameRunning) {
+                game.setDirection({x: 1, y: 0});
+                game.start();
+            }
+        }, 2000);
     </script>
 </body>
 </html>
