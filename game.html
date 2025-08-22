@@ -3,609 +3,397 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐍 Snake Game - เกมงูคลาสสิก</title>
+    <title>เกมยิงนก</title>
     <style>
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 100%);
+            font-family: Arial, sans-serif;
             overflow: hidden;
+            cursor: crosshair;
         }
 
-        .game-container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            text-align: center;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+        #gameCanvas {
+            display: block;
+            margin: 0 auto;
+            border: 2px solid #333;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 70%, #228B22 100%);
         }
 
-        .header {
-            color: white;
-            margin-bottom: 20px;
-        }
-
-        .title {
-            font-size: 36px;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            margin-bottom: 10px;
-        }
-
-        .score-display {
-            display: flex;
-            justify-content: space-between;
-            gap: 30px;
-            margin-bottom: 20px;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .score-item {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 10px 20px;
-            border-radius: 25px;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .game-board {
-            width: 600px;
-            height: 600px;
-            background: #1a1a1a;
-            border: 4px solid #333;
-            border-radius: 15px;
-            position: relative;
-            margin: 0 auto 20px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        .snake-segment {
+        #gameInfo {
             position: absolute;
-            width: 20px;
-            height: 20px;
-            background: linear-gradient(45deg, #2ecc71, #27ae60);
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            transition: all 0.1s ease;
-        }
-
-        .snake-head {
-            background: linear-gradient(45deg, #e74c3c, #c0392b) !important;
-            border-radius: 50% !important;
-            box-shadow: 0 0 10px rgba(231, 76, 60, 0.5) !important;
-        }
-
-        .food {
-            position: absolute;
-            width: 18px;
-            height: 18px;
-            background: linear-gradient(45deg, #f1c40f, #f39c12);
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-            box-shadow: 0 0 15px rgba(241, 196, 15, 0.6);
-        }
-
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .control-btn {
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 15px;
+            top: 10px;
+            left: 10px;
             color: white;
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            backdrop-filter: blur(5px);
-            user-select: none;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
-        .control-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.05);
-        }
-
-        .control-btn:active {
-            transform: scale(0.95);
-        }
-
-        .control-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 60px);
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .action-btn {
-            padding: 12px 24px;
-            background: linear-gradient(45deg, #3498db, #2980b9);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
-        }
-
-        .action-btn.start {
-            background: linear-gradient(45deg, #2ecc71, #27ae60);
-            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
-        }
-
-        .action-btn.pause {
-            background: linear-gradient(45deg, #f39c12, #e67e22);
-            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
-        }
-
-        .action-btn.reset {
-            background: linear-gradient(45deg, #e74c3c, #c0392b);
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
-        }
-
-        .game-over {
+        #gameOver {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0,0,0,0.8);
             color: white;
             padding: 30px;
-            border-radius: 15px;
+            border-radius: 10px;
             text-align: center;
             display: none;
-            z-index: 100;
-            backdrop-filter: blur(10px);
         }
 
-        .game-over h2 {
-            font-size: 32px;
-            margin-bottom: 15px;
-            color: #e74c3c;
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
         }
 
-        .instructions {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 14px;
-            margin-top: 15px;
-            line-height: 1.5;
+        button:hover {
+            background: #45a049;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        @keyframes gameOverAnimation {
-            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        }
-
-        .show-game-over {
-            display: block !important;
-            animation: gameOverAnimation 0.3s ease-out;
-        }
-
-        .speed-indicator {
+        .cloud {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 12px;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 5px 10px;
-            border-radius: 10px;
-        }
-
-        @media (max-width: 768px) {
-            .game-board {
-                width: 400px;
-                height: 400px;
-            }
-            
-            .snake-segment, .food {
-                width: 15px;
-                height: 15px;
-            }
-            
-            .food {
-                width: 13px;
-                height: 13px;
-            }
+            background: white;
+            border-radius: 50px;
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <div class="header">
-            <div class="title">🐍 เกมงูคลาสสิก</div>
-            <div class="creator-info">
-                <div style="font-size: 16px; margin-bottom: 5px; color: rgba(255, 255, 255, 0.9);">
-                    👨‍💻 สร้างโดย: <strong>Siwasilp Pornjumsilp (Ohm No.99)</strong>
-                </div>
-            </div>
-            <div class="score-display">
-                <div class="score-item">🍎 คะแนน: <span id="score">0</span></div>
-                <div class="score-item">📏 ความยาว: <span id="length">1</span></div>
-                <div class="score-item">🏆 สถิติ: <span id="highScore">0</span></div>
-            </div>
-        </div>
-
-        <div class="game-board" id="gameBoard">
-            <div class="speed-indicator" id="speedIndicator">ความเร็ว: ปกติ</div>
-            <div class="game-over" id="gameOver">
-                <h2>🎮 จบเกม!</h2>
-                <p>คะแนนของคุณ: <span id="finalScore">0</span></p>
-                <p>ความยาวสูงสุด: <span id="finalLength">1</span></p>
-            </div>
-        </div>
-
-        <div class="controls">
-            <div class="control-grid">
-                <div></div>
-                <div class="control-btn" id="upBtn">↑</div>
-                <div></div>
-                <div class="control-btn" id="leftBtn">←</div>
-                <div></div>
-                <div class="control-btn" id="rightBtn">→</div>
-                <div></div>
-                <div class="control-btn" id="downBtn">↓</div>
-                <div></div>
-            </div>
-        </div>
-
-        <div class="action-buttons">
-            <button class="action-btn start" id="startBtn">เริ่มเกม</button>
-            <button class="action-btn pause" id="pauseBtn">หยุดชั่วคราว</button>
-            <button class="action-btn reset" id="resetBtn">เริ่มใหม่</button>
-        </div>
-
-        <div class="instructions">
-            🎯 <strong>วิธีเล่น:</strong> ใช้ลูกศรหรือ WASD เพื่อควบคุมงู<br>
-            🍎 เก็บอาหารเพื่อเพิ่มคะแนนและความยาว | 🚫 อย่าให้งูชนตัวเองหรือกำแพง<br>
-            ⚡ งูจะเร็วขึ้นเมื่อยาวขึ้น!
-        </div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <div id="gameInfo">
+        <div>คะแนน: <span id="score">0</span></div>
+        <div>กระสุน: <span id="ammo">10</span></div>
+        <div>เวลา: <span id="time">60</span>s</div>
     </div>
 
+    <div id="gameOver">
+        <h2>เกมจบแล้ว!</h2>
+        <p>คะแนนสุดท้าย: <span id="finalScore">0</span></p>
+        <button onclick="startGame()">เล่นใหม่</button>
+    </div>
+
+    <!-- เมฆ -->
+    <div class="cloud" style="width: 80px; height: 40px; top: 20%; left: 10%; animation: moveCloud 20s linear infinite;"></div>
+    <div class="cloud" style="width: 60px; height: 30px; top: 15%; right: 20%; animation: moveCloud 25s linear infinite reverse;"></div>
+    <div class="cloud" style="width: 100px; height: 50px; top: 10%; left: 60%; animation: moveCloud 30s linear infinite;"></div>
+
+    <style>
+        @keyframes moveCloud {
+            from { transform: translateX(-100px); }
+            to { transform: translateX(900px); }
+        }
+    </style>
+
     <script>
-        class SnakeGame {
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let gameState = {
+            score: 0,
+            ammo: 10,
+            timeLeft: 60,
+            gameRunning: false,
+            birds: [],
+            bullets: [],
+            gameInterval: null,
+            spawnInterval: null
+        };
+
+        class Bird {
             constructor() {
-                this.board = document.getElementById('gameBoard');
-                this.gameOverDiv = document.getElementById('gameOver');
-                this.scoreElement = document.getElementById('score');
-                this.lengthElement = document.getElementById('length');
-                this.highScoreElement = document.getElementById('highScore');
-                this.finalScoreElement = document.getElementById('finalScore');
-                this.finalLengthElement = document.getElementById('finalLength');
-                this.speedIndicator = document.getElementById('speedIndicator');
-                
-                this.boardSize = 600;
-                this.cellSize = 20;
-                this.gridSize = this.boardSize / this.cellSize;
-                
-                this.reset();
-                this.loadHighScore();
-                this.bindEvents();
+                this.x = -50;
+                this.y = Math.random() * (canvas.height - 200) + 50;
+                this.speed = 2 + Math.random() * 3;
+                this.size = 20 + Math.random() * 15;
+                this.wingFlap = 0;
+                this.color = this.getRandomColor();
+                this.points = Math.floor(this.size / 5);
             }
 
-            reset() {
-                this.snake = [{x: 15, y: 15}];
-                this.direction = {x: 0, y: 0};
-                this.nextDirection = {x: 0, y: 0};
-                this.food = this.generateFood();
-                this.score = 0;
-                this.gameRunning = false;
-                this.gameOver = false;
-                this.speed = 200;
-                
-                this.clearBoard();
-                this.updateScore();
-                this.draw();
-                this.gameOverDiv.classList.remove('show-game-over');
-            }
-
-            loadHighScore() {
-                const saved = localStorage.getItem('snakeHighScore');
-                this.highScore = saved ? parseInt(saved) : 0;
-                this.highScoreElement.textContent = this.highScore;
-            }
-
-            saveHighScore() {
-                if (this.score > this.highScore) {
-                    this.highScore = this.score;
-                    localStorage.setItem('snakeHighScore', this.highScore);
-                    this.highScoreElement.textContent = this.highScore;
-                }
-            }
-
-            generateFood() {
-                let newFood;
-                do {
-                    newFood = {
-                        x: Math.floor(Math.random() * this.gridSize),
-                        y: Math.floor(Math.random() * this.gridSize)
-                    };
-                } while (this.snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
-                return newFood;
-            }
-
-            clearBoard() {
-                const segments = this.board.querySelectorAll('.snake-segment');
-                const foods = this.board.querySelectorAll('.food');
-                segments.forEach(segment => segment.remove());
-                foods.forEach(food => food.remove());
-            }
-
-            draw() {
-                this.clearBoard();
-
-                // Draw snake
-                this.snake.forEach((segment, index) => {
-                    const segmentElement = document.createElement('div');
-                    segmentElement.classList.add('snake-segment');
-                    if (index === 0) {
-                        segmentElement.classList.add('snake-head');
-                    }
-                    segmentElement.style.left = segment.x * this.cellSize + 'px';
-                    segmentElement.style.top = segment.y * this.cellSize + 'px';
-                    this.board.appendChild(segmentElement);
-                });
-
-                // Draw food
-                const foodElement = document.createElement('div');
-                foodElement.classList.add('food');
-                foodElement.style.left = this.food.x * this.cellSize + 1 + 'px';
-                foodElement.style.top = this.food.y * this.cellSize + 1 + 'px';
-                this.board.appendChild(foodElement);
+            getRandomColor() {
+                const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD'];
+                return colors[Math.floor(Math.random() * colors.length)];
             }
 
             update() {
-                if (!this.gameRunning || this.gameOver) return;
-
-                // Update direction
-                this.direction = {...this.nextDirection};
-
-                if (this.direction.x === 0 && this.direction.y === 0) {
-                    setTimeout(() => this.update(), this.speed);
-                    return;
-                }
-
-                // Move snake
-                const head = {...this.snake[0]};
-                head.x += this.direction.x;
-                head.y += this.direction.y;
-
-                // Check wall collision
-                if (head.x < 0 || head.x >= this.gridSize || 
-                    head.y < 0 || head.y >= this.gridSize) {
-                    this.endGame();
-                    return;
-                }
-
-                // Check self collision
-                if (this.snake.some(segment => segment.x === head.x && segment.y === head.y)) {
-                    this.endGame();
-                    return;
-                }
-
-                this.snake.unshift(head);
-
-                // Check food collision
-                if (head.x === this.food.x && head.y === this.food.y) {
-                    this.score += 10;
-                    this.food = this.generateFood();
-                    this.updateScore();
-                    this.updateSpeed();
-                } else {
-                    this.snake.pop();
-                }
-
-                this.draw();
-                setTimeout(() => this.update(), this.speed);
+                this.x += this.speed;
+                this.wingFlap += 0.3;
             }
 
-            updateSpeed() {
-                const length = this.snake.length;
-                if (length >= 50) {
-                    this.speed = 80;
-                    this.speedIndicator.textContent = 'ความเร็ว: เร็วมาก!';
-                } else if (length >= 30) {
-                    this.speed = 100;
-                    this.speedIndicator.textContent = 'ความเร็ว: เร็ว';
-                } else if (length >= 20) {
-                    this.speed = 120;
-                    this.speedIndicator.textContent = 'ความเร็ว: ปานกลาง+';
-                } else if (length >= 10) {
-                    this.speed = 150;
-                    this.speedIndicator.textContent = 'ความเร็ว: ปานกลาง';
-                } else {
-                    this.speed = 200;
-                    this.speedIndicator.textContent = 'ความเร็ว: ปกติ';
-                }
-            }
-
-            updateScore() {
-                this.scoreElement.textContent = this.score;
-                this.lengthElement.textContent = this.snake.length;
-            }
-
-            endGame() {
-                this.gameRunning = false;
-                this.gameOver = true;
-                this.saveHighScore();
+            draw() {
+                ctx.save();
+                ctx.translate(this.x + this.size/2, this.y + this.size/2);
                 
-                this.finalScoreElement.textContent = this.score;
-                this.finalLengthElement.textContent = this.snake.length;
-                this.gameOverDiv.classList.add('show-game-over');
+                // ร่างกาย
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, this.size/2, this.size/3, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // หัว
+                ctx.beginPath();
+                ctx.ellipse(this.size/3, -this.size/6, this.size/3, this.size/4, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // ปีก
+                const wingFlap = Math.sin(this.wingFlap) * 0.3;
+                ctx.fillStyle = this.darkenColor(this.color);
+                
+                // ปีกซ้าย
+                ctx.beginPath();
+                ctx.ellipse(-this.size/4, wingFlap, this.size/2, this.size/6, -0.5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // ปีกขวา
+                ctx.beginPath();
+                ctx.ellipse(-this.size/4, -wingFlap, this.size/2, this.size/6, 0.5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // ตา
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(this.size/3, -this.size/6, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // จะงอยปาก
+                ctx.fillStyle = '#FFA500';
+                ctx.beginPath();
+                ctx.moveTo(this.size/2, -this.size/6);
+                ctx.lineTo(this.size/2 + 8, -this.size/6);
+                ctx.lineTo(this.size/2 + 4, -this.size/6 + 4);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.restore();
             }
 
-            setDirection(newDirection) {
-                // Prevent reverse direction
-                if (this.direction.x === -newDirection.x && this.direction.y === -newDirection.y) {
-                    return;
-                }
-                this.nextDirection = newDirection;
+            darkenColor(color) {
+                const r = parseInt(color.slice(1, 3), 16);
+                const g = parseInt(color.slice(3, 5), 16);
+                const b = parseInt(color.slice(5, 7), 16);
+                return `rgb(${Math.floor(r*0.7)}, ${Math.floor(g*0.7)}, ${Math.floor(b*0.7)})`;
             }
 
-            start() {
-                if (!this.gameRunning && !this.gameOver) {
-                    this.gameRunning = true;
-                    this.update();
-                }
-            }
-
-            pause() {
-                this.gameRunning = !this.gameRunning;
-                if (this.gameRunning) {
-                    this.update();
-                }
-            }
-
-            bindEvents() {
-                // Keyboard controls
-                document.addEventListener('keydown', (e) => {
-                    switch(e.code) {
-                        case 'ArrowUp':
-                        case 'KeyW':
-                            e.preventDefault();
-                            this.setDirection({x: 0, y: -1});
-                            break;
-                        case 'ArrowDown':
-                        case 'KeyS':
-                            e.preventDefault();
-                            this.setDirection({x: 0, y: 1});
-                            break;
-                        case 'ArrowLeft':
-                        case 'KeyA':
-                            e.preventDefault();
-                            this.setDirection({x: -1, y: 0});
-                            break;
-                        case 'ArrowRight':
-                        case 'KeyD':
-                            e.preventDefault();
-                            this.setDirection({x: 1, y: 0});
-                            break;
-                        case 'Space':
-                            e.preventDefault();
-                            this.pause();
-                            break;
-                        case 'KeyR':
-                            e.preventDefault();
-                            this.reset();
-                            break;
-                    }
-                });
-
-                // Button controls
-                document.getElementById('upBtn').addEventListener('click', () => {
-                    this.setDirection({x: 0, y: -1});
-                });
-                document.getElementById('downBtn').addEventListener('click', () => {
-                    this.setDirection({x: 0, y: 1});
-                });
-                document.getElementById('leftBtn').addEventListener('click', () => {
-                    this.setDirection({x: -1, y: 0});
-                });
-                document.getElementById('rightBtn').addEventListener('click', () => {
-                    this.setDirection({x: 1, y: 0});
-                });
-
-                // Action buttons
-                document.getElementById('startBtn').addEventListener('click', () => {
-                    this.start();
-                });
-                document.getElementById('pauseBtn').addEventListener('click', () => {
-                    this.pause();
-                });
-                document.getElementById('resetBtn').addEventListener('click', () => {
-                    this.reset();
-                });
-
-                // Touch/swipe controls for mobile
-                let touchStartX = 0;
-                let touchStartY = 0;
-
-                this.board.addEventListener('touchstart', (e) => {
-                    touchStartX = e.touches[0].clientX;
-                    touchStartY = e.touches[0].clientY;
-                }, {passive: true});
-
-                this.board.addEventListener('touchend', (e) => {
-                    if (!touchStartX || !touchStartY) return;
-
-                    const touchEndX = e.changedTouches[0].clientX;
-                    const touchEndY = e.changedTouches[0].clientY;
-
-                    const diffX = touchStartX - touchEndX;
-                    const diffY = touchStartY - touchEndY;
-
-                    if (Math.abs(diffX) > Math.abs(diffY)) {
-                        if (diffX > 0) {
-                            this.setDirection({x: -1, y: 0}); // left
-                        } else {
-                            this.setDirection({x: 1, y: 0}); // right
-                        }
-                    } else {
-                        if (diffY > 0) {
-                            this.setDirection({x: 0, y: -1}); // up
-                        } else {
-                            this.setDirection({x: 0, y: 1}); // down
-                        }
-                    }
-
-                    touchStartX = 0;
-                    touchStartY = 0;
-                }, {passive: true});
+            isHit(x, y) {
+                const distance = Math.sqrt((x - (this.x + this.size/2))**2 + (y - (this.y + this.size/2))**2);
+                return distance < this.size/2;
             }
         }
 
-        // Start the game
-        const game = new SnakeGame();
-
-        // Auto-start after 2 seconds
-        setTimeout(() => {
-            if (!game.gameRunning) {
-                game.setDirection({x: 1, y: 0});
-                game.start();
+        class Bullet {
+            constructor(x, y, targetX, targetY) {
+                this.x = x;
+                this.y = y;
+                const angle = Math.atan2(targetY - y, targetX - x);
+                this.speed = 8;
+                this.dx = Math.cos(angle) * this.speed;
+                this.dy = Math.sin(angle) * this.speed;
+                this.life = 100;
             }
-        }, 2000);
+
+            update() {
+                this.x += this.dx;
+                this.y += this.dy;
+                this.life--;
+            }
+
+            draw() {
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#FFA500';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function spawnBird() {
+            if (gameState.gameRunning && Math.random() < 0.7) {
+                gameState.birds.push(new Bird());
+            }
+        }
+
+        function updateGame() {
+            if (!gameState.gameRunning) return;
+
+            // อัพเดทนก
+            gameState.birds = gameState.birds.filter(bird => {
+                bird.update();
+                return bird.x < canvas.width + 50;
+            });
+
+            // อัพเดทกระสุน
+            gameState.bullets = gameState.bullets.filter(bullet => {
+                bullet.update();
+                return bullet.life > 0 && bullet.x >= 0 && bullet.x <= canvas.width && bullet.y >= 0 && bullet.y <= canvas.height;
+            });
+
+            // ตรวจสอบการชน
+            gameState.bullets.forEach((bullet, bulletIndex) => {
+                gameState.birds.forEach((bird, birdIndex) => {
+                    if (bird.isHit(bullet.x, bullet.y)) {
+                        gameState.score += bird.points;
+                        gameState.birds.splice(birdIndex, 1);
+                        gameState.bullets.splice(bulletIndex, 1);
+                        
+                        // เอฟเฟค
+                        createHitEffect(bird.x + bird.size/2, bird.y + bird.size/2);
+                    }
+                });
+            });
+
+            updateUI();
+        }
+
+        function createHitEffect(x, y) {
+            // สร้างเอฟเฟคการระเบิดง่ายๆ
+            for(let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    ctx.fillStyle = `hsl(${Math.random() * 60 + 10}, 100%, 50%)`;
+                    ctx.beginPath();
+                    const effectX = x + (Math.random() - 0.5) * 30;
+                    const effectY = y + (Math.random() - 0.5) * 30;
+                    ctx.arc(effectX, effectY, Math.random() * 5 + 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }, i * 50);
+            }
+        }
+
+        function drawGame() {
+            // ล้างหน้าจอ
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // วาดพื้นหลัง
+            drawBackground();
+            
+            // วาดนก
+            gameState.birds.forEach(bird => bird.draw());
+            
+            // วาดกระสุน
+            gameState.bullets.forEach(bullet => bullet.draw());
+        }
+
+        function drawBackground() {
+            // วาดพื้น
+            ctx.fillStyle = '#228B22';
+            ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+            
+            // วาดต้นไม้
+            for(let i = 0; i < 5; i++) {
+                const x = i * 160 + 50;
+                const y = canvas.height - 100;
+                
+                // ลำต้น
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(x - 5, y - 60, 10, 60);
+                
+                // ใบไม้
+                ctx.fillStyle = '#228B22';
+                ctx.beginPath();
+                ctx.arc(x, y - 60, 25, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('ammo').textContent = gameState.ammo;
+            document.getElementById('time').textContent = gameState.timeLeft;
+        }
+
+        function gameLoop() {
+            updateGame();
+            drawGame();
+        }
+
+        function startGame() {
+            gameState = {
+                score: 0,
+                ammo: 10,
+                timeLeft: 60,
+                gameRunning: true,
+                birds: [],
+                bullets: []
+            };
+            
+            document.getElementById('gameOver').style.display = 'none';
+            updateUI();
+            
+            // เริ่มเกม
+            gameState.gameInterval = setInterval(gameLoop, 1000/60); // 60 FPS
+            gameState.spawnInterval = setInterval(spawnBird, 2000); // สร้างนกทุก 2 วินาที
+            
+            // นับถอยหลังเวลา
+            const timeInterval = setInterval(() => {
+                gameState.timeLeft--;
+                updateUI();
+                
+                if (gameState.timeLeft <= 0 || gameState.ammo <= 0) {
+                    endGame();
+                    clearInterval(timeInterval);
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            gameState.gameRunning = false;
+            clearInterval(gameState.gameInterval);
+            clearInterval(gameState.spawnInterval);
+            
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('gameOver').style.display = 'block';
+        }
+
+        // Event listeners
+        canvas.addEventListener('click', (e) => {
+            if (!gameState.gameRunning || gameState.ammo <= 0) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // ยิงจากกลางด้านล่าง
+            gameState.bullets.push(new Bullet(canvas.width/2, canvas.height - 50, x, y));
+            gameState.ammo--;
+            
+            // เสียงยิง (จำลอง)
+            playShootSound();
+        });
+
+        function playShootSound() {
+            // สร้างเสียงยิงแบบง่ายๆ
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        // เริ่มเกมครั้งแรก
+        startGame();
     </script>
 </body>
 </html>
