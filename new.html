@@ -3,6 +3,89 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>หน้าแนะนำตัว — Dark Punk</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#050505;
+      --card:#0a0a0a;
+      --accent:linear-gradient(90deg,#ff0066,#ffcc00);
+      --muted:#aaa;
+      --neon-pink:#ff0066;
+      --neon-yellow:#ffcc00;
+      --neon-cyan:#00fff7;
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;padding:32px;font-family:'Share Tech Mono', monospace;
+      background:radial-gradient(800px 600px at 10% 10%,rgba(255,0,102,0.1),transparent),
+                 radial-gradient(900px 400px at 90% 90%,rgba(0,255,247,0.08),transparent),
+                 var(--bg);
+      color:#eee;
+      text-shadow:0 0 5px rgba(255,0,102,0.6),0 0 10px rgba(0,255,247,0.5);
+    }
+
+    .container{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:360px 1fr;gap:28px}
+
+    .profile{
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.06);
+      border-radius:var(--radius);
+      padding:28px;
+      box-shadow:0 0 20px var(--neon-pink);
+      position:sticky;top:32px;height:fit-content;
+    }
+    .avatar{width:140px;height:140px;border-radius:50%;overflow:hidden;margin:0 auto;border:2px solid var(--neon-cyan);box-shadow:0 0 20px var(--neon-cyan)}
+    .avatar img{width:100%;height:100%;object-fit:cover}
+    h1{font-size:22px;margin:16px 0 4px;text-align:center;font-family:'Orbitron',sans-serif;color:var(--neon-yellow)}
+    p.title{text-align:center;color:var(--muted)}
+
+    .meta{display:flex;gap:10px;justify-content:center;margin-top:16px}
+    .chip{padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.08);font-size:13px;color:var(--neon-cyan)}
+
+    .contact{margin-top:18px;display:flex;gap:10px;justify-content:center}
+    .contact a{padding:8px 12px;border-radius:8px;text-decoration:none;background:rgba(255,255,255,0.05);color:var(--neon-pink);border:1px solid var(--neon-pink);transition:0.3s}
+    .contact a:hover{background:var(--neon-pink);color:#000;text-shadow:none}
+
+    .about{margin-top:20px;color:var(--muted);line-height:1.6;font-size:14px}
+
+    .socials{display:flex;gap:8px;justify-content:center;margin-top:16px}
+    .socials a{width:38px;height:38px;display:grid;place-items:center;border-radius:8px;background:rgba(255,255,255,0.05);color:var(--neon-yellow);border:1px solid var(--neon-yellow)}
+
+    .main-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);padding:28px;border-radius:var(--radius);box-shadow:0 0 20px var(--neon-cyan)}
+
+    .hero h2{font-size:26px;margin:0;font-family:'Orbitron',sans-serif;color:var(--neon-pink)}
+    .hero p{color:var(--muted)}
+    .cta{margin-top:12px;display:flex;gap:10px}
+    .btn{padding:10px 14px;border-radius:10px;border:none;cursor:pointer;background:var(--accent);font-weight:700;color:#000;box-shadow:0 0 15px var(--neon-yellow)}
+    .outline{padding:10px 14px;border-radius:10px;background:transparent;color:var(--neon-cyan);border:1px solid var(--neon-cyan)}
+
+    .sections{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+    .card{background:rgba(255,255,255,0.03);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.05)}
+    .card h3{color:var(--neon-yellow);font-family:'Orbitron',sans-serif}
+
+    .skill .label{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+    .bar{height:10px;background:rgba(255,255,255,0.06);border-radius:8px;overflow:hidden}
+    .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--neon-pink),var(--neon-cyan))}
+
+    footer{text-align:center;margin-top:20px;color:var(--muted);font-size:13px}
+
+    @media(max-width:900px){
+      .container{grid-template-columns:1fr}
+      .sections{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="profile">
+      <div class="avatar"><img src="https://via.placeholder.com/300x300.png?text=YOU" alt="Avatar"></div>
+      <h1>ชื่อ-นามสกุล</h1><!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>หน้าแนะนำตัว — Mockup</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
   <style>
