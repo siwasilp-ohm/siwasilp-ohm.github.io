@@ -1,489 +1,204 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dark Punk — แนะนำตัว</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg:#070607;
-      --panel:#0f0f11;
-      --neon1:#00ffd5;
-      --neon2:#ff4dff;
-      --muted:#98a0a8;
-      --accent:linear-gradient(90deg,var(--neon1),var(--neon2));
-      --glass: rgba(255,255,255,0.03);
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
-      background: radial-gradient(1200px 400px at 10% 10%, rgba(255,0,150,0.03), transparent),
-                  radial-gradient(800px 300px at 90% 90%, rgba(0,255,210,0.02), transparent),
-                  var(--bg);
-      color:#e6eef6; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-      padding:3rem;
-      display:flex; align-items:center; justify-content:center;
-    }
+    <meta charset="UTF-8">
+    <title>แนะนำตัว - รวมในไฟล์เดียว</title>
+    <style>
+        /* CSS สำหรับทุกหน้า */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+            margin: 0;
+            overflow: hidden;
+            transition: background-color 0.5s ease;
+        }
 
-    .card{
-      width:min(1100px,95%);
-      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015));
-      border-radius:16px; padding:28px; display:grid; grid-template-columns:320px 1fr; gap:28px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 40px rgba(0,0,0,0.6) inset;
-      border:1px solid rgba(255,255,255,0.03);
-      position:relative; overflow:hidden;
-    }
+        .page-container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            position: absolute;
+        }
 
-    /* neon frame */
-    .card:before{
-      content:""; position:absolute; inset:0; pointer-events:none; border-radius:16px;
-      background: conic-gradient(from 120deg at 50% 50%, rgba(255,77,255,0.02), rgba(0,255,213,0.02));
-      mix-blend-mode:overlay; filter:blur(18px);
-    }
+        .page-container.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
 
-    /* Left column */
-    .left{background:linear-gradient(180deg,var(--glass), rgba(255,255,255,0.01)); padding:20px; border-radius:12px; border:1px solid rgba(255,255,255,0.02); display:flex; flex-direction:column; gap:18px}
+        h1, h2 {
+            color: #333;
+        }
 
-    .avatar{
-      width:120px; height:120px; border-radius:14px; overflow:hidden; position:relative; margin-bottom:4px;
-      border:3px solid rgba(255,255,255,0.04); background:linear-gradient(145deg,#050506, #0b0b0c);
-    }
-    /* faux avatar svg */
-    .avatar svg{width:100%; height:100%; display:block}
-    .glow-ring{position:absolute; inset:-6px; border-radius:16px; pointer-events:none; box-shadow:0 0 30px 4px rgba(0,255,213,0.04), 0 0 10px 2px rgba(255,77,255,0.03)}
+        p {
+            color: #666;
+            line-height: 1.6;
+        }
 
-    h1.name{font-family:Orbitron, Inter, sans-serif; font-weight:700; letter-spacing:0.6px; margin:0 0 4px 0; font-size:20px; color:var(--neon2)}
-    p.role{margin:0; font-weight:600; color:var(--neon1); font-size:13px}
+        .next-page-btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
 
-    .meta{font-size:13px; color:var(--muted); display:grid; gap:10px;}
-    .meta .row{display:flex; gap:10px; align-items:center}
-    .badge{background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.02); padding:6px 10px; border-radius:999px; font-weight:600}
+        .next-page-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
+        }
 
-    .links{display:flex; flex-direction:column; gap:8px}
-    .btn{display:inline-flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; text-decoration:none; color:inherit; font-weight:600; border:1px solid rgba(255,255,255,0.03); background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
-    .btn.primary{background:var(--accent); background-size:200% 200%; color:#060406; border:none; box-shadow:0 6px 20px rgba(0,0,0,0.6)}
-    .btn.ghost{background:transparent}
+        /* --- Page 1: Introduction --- */
+        .page1 .intro-container {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 1.5s forwards;
+        }
 
-    /* Right column */
-    .right{padding:18px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent); border:1px solid rgba(255,255,255,0.02)}
-    .headline{display:flex; align-items:center; gap:12px;}
-    .headline h2{margin:0; font-family:Orbitron; font-size:18px}
-    .headline .sub{color:var(--muted); font-size:13px}
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-    .about{margin-top:12px; color:#cfe8ef; line-height:1.5}
+        /* --- Page 2: Personal Info --- */
+        .page2 .animated-info {
+            opacity: 0;
+            transform: scale(0.9);
+            animation: popIn 1s forwards;
+        }
+        .page2 .animated-info:nth-child(2) { animation-delay: 0.5s; }
+        .page2 .animated-info:nth-child(3) { animation-delay: 1s; }
 
-    .stats{display:flex; gap:12px; margin-top:16px}
-    .stat{flex:1; background:rgba(255,255,255,0.02); padding:12px; border-radius:10px; text-align:center}
-    .stat .num{font-weight:700; font-size:18px; font-family:Orbitron}
-    .stat .label{font-size:12px; color:var(--muted)}
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
 
-    .skills{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
-    .skill{padding:8px 10px; border-radius:8px; background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); border:1px solid rgba(255,255,255,0.02); font-weight:600; font-size:13px}
+        /* --- Page 3: Education --- */
+        .page3 .animated-timeline {
+            opacity: 0;
+            transform: translateX(-50px);
+            animation: slideIn 1s forwards;
+        }
+        .page3 .animated-timeline:nth-child(2) { animation-delay: 0.5s; }
 
-    .projects{margin-top:18px; display:grid; gap:10px}
-    .proj{padding:12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; gap:12px; border:1px dashed rgba(255,255,255,0.02)}
-    .proj .title{font-weight:700}
-    .proj .meta{font-size:12px; color:var(--muted)}
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
 
-    /* small screen */
-    @media (max-width:820px){
-      .card{grid-template-columns:1fr; padding:18px}
-      .avatar{margin:0 auto}
-      .left{align-items:center}
-    }
+        /* --- Page 4: Skills --- */
+        .page4 .skill-bar {
+            background-color: #ddd;
+            border-radius: 10px;
+            margin: 10px 0;
+            height: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .page4 .bar-fill {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0;
+        }
+        .page4.active .html-fill { animation: fillHtml 1.5s forwards; }
+        .page4.active .css-fill { animation: fillCss 1.5s forwards; }
 
-    /* subtle glitch */
-    .glitch{position:relative; display:inline-block}
-    .glitch:before, .glitch:after{content:attr(data-text); position:absolute; left:0; top:0; width:100%; height:100%;}
-    .glitch:before{clip-path:polygon(0 0,100% 0,100% 45%,0 45%); transform:translate(2px,-1px); opacity:0.7; color:var(--neon1)}
-    .glitch:after{clip-path:polygon(0 55%,100% 55%,100% 100%,0 100%); transform:translate(-2px,1px); opacity:0.8; color:var(--neon2)}
+        @keyframes fillHtml {
+            to { width: 90%; }
+        }
+        @keyframes fillCss {
+            to { width: 80%; }
+        }
 
-    /* subtle animations */
-    @keyframes floaty{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
-    .avatar{animation:floaty 6s ease-in-out infinite}
-
-  </style>
+        /* --- Page 5: Contact --- */
+        .page5 a {
+            color: #007BFF;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .page5 a:hover {
+            color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-  <main class="card" role="main" aria-labelledby="intro-title">
-    <section class="left" aria-label="ข้อมูลผู้ใช้">
-      <div style="display:flex; gap:14px; align-items:center">
-        <div>
-          <div class="avatar" aria-hidden="true">
-            <!-- simple svg avatar -->
-            <svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="g" x1="0" x2="1">
-                  <stop offset="0" stop-color="#00ffd5" stop-opacity="0.12"/>
-                  <stop offset="1" stop-color="#ff4dff" stop-opacity="0.12"/>
-                </linearGradient>
-              </defs>
-              <rect width="140" height="140" fill="#060607"/>
-              <circle cx="70" cy="48" r="28" fill="url(#g)" />
-              <rect x="26" y="86" width="88" height="28" rx="6" fill="rgba(255,255,255,0.02)"/>
-            </svg>
-            <div class="glow-ring"></div>
-          </div>
+
+    <div id="page1" class="page-container active">
+        <div class="intro-container">
+            <h1>สวัสดีครับ ผม [ชื่อของคุณ]</h1>
+            <a href="#" class="next-page-btn" onclick="showPage(2)">ถัดไป</a>
         </div>
-        <div style="flex:1">
-          <h1 id="intro-title" class="name">ชื่อ นามสกุล</h1>
-          <p class="role">ตำแหน่ง — Developer / Engineer / Designer</p>
-          <div style="height:8px"></div>
-          <div class="meta">
-            <div class="row"><span class="badge">ประสบการณ์ 8 ปี</span><span class="badge">สถานะ: เปิดรับงาน</span></div>
-            <div class="row"><span class="badge">เมือง: กรุงเทพฯ</span><span class="badge">ภาษา: ไทย / อังกฤษ</span></div>
-          </div>
+    </div>
+
+    <div id="page2" class="page-container">
+        <h2>ประวัติส่วนตัว</h2>
+        <p class="animated-info">ชื่อ: [ชื่อของคุณ]</p>
+        <p class="animated-info">วันเกิด: [วันเกิด]</p>
+        <p class="animated-info">ที่อยู่: [ที่อยู่]</p>
+        <a href="#" class="next-page-btn" onclick="showPage(3)">ถัดไป</a>
+    </div>
+
+    <div id="page3" class="page-container">
+        <h2>การศึกษา</h2>
+        <div class="timeline-item animated-timeline">
+            <h3>ประถมศึกษา</h3>
+            <p>โรงเรียน [ชื่อโรงเรียน]</p>
         </div>
-      </div>
-
-      <div class="links">
-        <a class="btn primary" href="#contact">ติดต่อ / ดาวน์โหลด CV</a>
-        <a class="btn ghost" href="#projects">โปรเจค & พอร์ตโฟลิโอ</a>
-      </div>
-
-      <div style="margin-top:auto; font-size:12px; color:var(--muted)">Last updated: <strong>Aug 22, 2025</strong></div>
-    </section>
-
-    <section class="right" aria-label="รายละเอียด">
-      <div class="headline">
-        <h2 class="glitch" data-text="สวัสดี — ยินดีที่ได้รู้จัก">สวัสดี — ยินดีที่ได้รู้จัก</h2>
-        <div class="sub">ความเชี่ยวชาญ: ระบบฝั่งเซิร์ฟเวอร์ • IoT • UI/UX</div>
-      </div>
-
-      <div class="about">
-        ผมเป็นนักพัฒนา/วิศวกรที่เชื่อในการออกแบบระบบที่มีความทนทาน ใช้งานได้จริง และปลอดภัย สไตล์การทำงานเป็นแบบ pragmatic — เน้นผลลัพธ์และการสื่อสารกับทีม/ลูกค้าอย่างชัดเจน
-      </div>
-
-      <div class="stats">
-        <div class="stat"><div class="num">120+</div><div class="label">งานที่แล้วเสร็จ</div></div>
-        <div class="stat"><div class="num">8</div><div class="label">ปีประสบการณ์</div></div>
-        <div class="stat"><div class="num">35</div><div class="label">เทคโนโลยีที่ใช้</div></div>
-      </div>
-
-      <div class="skills">
-        <div class="skill">Node.js</div>
-        <div class="skill">React</div>
-        <div class="skill">Embedded C / ESP32</div>
-        <div class="skill">Docker / Kubernetes</div>
-        <div class="skill">Design Systems</div>
-        <div class="skill">Testing & CI</div>
-      </div>
-
-      <div class="projects">
-        <div class="proj"><div><div class="title">EV Charging Dashboard</div><div class="meta">ระบบควบคุมและมอนิเตอร์ — Node, Modbus, WebSocket</div></div><div class="meta">2024</div></div>
-        <div class="proj"><div><div class="title">OpenPCR Lab UI</div><div class="meta">UI/UX for embedded lab equipment</div></div><div class="meta">2023</div></div>
-        <div class="proj"><div><div class="title">Realtime IoT Fleet</div><div class="meta">Telemetry & OTA — scalable backend</div></div><div class="meta">2022</div></div>
-      </div>
-
-      <div id="contact" style="margin-top:18px; display:flex; gap:12px; align-items:center; justify-content:space-between">
-        <div>
-          <div style="font-size:13px; color:var(--muted)">อีเมล</div>
-          <div style="font-weight:700">youremail@example.com</div>
+        <div class="timeline-item animated-timeline">
+            <h3>มัธยมศึกษา</h3>
+            <p>โรงเรียน [ชื่อโรงเรียน]</p>
         </div>
-        <div style="text-align:right">
-          <div style="font-size:13px; color:var(--muted)">โทร</div>
-          <div style="font-weight:700">+66 8x-xxx-xxxx</div>
+        <a href="#" class="next-page-btn" onclick="showPage(4)">ถัดไป</a>
+    </div>
+
+    <div id="page4" class="page-container">
+        <h2>ทักษะ</h2>
+        <div class="skill-bar">
+            <span>HTML</span>
+            <div class="bar-fill html-fill"></div>
         </div>
-      </div>
-    </section>
-  </main>
-</body>
-</html>
-<!doctype html>
-<html lang="th">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>หน้าแนะนำตัว — Dark Punk</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg:#050505;
-      --card:#0a0a0a;
-      --accent:linear-gradient(90deg,#ff0066,#ffcc00);
-      --muted:#aaa;
-      --neon-pink:#ff0066;
-      --neon-yellow:#ffcc00;
-      --neon-cyan:#00fff7;
-      --radius:14px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;padding:32px;font-family:'Share Tech Mono', monospace;
-      background:radial-gradient(800px 600px at 10% 10%,rgba(255,0,102,0.1),transparent),
-                 radial-gradient(900px 400px at 90% 90%,rgba(0,255,247,0.08),transparent),
-                 var(--bg);
-      color:#eee;
-      text-shadow:0 0 5px rgba(255,0,102,0.6),0 0 10px rgba(0,255,247,0.5);
-    }
-
-    .container{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:360px 1fr;gap:28px}
-
-    .profile{
-      background:rgba(255,255,255,0.03);
-      border:1px solid rgba(255,255,255,0.06);
-      border-radius:var(--radius);
-      padding:28px;
-      box-shadow:0 0 20px var(--neon-pink);
-      position:sticky;top:32px;height:fit-content;
-    }
-    .avatar{width:140px;height:140px;border-radius:50%;overflow:hidden;margin:0 auto;border:2px solid var(--neon-cyan);box-shadow:0 0 20px var(--neon-cyan)}
-    .avatar img{width:100%;height:100%;object-fit:cover}
-    h1{font-size:22px;margin:16px 0 4px;text-align:center;font-family:'Orbitron',sans-serif;color:var(--neon-yellow)}
-    p.title{text-align:center;color:var(--muted)}
-
-    .meta{display:flex;gap:10px;justify-content:center;margin-top:16px}
-    .chip{padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.08);font-size:13px;color:var(--neon-cyan)}
-
-    .contact{margin-top:18px;display:flex;gap:10px;justify-content:center}
-    .contact a{padding:8px 12px;border-radius:8px;text-decoration:none;background:rgba(255,255,255,0.05);color:var(--neon-pink);border:1px solid var(--neon-pink);transition:0.3s}
-    .contact a:hover{background:var(--neon-pink);color:#000;text-shadow:none}
-
-    .about{margin-top:20px;color:var(--muted);line-height:1.6;font-size:14px}
-
-    .socials{display:flex;gap:8px;justify-content:center;margin-top:16px}
-    .socials a{width:38px;height:38px;display:grid;place-items:center;border-radius:8px;background:rgba(255,255,255,0.05);color:var(--neon-yellow);border:1px solid var(--neon-yellow)}
-
-    .main-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);padding:28px;border-radius:var(--radius);box-shadow:0 0 20px var(--neon-cyan)}
-
-    .hero h2{font-size:26px;margin:0;font-family:'Orbitron',sans-serif;color:var(--neon-pink)}
-    .hero p{color:var(--muted)}
-    .cta{margin-top:12px;display:flex;gap:10px}
-    .btn{padding:10px 14px;border-radius:10px;border:none;cursor:pointer;background:var(--accent);font-weight:700;color:#000;box-shadow:0 0 15px var(--neon-yellow)}
-    .outline{padding:10px 14px;border-radius:10px;background:transparent;color:var(--neon-cyan);border:1px solid var(--neon-cyan)}
-
-    .sections{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
-    .card{background:rgba(255,255,255,0.03);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.05)}
-    .card h3{color:var(--neon-yellow);font-family:'Orbitron',sans-serif}
-
-    .skill .label{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
-    .bar{height:10px;background:rgba(255,255,255,0.06);border-radius:8px;overflow:hidden}
-    .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--neon-pink),var(--neon-cyan))}
-
-    footer{text-align:center;margin-top:20px;color:var(--muted);font-size:13px}
-
-    @media(max-width:900px){
-      .container{grid-template-columns:1fr}
-      .sections{grid-template-columns:1fr}
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <aside class="profile">
-      <div class="avatar"><img src="https://via.placeholder.com/300x300.png?text=YOU" alt="Avatar"></div>
-      <h1>ชื่อ-นามสกุล</h1><!doctype html>
-<html lang="th">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>หน้าแนะนำตัว — Mockup</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg:#071019; /* deep navy */
-      --card:#0f1720;
-      --accent:linear-gradient(90deg,#00e5a8,#32d2ff);
-      --glass: rgba(255,255,255,0.04);
-      --muted: #9fb3c8;
-      --glass-2: rgba(255,255,255,0.02);
-      --shadow: 0 10px 30px rgba(2,6,23,0.6);
-      --radius: 16px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;padding:32px;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
-      background: radial-gradient(1200px 600px at 10% 10%, rgba(0,230,168,0.06), transparent),
-                  radial-gradient(1000px 400px at 90% 90%, rgba(50,210,255,0.03), transparent),
-                  var(--bg);
-      color:#e6f7ff;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-    }
-
-    .container{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:360px 1fr;gap:28px;align-items:start}
-
-    /* Left column: profile card */
-    .profile{
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);border:1px solid var(--glass-2);
-      position:sticky;top:32px;height:fit-content;
-    }
-    .avatar{
-      width:120px;height:120px;border-radius:20px;overflow:hidden;margin:0 auto;display:block;box-shadow:0 8px 24px rgba(0,0,0,0.6);
-      border:1px solid rgba(255,255,255,0.04);
-    }
-    .avatar img{width:100%;height:100%;object-fit:cover;display:block}
-    h1{font-size:20px;margin:16px 0 6px;text-align:center}
-    p.title{margin:0;text-align:center;color:var(--muted);font-weight:600}
-
-    .meta{display:flex;gap:10px;justify-content:center;margin-top:16px}
-    .chip{background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015));padding:8px 12px;border-radius:999px;font-size:13px;color:var(--muted);border:1px solid rgba(255,255,255,0.02)}
-
-    .contact{margin-top:18px;display:flex;gap:10px;justify-content:center}
-    .contact a{display:inline-flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;text-decoration:none;color:inherit;background:linear-gradient(90deg, rgba(0,0,0,0.2), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.02);font-weight:600}
-
-    .about{margin-top:20px;color:var(--muted);line-height:1.5;font-size:14px}
-
-    .socials{display:flex;gap:8px;justify-content:center;margin-top:16px}
-    .socials a{width:40px;height:40px;border-radius:10px;display:inline-grid;place-items:center;background:var(--card);border:1px solid rgba(255,255,255,0.02);text-decoration:none;color:#bfeef0}
-
-    /* Right column */
-    .main-card{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));padding:28px;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--glass-2)}
-
-    .hero{display:flex;justify-content:space-between;gap:20px;align-items:center}
-    .hero-left h2{margin:0;font-size:28px}
-    .hero-left p{color:var(--muted);margin:8px 0 0}
-
-    .cta{display:inline-flex;gap:12px}
-    .btn{padding:10px 16px;border-radius:12px;background:var(--accent);border:none;color:#021018;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.45)}
-    .outline{padding:10px 14px;border-radius:12px;background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);cursor:pointer}
-
-    .sections{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:20px}
-    .card{background:var(--card);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.02)}
-
-    /* Skills */
-    .skill{margin-bottom:12px}
-    .skill .label{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px}
-    .bar{height:10px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden}
-    .bar > i{display:block;height:100%;background:linear-gradient(90deg,#00e5a8,#32d2ff);width:40%}
-
-    /* Projects */
-    .project{display:flex;flex-direction:column;gap:10px}
-    .project .p-title{font-weight:700}
-    .techs{display:flex;gap:8px;flex-wrap:wrap}
-    .tech{font-size:12px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);color:var(--muted);border:1px solid rgba(255,255,255,0.01)}
-
-    /* Contact form */
-    form{display:grid;gap:10px}
-    input,textarea{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:10px;border-radius:10px;color:inherit}
-    textarea{min-height:100px}
-
-    footer{margin-top:20px;text-align:center;color:var(--muted);font-size:13px}
-
-    @media (max-width:900px){
-      .container{grid-template-columns:1fr;padding:18px}
-      .profile{position:relative}
-      .sections{grid-template-columns:1fr}
-      .hero{flex-direction:column;align-items:flex-start}
-    }
-
-    /* subtle entrance */
-    .fade-up{opacity:0;transform:translateY(12px);animation:enter 700ms cubic-bezier(.2,.9,.3,1) forwards}
-    @keyframes enter{to{opacity:1;transform:none}}
-  </style>
-</head>
-<body>
-  <div class="container">
-    <aside class="profile fade-up">
-      <div class="avatar" aria-hidden="true">
-        <!-- placeholder avatar: replace src with your photo -->
-        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><rect width='100%' height='100%' fill='%230b1320'/><g fill='%2300e5a8'><circle cx='300' cy='240' r='110'/><rect x='160' y='370' width='280' height='160' rx='20'/></g></svg>" alt="Avatar placeholder">
-      </div>
-      <h1>ชื่อ-นามสกุล</h1>
-      <p class="title">ตำแหน่ง / สั้น ๆ เกี่ยวกับตัวคุณ</p>
-
-      <div class="meta">
-        <div class="chip">Bangkok</div>
-        <div class="chip">Freelancer</div>
-      </div>
-
-      <div class="contact">
-        <a href="#contact">ติดต่อ</a>
-        <a href="#projects">ผลงาน</a>
-      </div>
-
-      <p class="about">สวัสดี! ผม/ฉันเป็นนักพัฒนาเว็บและนักออกแบบ UI ที่ชอบสร้างประสบการณ์ใช้งานที่เรียบง่ายแต่สวยงาม — สร้างโปรเจคที่เน้นประสิทธิภาพและความเข้าใจผู้ใช้</p>
-
-      <div class="socials">
-        <a href="#" title="GitHub">GH</a>
-        <a href="#" title="LinkedIn">IN</a>
-        <a href="#" title="Twitter">TW</a>
-      </div>
-    </aside>
-
-    <main class="main-card fade-up">
-      <section class="hero">
-        <div class="hero-left">
-          <h2>สวัสดีครับ/ค่ะ — ผม/ฉันคือ ชื่อคุณ</h2>
-          <p>นักออกแบบ + นักพัฒนาเว็บ | สร้างเว็บสวย ๆ ที่ใช้งานได้จริงและตอบโจทย์ผู้ใช้</p>
+        <div class="skill-bar">
+            <span>CSS</span>
+            <div class="bar-fill css-fill"></div>
         </div>
-        <div class="hero-right cta">
-          <button class="btn" onclick="downloadVCard()">ดาวน์โหลด vCard</button>
-          <button class="outline" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">ส่งข้อความ</button>
-        </div>
-      </section>
+        <a href="#" class="next-page-btn" onclick="showPage(5)">ถัดไป</a>
+    </div>
 
-      <div class="sections">
-        <div class="card">
-          <h3>ทักษะ</h3>
-          <div style="margin-top:12px">
-            <div class="skill"><div class="label"><span>HTML / CSS</span><span>95%</span></div><div class="bar"><i style="width:95%"></i></div></div>
-            <div class="skill"><div class="label"><span>JavaScript / Frontend</span><span>88%</span></div><div class="bar"><i style="width:88%"></i></div></div>
-            <div class="skill"><div class="label"><span>UI / UX Design</span><span>82%</span></div><div class="bar"><i style="width:82%"></i></div></div>
-            <div class="skill"><div class="label"><span>Backend / API</span><span>70%</span></div><div class="bar"><i style="width:70%"></i></div></div>
-          </div>
-        </div>
+    <div id="page5" class="page-container">
+        <h2>ติดต่อ</h2>
+        <p>อีเมล: <a href="mailto:your_email@example.com">your_email@example.com</a></p>
+        <p>LinkedIn: <a href="[URL_LinkedIn]">linkedin.com/in/...</a></p>
+    </div>
 
-        <div class="card" id="projects">
-          <h3>ผลงานเด่น</h3>
-          <div class="project">
-            <div>
-              <div class="p-title">Project A — Web App</div>
-              <div class="techs"><span class="tech">React</span><span class="tech">Node.js</span><span class="tech">MySQL</span></div>
-              <p style="color:var(--muted);margin:8px 0 0">ระบบจัดการสินค้าสำหรับร้านค้าออนไลน์ ขนาดกลาง รองรับการชำระเงิน</p>
-            </div>
-            <div>
-              <div class="p-title">Project B — Landing Page</div>
-              <div class="techs"><span class="tech">HTML</span><span class="tech">CSS</span><span class="tech">GSAP</span></div>
-              <p style="color:var(--muted);margin:8px 0 0">Landing page เน้นคอนเวอร์ชันดีไซน์สวยและโหลดเร็ว</p>
-            </div>
-          </div>
-        </div>
+    <script>
+        let currentPage = 1;
 
-        <div class="card">
-          <h3>ประสบการณ์</h3>
-          <ul style="margin:12px 0 0;padding-left:18px;color:var(--muted)">
-            <li>2022–ปัจจุบัน — Senior Frontend Developer</li>
-            <li>2019–2022 — Web Developer</li>
-            <li>2016–2019 — UI Designer</li>
-          </ul>
-        </div>
+        function showPage(pageNumber) {
+            const allPages = document.querySelectorAll('.page-container');
+            const targetPage = document.getElementById('page' + pageNumber);
 
-        <div class="card" id="contact">
-          <h3>ติดต่อ</h3>
-          <form onsubmit="event.preventDefault();alert('ข้อความถูกส่ง (mockup)')">
-            <input type="text" placeholder="ชื่อ" required />
-            <input type="email" placeholder="อีเมล" required />
-            <textarea placeholder="ข้อความ" required></textarea>
-            <div style="display:flex;gap:8px"><button class="btn" type="submit">ส่งข้อความ</button><button class="outline" type="button" onclick="clearForm(this)">ล้าง</button></div>
-          </form>
-        </div>
-      </div>
+            // Hide all pages
+            allPages.forEach(page => {
+                page.classList.remove('active');
+            });
 
-      <footer>© <span id="year"></span> — ชื่อคุณ • สร้างด้วย Mockup HTML</footer>
-    </main>
-  </div>
+            // Show the target page
+            targetPage.classList.add('active');
+            currentPage = pageNumber;
+        }
+    </script>
 
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-    function clearForm(btn){
-      const form = btn.closest('form');
-      if(form) form.reset();
-    }
-
-    function downloadVCard(){
-      const vcf = [`BEGIN:VCARD`,`VERSION:3.0`,`FN:ชื่อ-นามสกุล`,`ORG:ตำแหน่ง/บริษัท`,`TITLE:ตำแหน่ง`,`TEL;TYPE=work,voice:+66-1234-5678`,`EMAIL:you@example.com`,`END:VCARD`].join('\n');
-      const blob = new Blob([vcf],{type:'text/vcard'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'contact.vcf';
-      a.click();
-      URL.revokeObjectURL(a.href);
-    }
-  </script>
 </body>
 </html>
