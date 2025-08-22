@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>หน้าแนะนำตัว — Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#071019; /* deep navy */
+      --card:#0f1720;
+      --accent:linear-gradient(90deg,#00e5a8,#32d2ff);
+      --glass: rgba(255,255,255,0.04);
+      --muted: #9fb3c8;
+      --glass-2: rgba(255,255,255,0.02);
+      --shadow: 0 10px 30px rgba(2,6,23,0.6);
+      --radius: 16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;padding:32px;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(0,230,168,0.06), transparent),
+                  radial-gradient(1000px 400px at 90% 90%, rgba(50,210,255,0.03), transparent),
+                  var(--bg);
+      color:#e6f7ff;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    .container{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:360px 1fr;gap:28px;align-items:start}
+
+    /* Left column: profile card */
+    .profile{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);border:1px solid var(--glass-2);
+      position:sticky;top:32px;height:fit-content;
+    }
+    .avatar{
+      width:120px;height:120px;border-radius:20px;overflow:hidden;margin:0 auto;display:block;box-shadow:0 8px 24px rgba(0,0,0,0.6);
+      border:1px solid rgba(255,255,255,0.04);
+    }
+    .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+    h1{font-size:20px;margin:16px 0 6px;text-align:center}
+    p.title{margin:0;text-align:center;color:var(--muted);font-weight:600}
+
+    .meta{display:flex;gap:10px;justify-content:center;margin-top:16px}
+    .chip{background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015));padding:8px 12px;border-radius:999px;font-size:13px;color:var(--muted);border:1px solid rgba(255,255,255,0.02)}
+
+    .contact{margin-top:18px;display:flex;gap:10px;justify-content:center}
+    .contact a{display:inline-flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;text-decoration:none;color:inherit;background:linear-gradient(90deg, rgba(0,0,0,0.2), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.02);font-weight:600}
+
+    .about{margin-top:20px;color:var(--muted);line-height:1.5;font-size:14px}
+
+    .socials{display:flex;gap:8px;justify-content:center;margin-top:16px}
+    .socials a{width:40px;height:40px;border-radius:10px;display:inline-grid;place-items:center;background:var(--card);border:1px solid rgba(255,255,255,0.02);text-decoration:none;color:#bfeef0}
+
+    /* Right column */
+    .main-card{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));padding:28px;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--glass-2)}
+
+    .hero{display:flex;justify-content:space-between;gap:20px;align-items:center}
+    .hero-left h2{margin:0;font-size:28px}
+    .hero-left p{color:var(--muted);margin:8px 0 0}
+
+    .cta{display:inline-flex;gap:12px}
+    .btn{padding:10px 16px;border-radius:12px;background:var(--accent);border:none;color:#021018;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.45)}
+    .outline{padding:10px 14px;border-radius:12px;background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);cursor:pointer}
+
+    .sections{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:20px}
+    .card{background:var(--card);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.02)}
+
+    /* Skills */
+    .skill{margin-bottom:12px}
+    .skill .label{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px}
+    .bar{height:10px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden}
+    .bar > i{display:block;height:100%;background:linear-gradient(90deg,#00e5a8,#32d2ff);width:40%}
+
+    /* Projects */
+    .project{display:flex;flex-direction:column;gap:10px}
+    .project .p-title{font-weight:700}
+    .techs{display:flex;gap:8px;flex-wrap:wrap}
+    .tech{font-size:12px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);color:var(--muted);border:1px solid rgba(255,255,255,0.01)}
+
+    /* Contact form */
+    form{display:grid;gap:10px}
+    input,textarea{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:10px;border-radius:10px;color:inherit}
+    textarea{min-height:100px}
+
+    footer{margin-top:20px;text-align:center;color:var(--muted);font-size:13px}
+
+    @media (max-width:900px){
+      .container{grid-template-columns:1fr;padding:18px}
+      .profile{position:relative}
+      .sections{grid-template-columns:1fr}
+      .hero{flex-direction:column;align-items:flex-start}
+    }
+
+    /* subtle entrance */
+    .fade-up{opacity:0;transform:translateY(12px);animation:enter 700ms cubic-bezier(.2,.9,.3,1) forwards}
+    @keyframes enter{to{opacity:1;transform:none}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="profile fade-up">
+      <div class="avatar" aria-hidden="true">
+        <!-- placeholder avatar: replace src with your photo -->
+        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><rect width='100%' height='100%' fill='%230b1320'/><g fill='%2300e5a8'><circle cx='300' cy='240' r='110'/><rect x='160' y='370' width='280' height='160' rx='20'/></g></svg>" alt="Avatar placeholder">
+      </div>
+      <h1>ชื่อ-นามสกุล</h1>
+      <p class="title">ตำแหน่ง / สั้น ๆ เกี่ยวกับตัวคุณ</p>
+
+      <div class="meta">
+        <div class="chip">Bangkok</div>
+        <div class="chip">Freelancer</div>
+      </div>
+
+      <div class="contact">
+        <a href="#contact">ติดต่อ</a>
+        <a href="#projects">ผลงาน</a>
+      </div>
+
+      <p class="about">สวัสดี! ผม/ฉันเป็นนักพัฒนาเว็บและนักออกแบบ UI ที่ชอบสร้างประสบการณ์ใช้งานที่เรียบง่ายแต่สวยงาม — สร้างโปรเจคที่เน้นประสิทธิภาพและความเข้าใจผู้ใช้</p>
+
+      <div class="socials">
+        <a href="#" title="GitHub">GH</a>
+        <a href="#" title="LinkedIn">IN</a>
+        <a href="#" title="Twitter">TW</a>
+      </div>
+    </aside>
+
+    <main class="main-card fade-up">
+      <section class="hero">
+        <div class="hero-left">
+          <h2>สวัสดีครับ/ค่ะ — ผม/ฉันคือ ชื่อคุณ</h2>
+          <p>นักออกแบบ + นักพัฒนาเว็บ | สร้างเว็บสวย ๆ ที่ใช้งานได้จริงและตอบโจทย์ผู้ใช้</p>
+        </div>
+        <div class="hero-right cta">
+          <button class="btn" onclick="downloadVCard()">ดาวน์โหลด vCard</button>
+          <button class="outline" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">ส่งข้อความ</button>
+        </div>
+      </section>
+
+      <div class="sections">
+        <div class="card">
+          <h3>ทักษะ</h3>
+          <div style="margin-top:12px">
+            <div class="skill"><div class="label"><span>HTML / CSS</span><span>95%</span></div><div class="bar"><i style="width:95%"></i></div></div>
+            <div class="skill"><div class="label"><span>JavaScript / Frontend</span><span>88%</span></div><div class="bar"><i style="width:88%"></i></div></div>
+            <div class="skill"><div class="label"><span>UI / UX Design</span><span>82%</span></div><div class="bar"><i style="width:82%"></i></div></div>
+            <div class="skill"><div class="label"><span>Backend / API</span><span>70%</span></div><div class="bar"><i style="width:70%"></i></div></div>
+          </div>
+        </div>
+
+        <div class="card" id="projects">
+          <h3>ผลงานเด่น</h3>
+          <div class="project">
+            <div>
+              <div class="p-title">Project A — Web App</div>
+              <div class="techs"><span class="tech">React</span><span class="tech">Node.js</span><span class="tech">MySQL</span></div>
+              <p style="color:var(--muted);margin:8px 0 0">ระบบจัดการสินค้าสำหรับร้านค้าออนไลน์ ขนาดกลาง รองรับการชำระเงิน</p>
+            </div>
+            <div>
+              <div class="p-title">Project B — Landing Page</div>
+              <div class="techs"><span class="tech">HTML</span><span class="tech">CSS</span><span class="tech">GSAP</span></div>
+              <p style="color:var(--muted);margin:8px 0 0">Landing page เน้นคอนเวอร์ชันดีไซน์สวยและโหลดเร็ว</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>ประสบการณ์</h3>
+          <ul style="margin:12px 0 0;padding-left:18px;color:var(--muted)">
+            <li>2022–ปัจจุบัน — Senior Frontend Developer</li>
+            <li>2019–2022 — Web Developer</li>
+            <li>2016–2019 — UI Designer</li>
+          </ul>
+        </div>
+
+        <div class="card" id="contact">
+          <h3>ติดต่อ</h3>
+          <form onsubmit="event.preventDefault();alert('ข้อความถูกส่ง (mockup)')">
+            <input type="text" placeholder="ชื่อ" required />
+            <input type="email" placeholder="อีเมล" required />
+            <textarea placeholder="ข้อความ" required></textarea>
+            <div style="display:flex;gap:8px"><button class="btn" type="submit">ส่งข้อความ</button><button class="outline" type="button" onclick="clearForm(this)">ล้าง</button></div>
+          </form>
+        </div>
+      </div>
+
+      <footer>© <span id="year"></span> — ชื่อคุณ • สร้างด้วย Mockup HTML</footer>
+    </main>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    function clearForm(btn){
+      const form = btn.closest('form');
+      if(form) form.reset();
+    }
+
+    function downloadVCard(){
+      const vcf = [`BEGIN:VCARD`,`VERSION:3.0`,`FN:ชื่อ-นามสกุล`,`ORG:ตำแหน่ง/บริษัท`,`TITLE:ตำแหน่ง`,`TEL;TYPE=work,voice:+66-1234-5678`,`EMAIL:you@example.com`,`END:VCARD`].join('\n');
+      const blob = new Blob([vcf],{type:'text/vcard'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'contact.vcf';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+  </script>
+</body>
+</html>
