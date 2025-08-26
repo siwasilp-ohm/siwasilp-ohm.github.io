@@ -138,9 +138,9 @@
             </div>
         </div>
         <div class="controls">
-            <p>🎮 ใช้ปุ่มลูกศรเพื่อควบคุม</p>
+            <p>🎮 กดปุ่มลูกศรเพื่อเริ่มเล่น</p>
             <p>🍎 กินอาหารเพื่อเพิ่มคะแนน</p>
-            <p>⚡ อย่าให้งูกินตัวเอง!</p>
+            <p>⚡ อย่าให้งูกินตัวเองหรือชนกำแพง!</p>
         </div>
     </div>
 
@@ -161,12 +161,29 @@
         let score = 0;
         let gameRunning = true;
 
-        // สร้างอาหาร
+        // ตรวจสอบการกินอาหารก่อนตรวจสอบการชนตัวเอง
+        function checkFoodCollision(head) {
+            return head.x === food.x && head.y === food.y;
+        }
+
+        // ตรวจสอบการชนตัวเอง
+        function checkSelfCollision(head) {
+            for (let segment of snake) {
+                if (head.x === segment.x && head.y === segment.y) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // สร้างอาหารในตำแหน่งที่ไม่ซ้ำกับงู
         function generateFood() {
-            food = {
-                x: Math.floor(Math.random() * tileCount),
-                y: Math.floor(Math.random() * tileCount)
-            };
+            do {
+                food = {
+                    x: Math.floor(Math.random() * tileCount),
+                    y: Math.floor(Math.random() * tileCount)
+                };
+            } while (snake.some(segment => segment.x === food.x && segment.y === food.y));
         }
 
         // วาดงู
@@ -199,6 +216,8 @@
 
         // เคลื่อนที่งู
         function moveSnake() {
+            if (dx === 0 && dy === 0) return; // ไม่เคลื่อนที่ถ้ายังไม่เริ่มเกม
+            
             const head = {x: snake[0].x + dx, y: snake[0].y + dy};
             
             // ตรวจสอบการชนกำแพง
@@ -208,17 +227,15 @@
             }
             
             // ตรวจสอบการชนตัวเอง
-            for (let segment of snake) {
-                if (head.x === segment.x && head.y === segment.y) {
-                    gameOver();
-                    return;
-                }
+            if (checkSelfCollision(head)) {
+                gameOver();
+                return;
             }
             
             snake.unshift(head);
             
             // ตรวจสอบการกินอาหาร
-            if (head.x === food.x && head.y === food.y) {
+            if (checkFoodCollision(head)) {
                 score += 10;
                 scoreElement.textContent = score;
                 generateFood();
@@ -260,6 +277,8 @@
         document.addEventListener('keydown', (e) => {
             if (!gameRunning) return;
             
+            e.preventDefault(); // ป้องกันการเลื่อนหน้าจอ
+            
             switch(e.key) {
                 case 'ArrowUp':
                     if (dy !== 1) {
@@ -285,6 +304,20 @@
                         dy = 0;
                     }
                     break;
+            }
+        });
+
+        // เริ่มเกมอัตโนมัติเมื่อกดปุ่มลูกศรครั้งแรก
+        document.addEventListener('keydown', (e) => {
+            if (gameRunning && dx === 0 && dy === 0) {
+                switch(e.key) {
+                    case 'ArrowUp':
+                    case 'ArrowDown':
+                    case 'ArrowLeft':
+                    case 'ArrowRight':
+                        // เริ่มเกมแล้วจึงให้เคลื่อนที่
+                        break;
+                }
             }
         });
 
