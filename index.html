@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sivasin Pro-Jamsin | Dark Punk Terminal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+        :root {
+            --color-bg: #111111;
+            --color-text: #00ff00;
+            --color-accent: #ff00ff;
+            --color-border: #444444;
+        }
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            border: 2px solid var(--color-border);
+            box-shadow: 0 0 20px var(--color-accent);
+            padding: 20px;
+            position: relative;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 5px;
+            animation: flicker 1.5s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { box-shadow: 0 0 20px var(--color-accent); }
+            100% { box-shadow: 0 0 15px var(--color-accent); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: var(--color-accent);
+            text-shadow: 0 0 5px var(--color-accent);
+            font-size: 2.5em;
+            margin: 0;
+            animation: text-shadow-glow 2s infinite alternate;
+        }
+
+        @keyframes text-shadow-glow {
+            0% { text-shadow: 0 0 5px var(--color-accent); }
+            100% { text-shadow: 0 0 10px var(--color-accent); }
+        }
+
+        .header h2 {
+            font-size: 1.2em;
+            color: var(--color-text);
+        }
+
+        .content {
+            white-space: pre-wrap;
+            line-height: 1.5;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+            padding-right: 10px;
+            animation: typing 2s steps(40, end);
+            margin-bottom: 20px;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav a {
+            color: var(--color-text);
+            text-decoration: none;
+            padding: 8px 15px;
+            border: 1px solid var(--color-text);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .nav a:hover, .nav a.active {
+            color: var(--color-bg);
+            background-color: var(--color-text);
+            box-shadow: 0 0 10px var(--color-text);
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .prompt {
+            color: var(--color-accent);
+        }
+
+        .blink {
+            animation: blink-caret 1s step-end infinite;
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--color-accent); }
+        }
+
+        .social-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            color: var(--color-accent);
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>SIVASIN PRO-JAMSIN</h1>
+        <h2>>> ACCESS GRANTED <<</h2>
+    </div>
+
+    <div class="content" id="page-content">
+        <div id="page-1" class="page active">
+            <span class="prompt">guest@terminal-sivasin:~$ whoami</span><br>
+            ศิวศิลป์ พรจำศิลป์ :: Sivasin Pro-Jamsin<br>
+            <br>
+            <span class="prompt">guest@terminal-sivasin:~$ cat school.txt</span><br>
+            โรงเรียนสุรธรรมพิทักษ์ :: Suratham School<br>
+            <br>
+            <span class="prompt">guest@terminal-sivasin:~$ cat intro.txt</span><br>
+            สวัสดีครับ! ผมชื่อ ศิวศิลป์ พรจำศิลป์ เป็นนักเรียนจากโรงเรียนสุรธรรมพิทักษ์<br>
+            มีความสนใจและหลงใหลในโลกของยานยนต์มาโดยตลอด ไม่ว่าจะเป็นเรื่องของเครื่องยนต์<br>
+            การออกแบบ หรือเทคโนโลยีใหม่ๆ ที่เกี่ยวข้องกับรถยนต์และยานพาหนะต่างๆ<br>
+            <br>
+            <span class="prompt">guest@terminal-sivasin:~$</span><span class="blink">|</span>
+        </div>
+        <div id="page-2" class="page">
+            <span class="prompt">guest@terminal-sivasin:~$ cat my_interest.txt</span><br>
+            <br>
+            ความสนใจหลักของผมคือด้านยานยนต์ โดยเฉพาะ<br>
+            <br>
+            - **การออกแบบรถยนต์:** ผมชอบศึกษารูปทรง สัดส่วน และหลักการอากาศพลศาสตร์ของรถยนต์<br>
+            - **เครื่องยนต์และกลไก:** การทำงานของเครื่องยนต์สันดาปภายในและระบบส่งกำลังต่างๆ เป็นสิ่งที่น่าทึ่งสำหรับผม<br>
+            - **รถยนต์ไฟฟ้าและเทคโนโลยีแห่งอนาคต:** ผมติดตามข่าวสารและนวัตกรรมใหม่ๆ เกี่ยวกับยานยนต์ไฟฟ้าและระบบขับขี่อัตโนมัติอย่างใกล้ชิด<br>
+            - **การดัดแปลงและปรับแต่ง:** ผมชอบเรียนรู้เรื่องการเพิ่มประสิทธิภาพและการปรับแต่งรถให้ตอบสนองการขับขี่ที่แตกต่างกัน<br>
+            <br>
+            <span class="prompt">guest@terminal-sivasin:~$</span><span class="blink">|</span>
+        </div>
+        <div id="page-3" class="page">
+            <span class="prompt">guest@terminal-sivasin:~$ cat my_team.txt</span><br>
+            <br>
+            ผมเชื่อในการทำงานร่วมกันเป็นทีม เพราะการรวมความสามารถและความคิดที่หลากหลาย<br>
+            จะนำไปสู่ผลลัพธ์ที่ยอดเยี่ยมเสมอ ผมมีประสบการณ์ในการทำงานกลุ่มในโครงการต่างๆ<br>
+            และพร้อมที่จะเรียนรู้จากผู้อื่นอยู่เสมอ<br>
+            <br>
+            **ทักษะการทำงานเป็นทีม:**<br>
+            - **การสื่อสาร:** ผมสามารถสื่อสารแนวคิดและรับฟังความคิดเห็นของผู้อื่นได้อย่างมีประสิทธิภาพ<br>
+            - **การแก้ปัญหา:** ผมพร้อมที่จะร่วมกันวิเคราะห์และแก้ไขปัญหาที่เกิดขึ้นในระหว่างการทำงาน<br>
+            - **ความรับผิดชอบ:** ผมมีความรับผิดชอบต่อหน้าที่ที่ได้รับมอบหมาย<br>
+            - **การปรับตัว:** ผมสามารถปรับตัวให้เข้ากับสถานการณ์และเพื่อนร่วมทีมที่แตกต่างกันได้<br>
+            <br>
+            <span class="prompt">guest@terminal-sivasin:~$</span><span class="blink">|</span>
+        </div>
+        <div id="page-4" class="page">
+            <span class="prompt">guest@terminal-sivasin:~$ cat my_projects.txt</span><br>
+            <br>
+            ในขณะที่ผมกำลังศึกษา ผมได้มีโอกาสเข้าร่วมในโครงการที่เกี่ยวข้องกับยานยนต์และเทคโนโลยีต่างๆ<br>
+            เพื่อนำความรู้ที่ได้จากในห้องเรียนมาประยุกต์ใช้จริง<br>
+            <br>
+            - **โครงการจำลองการออกแบบระบบเบรก:** พัฒนาแบบจำลองเพื่อศึกษาประสิทธิภาพของระบบเบรกในสภาวะต่างๆ<br>
+            - **การศึกษาการใช้เชื้อเพลิงทางเลือก:** ทำวิจัยเบื้องต้นเกี่ยวกับเชื้อเพลิงชีวภาพและผลกระทบต่อเครื่องยนต์<br>
+            - **การสร้างโมเดลรถยนต์ขนาดเล็ก:** ออกแบบและสร้างรถยนต์ขนาดเล็กเพื่อเรียนรู้หลักการทำงานของกลไกขับเคลื่อน<br>
+            <br>
+            <span class="prompt">guest@terminal-sivasin:~$</span><span class="blink">|</span>
+        </div>
+        <div id="page-5" class="page">
+            <span class="prompt">guest@terminal-sivasin:~$ cat contact_me.txt</span><br>
+            <br>
+            หากคุณมีความสนใจในเรื่องเดียวกันหรืออยากจะพูดคุยแลกเปลี่ยนความรู้<br>
+            สามารถติดต่อผมได้ตามช่องทางด้านล่างนี้<br>
+            <br>
+            - **อีเมล:** sivasin.p@email.com<br>
+            - **โทรศัพท์:** 08x-xxx-xxxx<br>
+            <br>
+            <span class="prompt">guest@terminal-sivasin:~$ exit</span><br>
+            Connection terminated.<br>
+            <br>
+            <span class="prompt">_</span>
+        </div>
+    </div>
+
+    <div class="nav">
+        <a href="#page-1" class="nav-link active" onclick="showPage('page-1', this)">[HOME]</a>
+        <a href="#page-2" class="nav-link" onclick="showPage('page-2', this)">[INTERESTS]</a>
+        <a href="#page-3" class="nav-link" onclick="showPage('page-3', this)">[TEAMWORK]</a>
+        <a href="#page-4" class="nav-link" onclick="showPage('page-4', this)">[PROJECTS]</a>
+        <a href="#page-5" class="nav-link" onclick="showPage('page-5', this)">[CONTACT]</a>
+    </div>
+
+</div>
+
+<script>
+    function showPage(pageId, navElement) {
+        // Hide all pages
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(page => {
+            page.classList.remove('active');
+        });
+
+        // Show the selected page
+        const selectedPage = document.getElementById(pageId);
+        selectedPage.classList.add('active');
+
+        // Remove active class from all nav links
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+        });
+
+        // Add active class to the clicked nav link
+        navElement.classList.add('active');
+    }
+</script>
+
+</body>
+</html>
