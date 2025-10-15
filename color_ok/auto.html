@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neo Light Terminal v2 - Advanced Color Correction (Fixed)</title>
+    <style>
+        /* Modern Light Theme & Redesigned UI */
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --background-color: #f4f7f9;
+            --surface-color: #ffffff;
+            --text-color: #333;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --error-color: #dc3545;
+            --border-color: #dee2e6;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        .card {
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            border: 1px solid var(--border-color);
+        }
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        .video-wrapper {
+            position: relative;
+            max-width: 640px;
+            margin: auto;
+        }
+        #video, .image-output {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            display: block;
+        }
+        #video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #capture-btn {
+            width: 80%;
+            padding: 15px 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            margin: 20px auto;
+            display: block;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+        #capture-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        #capture-btn.status-ready {
+            background-color: var(--success-color);
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.4);
+        }
+        #capture-btn.status-ready:hover {
+            background-color: #218838;
+        }
+        .output-gallery {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            text-align: center;
+        }
+        .image-box h3 { margin-bottom: 10px; color: var(--secondary-color); }
+        .config-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .config-item { padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; }
+        .config-item strong { display: block; margin-bottom: 10px; }
+        input[type="number"], input[type="text"], input[type="range"] {
+            width: calc(100% - 20px);
+            background-color: #f8f9fa;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 10px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+        .slider-group { display: flex; align-items: center; gap: 10px; }
+        .slider-group span { font-weight: bold; width: 50px; text-align: right; }
+        #status-info { margin-top: 20px; padding: 15px; background-color: #e9ecef; border-radius: 8px; }
+        .log-info { color: #0056b3; }
+        .log-success { color: var(--success-color); font-weight: bold; }
+        .log-warn { color: #856404; }
+        .log-error { color: var(--error-color); font-weight: bold; }
+        #palette-mapping-container { grid-column: 1 / -1; } /* Span across both columns */
+        #palette-table { width: 100%; border-collapse: collapse; font-size: 0.9em; margin-top: 15px; }
+        #palette-table th, #palette-table td { border: 1px solid var(--border-color); padding: 8px; text-align: center; }
+        #palette-table th { background-color: #e9ecef; }
+        .color-patch { height: 25px; width: 100%; min-width: 50px; border: 1px solid #ccc; }
+    </style>
+    <script async src="https://docs.opencv.org/4.x/opencv.js" onload="App.onOpenCvReady();"></script>
+</head>
+<body>
+    <header class="header">
+        <h1>Neo Light Terminal v2: Advanced Color Correction</h1>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2><span aria-hidden="true">📷</span> 1. ควบคุมกล้องและตั้งค่า</h2>
+            <div class="video-wrapper">
+                <video id="video" autoplay playsinline></video>
+                <canvas id="video-overlay"></canvas>
+            </div>
+            <button id="capture-btn" disabled>กำลังโหลด OpenCV...</button>
+            
+            <div id="status-info">
+                <strong>สถานะ:</strong> <span id="status-text">กำลังเริ่มต้น...</span>
+            </div>
+
+            <div class="config-grid">
+                <div class="config-item">
+                    <strong>การปรับปรุงภาพ (Post-Processing)</strong>
+                    <label>Saturation (ความสดสี):</label>
+                    <div class="slider-group">
+                        <span>0.5</span>
+                        <input type="range" id="saturation" min="0.5" max="2.0" value="1.2" step="0.1">
+                        <span>2.0</span>
+                    </div>
+                    <label>Sharpness (ความคมชัด):</label>
+                     <div class="slider-group">
+                        <span>0.0</span>
+                        <input type="range" id="sharpness" min="0.0" max="2.0" value="0.7" step="0.1">
+                        <span>2.0</span>
+                    </div>
+                </div>
+                 <div class="config-item">
+                    <strong>การวัดระยะทาง</strong>
+                    <p>Actual Card Width (mm): <input type="number" id="known-width-mm" value="203" min="1"></p>
+                    <p>Focal Length (px): <input type="number" id="focal-length-px" value="800" min="1"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><span aria-hidden="true">🖼️</span> 2. ผลลัพธ์</h2>
+            <div class="output-gallery">
+                <div class="image-box">
+                    <h3>ภาพต้นฉบับ (Before)</h3>
+                    <img id="photo-before" alt="Original" class="image-output">
+                </div>
+                <div class="image-box">
+                    <h3>ภาพปรับปรุง (After)</h3>
+                    <canvas id="canvas-after" class="image-output"></canvas>
+                </div>
+            </div>
+             <div class="config-item" style="margin-top: 20px;">
+                <strong>💾 บันทึกภาพ</strong>
+                <p>
+                    ชื่อไฟล์: 
+                    <input type="text" id="save-filename" placeholder="NeoLight_YYYYMMDD_HHMMSS">
+                </p>
+                <div style="display: flex; gap: 10px;">
+                    <button id="save-after-btn" onclick="App.saveImage('after')" disabled style="flex-grow: 1; padding: 10px; font-size: 1em; background-color: var(--primary-color); color: white; border: none; border-radius: 5px; cursor: pointer;">บันทึกภาพปรับปรุง (After)</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="palette-mapping-container">
+            <h2><span aria-hidden="true">🎨</span> 3. ตารางเปรียบเทียบสี (Color Palette Mapping)</h2>
+            <div id="palette-output"><p>รอการประมวลผลเพื่อแสดงผลการเปรียบเทียบสี...</p></div>
+        </div>
+    </div>
+    
+    <canvas id="canvas-stream" style="display: none;"></canvas>
+    <canvas id="canvas-before-full" style="display: none;"></canvas>
+
+    <script>
+    /**
+     * NEO LIGHT TERMINAL v2 - Advanced Color Correction Module
+     * Author: Gemini (Google AI)
+     * Features: Color Correction Matrix (CCM), Sharpening, Saturation Control, Redesigned UI.
+     */
+    const App = {
+        is_opencv_loaded: false,
+        is_card_detected: false,
+        
+        // --- DOM Elements ---
+        D: {},
+
+        // --- ACCURATE REFERENCE PALETTE (Sampled from 1.PNG) ---
+        REFERENCE_PALETTE: [
+            { name: "Dark skin", R: 115, G: 82, B: 68 }, { name: "Light skin", R: 196, G: 148, B: 128 }, { name: "Blue sky", R: 95, G: 122, B: 156 }, { name: "Foliage", R: 89, G: 108, B: 66 }, { name: "Blue flower", R: 132, G: 128, B: 177 }, { name: "Bluish green", R: 102, G: 189, B: 170 },
+            { name: "Orange", R: 216, G: 126, B: 46 }, { name: "Purplish blue", R: 79, G: 90, B: 167 }, { name: "Moderate red", R: 193, G: 89, B: 99 }, { name: "Purple", R: 93, G: 60, B: 107 }, { name: "Yellow green", R: 159, G: 188, B: 63 }, { name: "Orange yellow", R: 226, G: 162, B: 42 },
+            { name: "Blue", R: 52, G: 66, B: 149 }, { name: "Green", R: 71, G: 149, B: 73 }, { name: "Red", R: 178, G: 51, B: 56 }, { name: "Yellow", R: 236, G: 198, B: 49 }, { name: "Magenta", R: 189, G: 83, B: 148 }, { name: "Cyan", R: 0, G: 134, B: 164 },
+            { name: "White", R: 243, G: 243, B: 242 }, { name: "Neutral 8", R: 200, G: 200, B: 200 }, { name: "Neutral 6.5", R: 160, G: 160, B: 160 }, { name: "Neutral 5", R: 122, G: 122, B: 121 }, { name: "Neutral 3.5", R: 85, G: 85, B: 85 }, { name: "Black", R: 52, G: 52, B: 52 }
+        ],
+
+        // --- Initialization ---
+        onOpenCvReady: function() {
+            this.is_opencv_loaded = true;
+            this.initDOM();
+            this.D.statusText.textContent = 'OpenCV พร้อมใช้งาน, กำลังเปิดกล้อง...';
+            this.D.statusText.className = 'log-info';
+            this.startCamera();
+        },
+
+        initDOM: function() {
+            this.D = {
+                video: document.getElementById('video'),
+                captureButton: document.getElementById('capture-btn'),
+                photoBefore: document.getElementById('photo-before'),
+                canvasAfter: document.getElementById('canvas-after'),
+                paletteOutput: document.getElementById('palette-output'),
+                canvasStream: document.getElementById('canvas-stream'),
+                contextStream: document.getElementById('canvas-stream').getContext('2d'),
+                contextAfter: document.getElementById('canvas-after').getContext('2d', { willReadFrequently: true }),
+                videoOverlay: document.getElementById('video-overlay'),
+                contextOverlay: document.getElementById('video-overlay').getContext('2d'),
+                saveAfterBtn: document.getElementById('save-after-btn'),
+                saveFilenameInput: document.getElementById('save-filename'),
+                canvasBeforeFull: document.getElementById('canvas-before-full'),
+                statusText: document.getElementById('status-text'),
+                saturationSlider: document.getElementById('saturation'),
+                sharpnessSlider: document.getElementById('sharpness'),
+            };
+            this.D.captureButton.addEventListener('click', this.onCapture.bind(this));
+        },
+        
+        startCamera: async function() {
+            try {
+                const constraints = { video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "environment" } };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                this.D.video.srcObject = stream;
+                this.D.video.onloadedmetadata = () => {
+                    this.D.video.play();
+                    
+                    const { videoWidth: w, videoHeight: h } = this.D.video;
+                    this.D.canvasStream.width = w; this.D.canvasStream.height = h;
+                    this.D.canvasBeforeFull.width = w; this.D.canvasBeforeFull.height = h;
+                    this.D.videoOverlay.width = w; this.D.videoOverlay.height = h;
+
+                    this.D.statusText.textContent = 'กล้องพร้อมใช้งาน, กำลังค้นหา Color Checker...';
+                    this.D.statusText.className = 'log-info';
+                    this.D.captureButton.textContent = 'รอ Color Checker...';
+                    
+                    this.detectInFrame();
+                };
+            } catch (err) {
+                console.error("Camera Error:", err);
+                this.D.statusText.textContent = `ข้อผิดพลาด: ${err.name}. ไม่สามารถเข้าถึงกล้องได้`;
+                this.D.statusText.className = 'log-error';
+            }
+        },
+
+        // --- Real-Time Detection Loop ---
+        detectInFrame: function() {
+            if (!this.is_opencv_loaded || this.D.video.paused || this.D.video.ended) return;
+
+            const { video, contextStream, contextOverlay, canvasStream, captureButton } = this.D;
+            const { videoWidth: w, videoHeight: h } = video;
+
+            if (w === 0) return requestAnimationFrame(this.detectInFrame.bind(this));
+            
+            contextOverlay.clearRect(0, 0, w, h);
+            contextStream.drawImage(video, 0, 0, w, h);
+
+            let src = cv.imread(canvasStream);
+            let gray = new cv.Mat();
+            cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+            cv.GaussianBlur(gray, gray, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
+            cv.Canny(gray, gray, 50, 150, 3, false);
+            
+            let contours = new cv.MatVector();
+            let hierarchy = new cv.Mat();
+            cv.findContours(gray, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+            let found = false;
+            let maxArea = (w * h) / 25;
+            let bestContour = null;
+
+            for (let i = 0; i < contours.size(); ++i) {
+                let cnt = contours.get(i);
+                let area = cv.contourArea(cnt);
+                if (area > maxArea) {
+                    let peri = cv.arcLength(cnt, true);
+                    let approx = new cv.Mat();
+                    cv.approxPolyDP(cnt, approx, 0.04 * peri, true);
+                    if (approx.rows === 4) {
+                        maxArea = area;
+                        found = true;
+                        bestContour = approx.data32S;
+                    }
+                    approx.delete();
+                }
+            }
+            
+            if (found) {
+                contextOverlay.strokeStyle = 'lime';
+                contextOverlay.lineWidth = 4;
+                contextOverlay.beginPath();
+                contextOverlay.moveTo(bestContour[0], bestContour[1]);
+                for (let i = 1; i < 4; i++) {
+                    contextOverlay.lineTo(bestContour[i*2], bestContour[i*2+1]);
+                }
+                contextOverlay.closePath();
+                contextOverlay.stroke();
+            }
+
+            if (found !== this.is_card_detected) {
+                this.is_card_detected = found;
+                if (found) {
+                    captureButton.disabled = false;
+                    captureButton.textContent = '✅ พบแล้ว! คลิกเพื่อประมวลผล';
+                    captureButton.classList.add('status-ready');
+                    this.D.statusText.textContent = 'Color Checker พร้อมสำหรับการถ่ายภาพ';
+                    this.D.statusText.className = 'log-success';
+                } else {
+                    captureButton.disabled = true;
+                    captureButton.textContent = 'รอ Color Checker...';
+                    captureButton.classList.remove('status-ready');
+                    this.D.statusText.textContent = 'กล้องพร้อมใช้งาน, กำลังค้นหา Color Checker...';
+                    this.D.statusText.className = 'log-info';
+                }
+            }
+
+            src.delete(); gray.delete(); contours.delete(); hierarchy.delete();
+            requestAnimationFrame(this.detectInFrame.bind(this));
+        },
+
+        // --- Capture and Core Processing ---
+        onCapture: function() {
+            this.D.captureButton.disabled = true;
+            this.D.captureButton.textContent = '⚙️ กำลังประมวลผล...';
+            this.D.captureButton.classList.remove('status-ready');
+            this.D.saveAfterBtn.disabled = true;
+            this.D.statusText.textContent = 'กำลังถ่ายภาพและวิเคราะห์...';
+            this.D.statusText.className = 'log-info';
+            this.D.paletteOutput.innerHTML = '<p>กำลังประมวลผล...</p>';
+
+
+            const { video, canvasBeforeFull, photoBefore } = this.D;
+            const { videoWidth: w, videoHeight: h } = video;
+            
+            const contextBeforeFull = canvasBeforeFull.getContext('2d');
+            contextBeforeFull.drawImage(video, 0, 0, w, h);
+            
+            photoBefore.src = canvasBeforeFull.toDataURL('image/jpeg');
+            
+            // Use a short timeout to allow the UI to update before heavy processing
+            setTimeout(() => {
+                this.processImage(canvasBeforeFull);
+            }, 50);
+        },
+
+        processImage: function(inputCanvas) {
+            let src = cv.imread(inputCanvas);
+            let checkerWarped = this.findAndWarpChecker(src);
+
+            if (!checkerWarped) {
+                this.D.statusText.textContent = 'ไม่สามารถดึงข้อมูล Color Checker ได้อย่างชัดเจน ลองใหม่อีกครั้ง';
+                this.D.statusText.className = 'log-error';
+                this.D.captureButton.disabled = false; // Allow retry
+                src.delete();
+                this.detectInFrame(); // Restart detection
+                return;
+            }
+
+            this.D.statusText.textContent = 'ตรวจพบบอร์ดสี, กำลังคำนวณค่าสี...';
+            const sourceColors = this.sampleColorsFromWarped(checkerWarped, 'source');
+            
+            this.D.statusText.textContent = 'กำลังสร้าง Color Correction Matrix...';
+            const ccm = this.calculateCCM(sourceColors, this.REFERENCE_PALETTE);
+            
+            if(!ccm) {
+                 this.D.statusText.textContent = 'คำนวณ Matrix ล้มเหลว สีเพี้ยนเกินไป';
+                 this.D.statusText.className = 'log-error';
+                 src.delete();
+                 checkerWarped.delete();
+                 this.detectInFrame();
+                 return;
+            }
+
+            this.D.statusText.textContent = 'กำลังปรับแก้สีทั้งภาพ...';
+            let correctedImg = new cv.Mat();
+            let ccmMat = cv.matFromArray(3, 3, cv.CV_32F, ccm);
+
+            // [ THE FIX ] Convert from 4-channel RGBA to 3-channel RGB before transform
+            cv.cvtColor(src, src, cv.COLOR_RGBA2RGB);
+
+            src.convertTo(src, cv.CV_32F);
+            cv.transform(src, correctedImg, ccmMat);
+            correctedImg.convertTo(correctedImg, cv.CV_8UC3);
+
+            this.D.statusText.textContent = 'กำลังปรับความสดสีและความคมชัด...';
+            // Post-Processing: Saturation and Sharpening
+            const saturation = parseFloat(this.D.saturationSlider.value);
+            const sharpness = parseFloat(this.D.sharpnessSlider.value);
+
+            if (saturation !== 1.0) {
+                 cv.cvtColor(correctedImg, correctedImg, cv.COLOR_RGB2HSV);
+                 let hsvPlanes = new cv.MatVector();
+                 cv.split(correctedImg, hsvPlanes);
+                 let s = hsvPlanes.get(1);
+                 s.convertTo(s, cv.CV_32F, 1.0 / 255.0);
+                 cv.pow(s, saturation, s); // Non-linear saturation for better effect
+                 s.convertTo(s, cv.CV_8U, 255);
+                 cv.merge(hsvPlanes, correctedImg);
+                 cv.cvtColor(correctedImg, correctedImg, cv.COLOR_HSV2RGB);
+                 hsvPlanes.delete(); s.delete();
+            }
+            if (sharpness > 0) {
+                let blurred = new cv.Mat();
+                cv.GaussianBlur(correctedImg, blurred, new cv.Size(0, 0), 3);
+                cv.addWeighted(correctedImg, 1.0 + sharpness, blurred, -sharpness, 0, correctedImg);
+                blurred.delete();
+            }
+            
+            // --- Display results and palette ---
+            cv.imshow(this.D.canvasAfter, correctedImg);
+            let correctedWarped = this.findAndWarpChecker(correctedImg); // Re-warp to get corrected colors
+            const afterColors = this.sampleColorsFromWarped(correctedWarped, 'after');
+            this.displayColorPaletteMapping(sourceColors, afterColors);
+            
+            this.D.saveFilenameInput.value = this.generateDefaultFilename();
+            this.D.saveAfterBtn.disabled = false;
+            
+            this.D.statusText.textContent = 'การประมวลผลเสร็จสมบูรณ์!';
+            this.D.statusText.className = 'log-success';
+            
+            // Cleanup
+            src.delete();
+            correctedImg.delete();
+            checkerWarped.delete();
+            if(correctedWarped) correctedWarped.delete();
+            ccmMat.delete();
+
+            // Restart live detection
+            this.detectInFrame();
+        },
+        
+        findAndWarpChecker: function(srcMat) {
+            let gray = new cv.Mat();
+            cv.cvtColor(srcMat, gray, cv.COLOR_RGBA2GRAY);
+            cv.GaussianBlur(gray, gray, new cv.Size(5, 5), 0);
+            cv.Canny(gray, gray, 50, 150);
+            
+            let contours = new cv.MatVector();
+            let hierarchy = new cv.Mat();
+            cv.findContours(gray, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+            let maxArea = (srcMat.cols * srcMat.rows) / 25;
+            let bestApprox = null;
+
+            for (let i = 0; i < contours.size(); ++i) {
+                let cnt = contours.get(i);
+                let area = cv.contourArea(cnt);
+                if (area > maxArea) {
+                    let peri = cv.arcLength(cnt, true);
+                    let approx = new cv.Mat();
+                    cv.approxPolyDP(cnt, approx, 0.04 * peri, true);
+                    if (approx.rows === 4) {
+                        maxArea = area;
+                        if(bestApprox) bestApprox.delete();
+                        bestApprox = approx.clone();
+                    }
+                    approx.delete();
+                }
+            }
+
+            gray.delete(); contours.delete(); hierarchy.delete();
+
+            if (!bestApprox) { return null; }
+            
+            // Sort points for consistent warping
+            let points = [];
+            for(let i=0; i<4; i++) points.push({x: bestApprox.data32S[i*2], y: bestApprox.data32S[i*2+1]});
+            points.sort((a,b) => a.y - b.y);
+            let top = points.slice(0, 2).sort((a,b) => a.x - b.x);
+            let bottom = points.slice(2, 4).sort((a,b) => a.x - b.x);
+            const srcQuad = [...top, ...bottom.reverse()];
+
+            const desiredWidth = 600, desiredHeight = 400;
+            let dstQuad = [{x: 0, y: 0}, {x: desiredWidth, y: 0}, {x: desiredWidth, y: desiredHeight}, {x: 0, y: desiredHeight}];
+            
+            let srcMatPts = cv.matFromArray(4, 1, cv.CV_32FC2, srcQuad.flatMap(p => [p.x, p.y]));
+            let dstMatPts = cv.matFromArray(4, 1, cv.CV_32FC2, dstQuad.flatMap(p => [p.x, p.y]));
+            let M = cv.getPerspectiveTransform(srcMatPts, dstMatPts);
+
+            let checkerWarped = new cv.Mat();
+            cv.warpPerspective(srcMat, checkerWarped, M, new cv.Size(desiredWidth, desiredHeight), cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+            
+            bestApprox.delete(); srcMatPts.delete(); dstMatPts.delete(); M.delete();
+            return checkerWarped;
+        },
+
+        sampleColorsFromWarped: function(warpedMat) {
+            let colors = [];
+            const tileWidth = warpedMat.cols / 6;
+            const tileHeight = warpedMat.rows / 4;
+            
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 6; c++) {
+                    const rect = new cv.Rect(
+                        Math.floor(tileWidth * c + tileWidth * 0.2), 
+                        Math.floor(tileHeight * r + tileHeight * 0.2), 
+                        Math.floor(tileWidth * 0.6), 
+                        Math.floor(tileHeight * 0.6) 
+                    );
+                    let roi = warpedMat.roi(rect);
+                    let meanVec = cv.mean(roi);
+                    colors.push({ R: meanVec[0], G: meanVec[1], B: meanVec[2] });
+                    roi.delete();
+                }
+            }
+            return colors;
+        },
+
+        calculateCCM: function(source, target) {
+            // Using Moore-Penrose pseudoinverse: CCM = Target * pinv(Source)
+            // pinv(S) = S_T * (S * S_T)^-1
+            let n = source.length;
+            let sMat = [], tMat = [];
+            for(let i=0; i<n; ++i) {
+                sMat.push([source[i].R, source[i].G, source[i].B]);
+                tMat.push([target[i].R, target[i].G, target[i].B]);
+            }
+            
+            // Transpose source: S_T is 3xN
+            let sT = [[],[],[]];
+            for(let i=0; i<n; ++i) {
+                sT[0].push(sMat[i][0]);
+                sT[1].push(sMat[i][1]);
+                sT[2].push(sMat[i][2]);
+            }
+
+            // S_T * S (result is 3x3)
+            let sTs = [[0,0,0],[0,0,0],[0,0,0]];
+            for(let r=0; r<3; ++r) {
+                for(let c=0; c<3; ++c) {
+                    let sum = 0;
+                    for(let i=0; i<n; ++i) sum += sT[r][i] * sMat[i][c];
+                    sTs[r][c] = sum;
+                }
+            }
+
+            // Invert S_T * S
+            let det = sTs[0][0]*(sTs[1][1]*sTs[2][2]-sTs[2][1]*sTs[1][2]) -
+                      sTs[0][1]*(sTs[1][0]*sTs[2][2]-sTs[1][2]*sTs[2][0]) +
+                      sTs[0][2]*(sTs[1][0]*sTs[2][1]-sTs[1][1]*sTs[2][0]);
+            if (det === 0) return null; // Not invertible
+            let invDet = 1.0/det;
+            let inv_sTs = [[],[],[]];
+            inv_sTs[0][0] = (sTs[1][1] * sTs[2][2] - sTs[2][1] * sTs[1][2]) * invDet;
+            inv_sTs[0][1] = (sTs[0][2] * sTs[2][1] - sTs[0][1] * sTs[2][2]) * invDet;
+            inv_sTs[0][2] = (sTs[0][1] * sTs[1][2] - sTs[0][2] * sTs[1][1]) * invDet;
+            inv_sTs[1][0] = (sTs[1][2] * sTs[2][0] - sTs[1][0] * sTs[2][2]) * invDet;
+            inv_sTs[1][1] = (sTs[0][0] * sTs[2][2] - sTs[0][2] * sTs[2][0]) * invDet;
+            inv_sTs[1][2] = (sTs[1][0] * sTs[0][2] - sTs[0][0] * sTs[1][2]) * invDet;
+            inv_sTs[2][0] = (sTs[1][0] * sTs[2][1] - sTs[2][0] * sTs[1][1]) * invDet;
+            inv_sTs[2][1] = (sTs[2][0] * sTs[0][1] - sTs[0][0] * sTs[2][1]) * invDet;
+            inv_sTs[2][2] = (sTs[0][0] * sTs[1][1] - sTs[1][0] * sTs[0][1]) * invDet;
+
+            // T_T * S (result is 3x3)
+            let tTs = [[0,0,0],[0,0,0],[0,0,0]];
+             for(let r=0; r<3; ++r) {
+                for(let c=0; c<3; ++c) {
+                    let sum = 0;
+                    for(let i=0; i<n; ++i) sum += target[i]['RGB'.charAt(r)] * sMat[i][c];
+                    tTs[r][c] = sum;
+                }
+            }
+
+            // CCM = (T_T * S) * (S_T * S)^-1
+            let ccm = [[0,0,0],[0,0,0],[0,0,0]];
+            for(let r=0; r<3; ++r) {
+                for(let c=0; c<3; ++c) {
+                    let sum = 0;
+                    for(let i=0; i<3; ++i) sum += tTs[r][i] * inv_sTs[i][c];
+                    ccm[r][c] = sum;
+                }
+            }
+            // Return as a flat array for OpenCV
+            return ccm.flat();
+        },
+
+
+        // --- UI and Helper Functions ---
+        displayColorPaletteMapping: function(beforeData, afterData) {
+            let html = '<table id="palette-table"><thead><tr>';
+            html += '<th>#</th><th>Patch Name</th><th>Reference Color</th><th>Before (Captured)</th><th>After (Corrected)</th></tr></thead><tbody>';
+
+            this.REFERENCE_PALETTE.forEach((ref, index) => {
+                const before = beforeData[index];
+                const after = afterData[index];
+
+                const rgbRef = `rgb(${ref.R}, ${ref.G}, ${ref.B})`;
+                const rgbBefore = `rgb(${before.R.toFixed(0)}, ${before.G.toFixed(0)}, ${before.B.toFixed(0)})`;
+                const rgbAfter = `rgb(${after.R.toFixed(0)}, ${after.G.toFixed(0)}, ${after.B.toFixed(0)})`;
+
+                html += `<tr>`;
+                html += `<td>${index + 1}</td>`;
+                html += `<td style="text-align: left;">${ref.name}</td>`;
+                html += `<td><div class="color-patch" style="background-color: ${rgbRef};"></div></td>`;
+                html += `<td><div class="color-patch" style="background-color: ${rgbBefore};"></div></td>`;
+                html += `<td><div class="color-patch" style="background-color: ${rgbAfter};"></div></td>`;
+                html += `</tr>`;
+            });
+
+            html += '</tbody></table>';
+            this.D.paletteOutput.innerHTML = html;
+        },
+
+        generateDefaultFilename: function() {
+            const now = new Date();
+            const pad = (num) => String(num).padStart(2, '0');
+            const [year, month, day, hour, minute, second] = [
+                now.getFullYear(), pad(now.getMonth() + 1), pad(now.getDate()),
+                pad(now.getHours()), pad(now.getMinutes()), pad(now.getSeconds())
+            ];
+            return `NeoLight_${year}${month}${day}_${hour}${minute}${second}`;
+        },
+
+        saveImage: function(type) {
+            if (type !== 'after') return;
+            const canvas = this.D.canvasAfter;
+            let filename = this.D.saveFilenameInput.value.trim() || this.generateDefaultFilename();
+            filename += '_CORRECTED.jpg';
+
+            const link = document.createElement('a');
+            link.download = filename;
+            canvas.toBlob((blob) => {
+                link.href = URL.createObjectURL(blob);
+                link.click();
+                URL.revokeObjectURL(link.href);
+            }, 'image/jpeg', 0.95);
+        }
+    };
+
+    window.addEventListener('load', () => {
+        if (typeof cv !== 'undefined') {
+            App.onOpenCvReady();
+        }
+    });
+    </script>
+</body>
+</html>
