@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neo Light Terminal - Pro Color Calibration & Distance Tool (Rev 12 - Save & Pro Highlight)</title>
+    <style>
+        /* Modern Dark Theme Styles */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #1e1e1e; color: #d4d4d4; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 20px; background-color: #252526; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); }
+        h1 { color: #569cd6; border-bottom: 2px solid #3c3c3c; padding-bottom: 10px; }
+        #config-panel, #distance-info, #palette-mapping-container, #save-panel { margin-top: 20px; padding: 15px; background-color: #333333; border-radius: 6px; border: 1px solid #007acc; }
+        #video, .image-output { width: 100%; max-width: 580px; height: auto; border: 3px solid #3c3c3c; border-radius: 5px; display: block; margin: 10px auto; }
+        #output-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+        .image-box { text-align: center; }
+        #capture-btn { 
+            padding: 12px 25px; font-size: 18px; cursor: pointer; background-color: #569cd6; color: white; border: none; border-radius: 5px; margin: 20px 0; display: block; margin-left: auto; margin-right: auto; transition: background-color 0.3s;
+        }
+        #capture-btn:enabled { background-color: #007acc; }
+        #capture-btn:enabled:hover { background-color: #005f99; }
+        #capture-btn:disabled { background-color: #4a4a4a; cursor: not-allowed; }
+        .status-found { background-color: #28a745 !important; }
+        .status-found:hover { background-color: #1e7e34 !important; }
+        #save-btn { background-color: #ff9800; color: #1e1e1e; margin-top: 10px; }
+        #save-btn:hover { background-color: #e68900; }
+
+        #palette-table { width: 100%; border-collapse: collapse; font-size: 0.85em; margin-top: 15px; background-color: #2d2d30; color: #cccccc; }
+        #palette-table th, #palette-table td { border: 1px solid #3c3c3c; padding: 6px; text-align: center; }
+        #palette-table th { background-color: #3e3e40; color: #569cd6; }
+        .color-patch { height: 25px; width: 100%; border: 1px solid #1e1e1e; }
+        input[type="number"], input[type="text"] { background-color: #1e1e1e; color: #cccccc; border: 1px solid #555; padding: 5px; border-radius: 3px; }
+        .config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 10px; }
+        .config-item { padding: 10px; border: 1px solid #4a4a4a; border-radius: 4px; }
+        #config-toggle { cursor: pointer; color: #ffd700; margin-bottom: 10px; display: block; text-align: right; }
+        .manual-gain-input { width: 60px !important; }
+        .warning-log { color: #ff9800; }
+        .error-log { color: #ff4136; }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('canvas-after');
+            if (canvas) {
+                canvas.getContext('2d', { willReadFrequently: true });
+            }
+        });
+    </script>
+    <script async src="https://docs.opencv.org/4.x/opencv.js" onload="Terminal.onOpenCvReady();"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Neo Light Terminal: Color & Distance Calibration</h1>
+        
+        <div id="video-container">
+            <canvas id="video-overlay" class="image-output" style="position: absolute;"></canvas>
+            <video id="video" autoplay playsinline class="image-output" style="position: relative;"></video>
+            <button id="capture-btn" disabled>📸 กำลังรอ Color Checker...</button>
+        </div>
+
+        <div id="output-container">
+            <div class="image-box">
+                <h2>ภาพต้นฉบับ (Before)</h2>
+                <img id="photo-before" alt="ภาพต้นฉบับ" class="image-output">
+            </div>
+            <div class="image-box">
+                <h2>ภาพปรับปรุง (After)</h2>
+                <canvas id="canvas-after" class="image-output"></canvas>
+            </div>
+        </div>
+
+        <p id="distance-info">ข้อมูลสถานะ: กำลังโหลด OpenCV.js...</p>
+        
+        <div id="save-panel">
+            <h2>💾 บันทึกภาพที่แก้ไขแล้ว</h2>
+            <p>
+                ชื่อไฟล์: 
+                <input type="text" id="save-filename" value="" placeholder="NeoLight_YYYYMMDD_HHMMSS">
+                <button id="save-btn" onclick="Terminal.saveProcessedImage()" disabled>บันทึกภาพที่แก้ไขแล้ว (.jpg)</button>
+            </p>
+        </div>
+
+        <div id="palette-mapping-container">
+            <h2>📊 Color Palette Mapping (24 ช่อง)</h2>
+            <div id="palette-output"></div>
+        </div>
+
+        <span id="config-toggle" onclick="Terminal.toggleConfigPanel()">⚙️ Configuration Panel (คลิกเพื่อแสดง/ซ่อน)</span>
+        <div id="config-panel" style="display: none;">
+            <h2>⚙️ Configuration & Reference Values</h2>
+            <div class="config-grid">
+                <div class="config-item">
+                    <strong>White Balance Ref (Gray Card)</strong>
+                    <p>Target Luminance (0-255): <input type="number" id="target-gray" value="128" min="0" max="255"></p>
+                    <p><em>ใช้ปรับ R/B Gain โดยอิงจาก Ref ที่ตรวจพบ</em></p>
+                </div>
+                <div class="config-item">
+                    <strong>Manual WB Override (Pro Mode)</strong>
+                    <p>Manual R Gain: <input type="number" id="manual-r-gain" value="1.000" step="0.001" min="0.1" max="5.0" class="manual-gain-input"></p>
+                    <p>Manual B Gain: <input type="number" id="manual-b-gain" value="1.000" step="0.001" min="0.1" max="5.0" class="manual-gain-input"></p>
+                    <p><em>ใส่ค่าเองเพื่อ Override Auto WB. (1.000 = ปิด)</em></p>
+                </div>
+                <div class="config-item">
+                    <strong>Distance Reference</strong>
+                    <p>Marker Dist (mm): <input type="number" id="known-dist-mm" value="152" min="1"></p>
+                    <p>Focal Length (px): <input type="number" id="focal-length-px" value="800" min="1"></p>
+                    <p><em>ต้องมีการสอบเทียบ (Calibration) เพื่อความแม่นยำ</em></p>
+                </div>
+            </div>
+        </div>
+        
+        <canvas id="canvas-stream" style="display: none;"></canvas>
+        <canvas id="temp-canvas" style="display: none;"></canvas>
+
+    </div>
+    <script>
+        /**
+         * NEO LIGHT TERMINAL - CORE IMAGE PROCESSING MODULE (Rev 12 - Save & Pro Highlight)
+         */
+        const Terminal = {
+            is_opencv_loaded: false,
+            is_card_detected: false,
+            
+            // --- DOM Elements ---
+            D: {
+                video: document.getElementById('video'),
+                captureButton: document.getElementById('capture-btn'),
+                photoBefore: document.getElementById('photo-before'),
+                canvasAfter: document.getElementById('canvas-after'),
+                distanceInfo: document.getElementById('distance-info'),
+                paletteOutput: document.getElementById('palette-output'),
+                tempCanvas: document.getElementById('temp-canvas'),
+                canvasStream: document.getElementById('canvas-stream'), 
+                contextStream: document.getElementById('canvas-stream').getContext('2d'), 
+                contextAfter: document.getElementById('canvas-after').getContext('2d'),
+                configPanel: document.getElementById('config-panel'),
+                videoOverlay: document.getElementById('video-overlay'),
+                contextOverlay: document.getElementById('video-overlay').getContext('2d'),
+                saveButton: document.getElementById('save-btn'),
+                saveFilenameInput: document.getElementById('save-filename'),
+            },
+
+            // Stores the last detected bounding box coordinates for overlay
+            lastDetectedPoints: null, 
+
+            // --- Config and Data ---
+            getConfig: () => ({
+                TARGET_GRAY: parseInt(document.getElementById('target-gray').value),
+                MANUAL_R_GAIN: parseFloat(document.getElementById('manual-r-gain').value),
+                MANUAL_B_GAIN: parseFloat(document.getElementById('manual-b-gain').value),
+                KNOWN_MARKER_DISTANCE_MM: parseFloat(document.getElementById('known-dist-mm').value),
+                FOCAL_LENGTH_PIXELS: parseFloat(document.getElementById('focal-length-px').value),
+            }),
+
+            REFERENCE_PALETTE: [
+                { name: "Brown", R: 115, G: 82, B: 68 }, { name: "Skin Tone", R: 194, G: 150, B: 130 }, { name: "Sky Blue", R: 98, G: 122, B: 157 }, { name: "Foliage", R: 87, G: 108, B: 67 }, { name: "Purple", R: 133, G: 128, B: 177 }, { name: "Cyan", R: 103, G: 189, B: 170 },
+                { name: "Orange", R: 214, G: 126, B: 44 }, { name: "Violet", R: 80, G: 91, B: 166 }, { name: "Magenta", R: 193, G: 90, B: 99 }, { name: "Dark Purple", R: 100, G: 74, B: 153 }, { name: "Yellow Green", R: 164, G: 150, B: 24 }, { name: "Gold", R: 72, G: 190, B: 170 },
+                { name: "Deep Blue", R: 59, G: 65, B: 138 }, { name: "Green", R: 92, G: 177, B: 49 }, { name: "Red", R: 181, G: 63, B: 59 }, { name: "Yellow", R: 243, G: 192, B: 68 }, { name: "Pink", R: 236, G: 78, B: 147 }, { name: "Turquoise", R: 0, G: 178, B: 201 },
+                { name: "White (245)", R: 245, G: 245, B: 245 }, { name: "Light Gray", R: 200, G: 200, B: 200 }, { name: "Mid Gray (160)", R: 160, G: 160, B: 160 }, { name: "18% Gray (128)", R: 128, G: 128, B: 128 }, { name: "Dark Gray", R: 85, G: 85, B: 85 }, { name: "Black (35)", R: 35, G: 35, B: 35 }
+            ],
+
+            // --- Camera and UI Initialization ---
+            onOpenCvReady: function() {
+                Terminal.is_opencv_loaded = true;
+                Terminal.D.distanceInfo.textContent = '✅ OpenCV.js พร้อมใช้งานแล้ว';
+                Terminal.startCamera();
+                Terminal.D.captureButton.addEventListener('click', Terminal.onCapture);
+            },
+            
+            toggleConfigPanel: function() {
+                const panel = Terminal.D.configPanel;
+                panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            },
+
+            startCamera: async function() {
+                Terminal.D.distanceInfo.textContent += '\nข้อมูลสถานะ: กำลังร้องขอการเข้าถึงกล้อง...';
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                    Terminal.D.video.srcObject = stream;
+                    Terminal.D.video.onloadedmetadata = () => {
+                        Terminal.D.video.play();
+                        
+                        const width = Terminal.D.video.videoWidth;
+                        const height = Terminal.D.video.videoHeight;
+                        Terminal.D.canvasStream.width = width;
+                        Terminal.D.canvasStream.height = height;
+                        
+                        // Set overlay canvas size and position
+                        Terminal.D.videoOverlay.width = width;
+                        Terminal.D.videoOverlay.height = height;
+                        Terminal.D.videoOverlay.style.left = Terminal.D.video.offsetLeft + 'px';
+                        Terminal.D.videoOverlay.style.top = Terminal.D.video.offsetTop + 'px';
+                        Terminal.D.videoOverlay.style.zIndex = 10;
+                        Terminal.D.video.style.zIndex = 9; 
+
+                        Terminal.D.distanceInfo.textContent = '✅ กล้องพร้อมใช้งานแล้ว (กำลังตรวจจับ Color Checker...)';
+                        Terminal.D.captureButton.textContent = '📸 กำลังรอ Color Checker...';
+                        Terminal.D.captureButton.disabled = true;
+                        Terminal.D.saveButton.disabled = true; // Disable save button initially
+
+                        Terminal.detectInFrame(); 
+                    };
+                } catch (err) {
+                    console.error("Camera Error:", err);
+                    Terminal.D.distanceInfo.textContent = `❌ ข้อผิดพลาดในการเข้าถึงกล้อง: ${err.name} (ดู Console log)`;
+                }
+            },
+            
+            // --- Real-Time Detection Loop (with Pro Highlight) ---
+            detectInFrame: function() {
+                if (!Terminal.is_opencv_loaded || Terminal.D.video.paused || Terminal.D.video.ended) {
+                    return;
+                }
+
+                const video = Terminal.D.video;
+                const canvas = Terminal.D.canvasStream;
+                const context = Terminal.D.contextStream;
+                const contextOverlay = Terminal.D.contextOverlay;
+                const width = video.videoWidth;
+                const height = video.videoHeight;
+
+                if (width === 0 || height === 0) {
+                    requestAnimationFrame(Terminal.detectInFrame);
+                    return;
+                }
+                
+                contextOverlay.clearRect(0, 0, width, height); // Clear previous frame overlay
+
+                context.drawImage(video, 0, 0, width, height);
+
+                let src = null;
+                let gray = null;
+                let contours = new cv.MatVector();
+                let hierarchy = new cv.Mat();
+                let approx = new cv.Mat();
+                let found = false;
+                let detectedPoints = null;
+                
+                try {
+                    src = cv.imread(canvas);
+                    gray = new cv.Mat();
+                    cv.cvtColor(src, gray, cv.COLOR_RGB2GRAY);
+                    
+                    cv.Canny(gray, gray, 70, 200, 3, false); 
+                    
+                    cv.findContours(gray, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+                    let maxArea = 0;
+                    const minArea = (width * height) / 20; 
+
+                    for (let i = 0; i < contours.size(); ++i) {
+                        let contour = contours.get(i);
+                        let area = cv.contourArea(contour);
+                        
+                        if (area < minArea) continue; 
+
+                        let peri = cv.arcLength(contour, true);
+                        cv.approxPolyDP(contour, approx, 0.04 * peri, true); 
+
+                        if (approx.rows === 4) {
+                            let rect = cv.boundingRect(contour);
+                            let aspectRatio = rect.width / rect.height;
+
+                            if (aspectRatio > 0.5 && aspectRatio < 2.5) { 
+                                if (area > maxArea) {
+                                    maxArea = area;
+                                    found = true;
+                                    detectedPoints = approx.data32S.slice(); // Copy points
+                                }
+                            }
+                        }
+                    }
+
+                } catch (e) {
+                    console.warn("Real-Time Detection Warning (Ignored):", e.message);
+                } finally {
+                    if (src) src.delete();
+                    if (gray) gray.delete();
+                    contours.delete();
+                    hierarchy.delete();
+                    approx.delete();
+                }
+
+                // 2. Pro Highlight Overlay (Using Canvas 2D)
+                if (found && detectedPoints) {
+                    Terminal.lastDetectedPoints = detectedPoints;
+                    
+                    contextOverlay.strokeStyle = 'lime';
+                    contextOverlay.lineWidth = 5;
+                    contextOverlay.fillStyle = 'yellow';
+                    
+                    contextOverlay.beginPath();
+                    contextOverlay.moveTo(detectedPoints[0], detectedPoints[1]);
+                    for (let i = 1; i < 4; i++) {
+                        contextOverlay.lineTo(detectedPoints[i*2], detectedPoints[i*2+1]);
+                    }
+                    contextOverlay.closePath();
+                    contextOverlay.stroke();
+
+                    // Draw corners
+                    for (let i = 0; i < 4; i++) {
+                        contextOverlay.beginPath();
+                        contextOverlay.arc(detectedPoints[i*2], detectedPoints[i*2+1], 10, 0, 2 * Math.PI);
+                        contextOverlay.fill();
+                    }
+                    
+                } else {
+                    Terminal.lastDetectedPoints = null; // Clear points if not found
+                }
+
+
+                // 3. Update UI based on detection result
+                if (found !== Terminal.is_card_detected) {
+                    Terminal.is_card_detected = found;
+                    const btn = Terminal.D.captureButton;
+                    if (found) {
+                        btn.disabled = false;
+                        btn.textContent = '✅ Color Checker พบแล้ว! ถ่ายภาพและประมวลผล';
+                        btn.classList.add('status-found');
+                    } else {
+                        btn.disabled = true;
+                        btn.textContent = '📸 กำลังรอ Color Checker...';
+                        btn.classList.remove('status-found');
+                    }
+                }
+
+                requestAnimationFrame(Terminal.detectInFrame);
+            },
+            
+            // --- Capture and Core Processing (Updated) ---
+            onCapture: function() {
+                if (!Terminal.is_opencv_loaded || !Terminal.D.video.srcObject) return;
+                
+                Terminal.D.captureButton.disabled = true;
+                Terminal.D.captureButton.textContent = '⚙️ กำลังประมวลผล...';
+                Terminal.D.captureButton.classList.remove('status-found');
+                Terminal.D.saveButton.disabled = true; // Disable save while processing
+
+                const width = Terminal.D.video.videoWidth;
+                const height = Terminal.D.video.videoHeight;
+                Terminal.D.canvasAfter.width = Terminal.D.tempCanvas.width = width;
+                Terminal.D.canvasAfter.height = Terminal.D.tempCanvas.height = height;
+                Terminal.D.contextAfter.drawImage(Terminal.D.video, 0, 0, width, height);
+                const imageDataURL = Terminal.D.canvasAfter.toDataURL('image/jpeg');
+                Terminal.D.photoBefore.src = imageDataURL;
+                Terminal.D.photoBefore.style.width = width + 'px';
+                Terminal.D.photoBefore.style.height = height + 'px';
+
+                Terminal.processImageWithOpenCV(Terminal.D.canvasAfter);
+            },
+
+            processImageWithOpenCV: function(inputCanvas) {
+                Terminal.D.distanceInfo.innerHTML = '⚙️ กำลังประมวลผล: ตรวจจับ Color Checker และคำนวณ WB/ระยะทาง...';
+
+                const { TARGET_GRAY, MANUAL_R_GAIN, MANUAL_B_GAIN, KNOWN_MARKER_DISTANCE_MM, FOCAL_LENGTH_PIXELS } = Terminal.getConfig();
+
+                // 1. Initialize Mats and Vars
+                const src = cv.imread(inputCanvas);
+                let dst = src.clone(); 
+                let gray = new cv.Mat(); 
+                
+                let R_gain = 1.0;
+                let B_gain = 1.0;
+                let pixelDistance = 0;
+                let paletteData = [];
+                let checkerWarpped = null; 
+                let autoWB_Success = false; 
+                
+                let maxContour = null; 
+                let refSource = 'Not Found';
+                
+                let contours = new cv.MatVector();
+                let hierarchy = new cv.Mat();
+                let approx = new cv.Mat();
+                let src_mat = null;
+                let dst_mat = null;
+                let M = null;
+                
+                let gray_for_dist = new cv.Mat(); 
+                let circles = new cv.Mat(); 
+
+                // --- 1. Detect and Warp Color Checker ---
+                try {
+                    cv.cvtColor(src, gray, cv.COLOR_RGB2GRAY);
+                    cv.Canny(gray, gray, 70, 200, 3, false); 
+                    cv.findContours(gray, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+                    let maxArea = 0;
+                    const minArea = (src.cols * src.rows) / 12; 
+
+                    for (let i = 0; i < contours.size(); ++i) {
+                        let contour = contours.get(i);
+                        let area = cv.contourArea(contour);
+                        
+                        if (area < minArea) continue; 
+
+                        let peri = cv.arcLength(contour, true);
+                        cv.approxPolyDP(contour, approx, 0.04 * peri, true); 
+
+                        if (approx.rows === 4) {
+                            let rect = cv.boundingRect(contour);
+                            let aspectRatio = rect.width / rect.height;
+
+                            if (aspectRatio > 0.8 && aspectRatio < 2.2) { 
+                                if (area > maxArea) {
+                                    maxArea = area;
+                                    
+                                    if (maxContour) maxContour.delete();
+                                    maxContour = approx.clone(); 
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (maxContour) {
+                        let src_pts = maxContour.data32S; 
+                        
+                        let points = [];
+                        for(let i=0; i<4; i++) points.push({x: src_pts[i*2], y: src_pts[i*2+1]});
+                        points.sort((a, b) => a.y - b.y); 
+                        
+                        let top_pts = points.slice(0, 2);
+                        let bottom_pts = points.slice(2, 4);
+                        top_pts.sort((a, b) => a.x - b.x); 
+                        bottom_pts.sort((a, b) => a.x - b.x); 
+
+                        const src_quad = [top_pts[0], top_pts[1], bottom_pts[1], bottom_pts[0]];
+                        
+                        const desiredWidth = 600; 
+                        const desiredHeight = 400; 
+
+                        let dst_quad = [
+                            {x: 0, y: 0}, {x: desiredWidth, y: 0}, 
+                            {x: desiredWidth, y: desiredHeight}, {x: 0, y: desiredHeight}
+                        ];
+
+                        src_mat = cv.matFromArray(4, 1, cv.CV_32FC2, [...src_quad.flatMap(p => [p.x, p.y])]);
+                        dst_mat = cv.matFromArray(4, 1, cv.CV_32FC2, [...dst_quad.flatMap(p => [p.x, p.y])]);
+
+                        M = cv.getPerspectiveTransform(src_mat, dst_mat);
+                        checkerWarpped = new cv.Mat();
+                        let dsize = new cv.Size(desiredWidth, desiredHeight);
+                        cv.warpPerspective(src, checkerWarpped, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+                        
+                        refSource = 'Color Checker (Warped)';
+                        
+                        // Draw outline on the original image (dst) - using simpler draw for final image marker
+                        let color = new cv.Scalar(0, 255, 0, 255);
+                        cv.drawContours(dst, contours, -1, color, 3, cv.LINE_8, hierarchy, 100); 
+
+                    } else {
+                         console.warn("Detection/Warp Log: Color Checker not found. Falling back to center WB.");
+                    }
+                    
+                } catch (e) {
+                    console.error("Detection/Warp Error:", e.message);
+                    Terminal.D.distanceInfo.innerHTML += `<p class="warning-log">⚠️ ไม่สามารถ Warp Color Checker ได้: ${e.message} (ใช้ Fallback WB)</p>`;
+                } finally {
+                    approx.delete();
+                    contours.delete();
+                    hierarchy.delete();
+                    if (maxContour) maxContour.delete(); 
+                    if (src_mat) src_mat.delete();
+                    if (dst_mat) dst_mat.delete();
+                    if (M) M.delete();
+                }
+                
+                // --- 2. White Balance Correction (Auto or Manual) ---
+                let grayCardRect = null;
+                let finalGrayRect = null; 
+                let src_for_wb = checkerWarpped || src; 
+                let roi = null;
+                let planes = null;
+                
+                try {
+                    // Determine WB ROI
+                    if (checkerWarpped) {
+                        const tileWidth = src_for_wb.cols / 6;
+                        const tileHeight = src_for_wb.rows / 4;
+                        grayCardRect = new cv.Rect(
+                            Math.floor(tileWidth * 3), Math.floor(tileHeight * 3), 
+                            Math.floor(tileWidth), Math.floor(tileHeight)
+                        );
+                        refSource = 'Warped Checker 18% Gray';
+                        
+                    } else {
+                        // Fallback: Use 1/3 of the center area of the original image
+                        const roiWidth = src_for_wb.cols / 3;
+                        const roiHeight = src_for_wb.rows;
+                        grayCardRect = new cv.Rect(
+                            Math.floor(roiWidth), Math.floor(roiHeight * 0.1), 
+                            Math.floor(roiWidth), Math.floor(roiHeight * 0.8) 
+                        );
+                        refSource = 'Center (Fallback Gray)';
+                    }
+                    
+                    // --- SAFETY CHECK AND RECT CREATION ---
+                    const margin = 0.1; 
+                    const roiX = grayCardRect.x + Math.floor(grayCardRect.width * margin);
+                    const roiY = grayCardRect.y + Math.floor(grayCardRect.height * margin);
+                    let roiW = grayCardRect.width - Math.floor(grayCardRect.width * margin * 2);
+                    let roiH = grayCardRect.height - Math.floor(grayCardRect.height * margin * 2);
+
+                    roiW = Math.max(1, roiW);
+                    roiH = Math.max(1, roiH);
+
+                    finalGrayRect = new cv.Rect(
+                        Math.max(0, roiX), 
+                        Math.max(0, roiY), 
+                        Math.min(roiW, src_for_wb.cols - Math.max(0, roiX)), 
+                        Math.min(roiH, src_for_wb.rows - Math.max(0, roiY))  
+                    );
+
+                    if (finalGrayRect.width <= 0 || finalGrayRect.height <= 0) {
+                         throw new Error(`Invalid finalGrayRect dimensions: ${finalGrayRect.width}x${finalGrayRect.height}`);
+                    }
+                    
+                    roi = src_for_wb.roi(finalGrayRect);
+                    if (roi.empty()) throw new Error("Reference ROI is empty/invalid.");
+
+                    // Calculate Auto Gains
+                    const meanVec = cv.mean(roi); 
+                    const AvgR = meanVec[0];
+                    const AvgG = meanVec[1];
+                    const AvgB = meanVec[2];
+
+                    if (AvgR > 0 && AvgB > 0) {
+                        R_gain = TARGET_GRAY / AvgR;
+                        B_gain = TARGET_GRAY / AvgB;
+                        autoWB_Success = true;
+                    } else {
+                        console.warn("WB Log: AvgR or AvgB is zero. Using default gains (1.0).");
+                    }
+                    
+                    // --- MANUAL OVERRIDE LOGIC ---
+                    let mode = 'Auto';
+                    if (MANUAL_R_GAIN !== 1.0 || MANUAL_B_GAIN !== 1.0) {
+                        R_gain = MANUAL_R_GAIN;
+                        B_gain = MANUAL_B_GAIN;
+                        mode = 'Manual';
+                    }
+                    
+                    // Apply WB
+                    planes = new cv.MatVector();
+                    cv.split(src, planes); 
+                    planes.get(0).convertTo(planes.get(0), cv.CV_32F, R_gain, 0); 
+                    planes.get(2).convertTo(planes.get(2), cv.CV_32F, B_gain, 0); 
+                    cv.merge(planes, dst); 
+                    dst.convertTo(dst, cv.CV_8U); 
+                    
+                    Terminal.D.distanceInfo.innerHTML += `<p class="warning-log">⚙️ WB Mode: ${mode} | R Avg: ${AvgR.toFixed(1)}, B Avg: ${AvgB.toFixed(1)}</p>`;
+                    
+                    if(checkerWarpped) cv.rectangle(checkerWarpped, finalGrayRect.tl(), finalGrayRect.br(), [0, 255, 255, 255], 3);
+
+                } catch (e) {
+                    console.error("Color Correction Error:", e.message);
+                    Terminal.D.distanceInfo.innerHTML += `<p class="error-log">❌ ข้อผิดพลาดในการปรับสี: ${e.message} (ใช้ Gains 1.0)</p>`;
+                    R_gain = 1.0;
+                    B_gain = 1.0;
+                    autoWB_Success = false;
+                } finally {
+                    if (roi) roi.delete();
+                    if (planes) planes.delete();
+                }
+                
+                // --- 3. Color Palette Mapping (24 Patches) ---
+                if (checkerWarpped) {
+                    try {
+                        let checkerPlanes = new cv.MatVector();
+                        cv.split(checkerWarpped, checkerPlanes);
+                        checkerPlanes.get(0).convertTo(checkerPlanes.get(0), cv.CV_32F, R_gain, 0); 
+                        checkerPlanes.get(2).convertTo(checkerPlanes.get(2), cv.CV_32F, B_gain, 0);
+                        cv.merge(checkerPlanes, checkerWarpped);
+                        checkerWarpped.convertTo(checkerWarpped, cv.CV_8U);
+                        checkerPlanes.delete(); 
+
+                        cv.imshow(Terminal.D.canvasAfter, checkerWarpped);
+                        
+                        const tileWidth = checkerWarpped.cols / 6;
+                        const tileHeight = checkerWarpped.rows / 4;
+                        
+                        for (let r = 0; r < 4; r++) {
+                            for (let c = 0; c < 6; c++) {
+                                const index = r * 6 + c;
+                                
+                                const rect = new cv.Rect(
+                                    Math.floor(tileWidth * c + tileWidth * 0.1), 
+                                    Math.floor(tileHeight * r + tileHeight * 0.1), 
+                                    Math.floor(tileWidth * 0.8), 
+                                    Math.floor(tileHeight * 0.8) 
+                                );
+
+                                const colorRoi = checkerWarpped.roi(rect);
+                                const meanVecAfter = cv.mean(colorRoi);
+                                
+                                const colorAfter = { R: meanVecAfter[0], G: meanVecAfter[1], B: meanVecAfter[2] };
+                                const R_before_est = Math.min(255, Math.max(0, colorAfter.R / R_gain));
+                                const B_before_est = Math.min(255, Math.max(0, colorAfter.B / B_gain));
+                                const G_before_est = colorAfter.G; 
+                                const colorBeforeEst = { R: R_before_est, G: G_before_est, B: B_before_est };
+
+                                paletteData.push({
+                                    name: Terminal.REFERENCE_PALETTE[index].name,
+                                    ref: Terminal.REFERENCE_PALETTE[index],
+                                    before: colorBeforeEst, 
+                                    after: colorAfter
+                                });
+
+                                colorRoi.delete(); 
+                            }
+                        }
+                        Terminal.displayColorPaletteMapping(paletteData);
+
+                    } catch (e) {
+                        console.error("Palette Mapping Error:", e.message);
+                        Terminal.D.paletteOutput.innerHTML = '<p class="error-log">❌ ข้อผิดพลาดในการสร้าง Palette Mapping</p>';
+                    }
+                } else {
+                    cv.imshow(Terminal.D.canvasAfter, dst); 
+                    Terminal.D.paletteOutput.innerHTML = '<p class="warning-log">⚠️ ไม่พบ Color Checker สี่เหลี่ยมสมบูรณ์ จึงไม่สามารถแสดง Color Palette Mapping ได้</p>';
+                }
+                
+                // --- 4. Distance Measurement (HoughCircles) ---
+                let topGrayRoi = null;
+                let circleCenters = [];
+                try {
+                    let distanceRefRect = new cv.Rect(0, 0, src.cols, src.rows * 0.3); 
+                    
+                    cv.cvtColor(src, gray_for_dist, cv.COLOR_RGB2GRAY); 
+                    topGrayRoi = gray_for_dist.roi(distanceRefRect); 
+                    cv.GaussianBlur(topGrayRoi, topGrayRoi, new cv.Size(9, 9), 2, 2);
+                    
+                    cv.HoughCircles(topGrayRoi, circles, cv.HOUGH_GRADIENT, 1, distanceRefRect.height / 4, 100, 30, 10, 50); 
+                    
+                    for (let i = 0; i < circles.cols; ++i) {
+                        let x = circles.data32F[i * 3];
+                        let y = circles.data32F[i * 3 + 1];
+                        let radius = circles.data32F[i * 3 + 2];
+                        y += distanceRefRect.y; 
+
+                        circleCenters.push({x: x, y: y, r: radius});
+                        
+                        let center = new cv.Point(x, y);
+                        // Mark on the WB corrected image (dst)
+                        cv.circle(dst, center, parseInt(radius), [255, 0, 0, 255], 3); 
+                        cv.circle(dst, center, 3, [0, 255, 0, 255], -1); 
+                    }
+
+                    if (circleCenters.length >= 2) {
+                        circleCenters.sort((a, b) => a.x - b.x); 
+                        const c1 = circleCenters[0]; 
+                        const c2 = circleCenters[circleCenters.length - 1]; 
+                        pixelDistance = Math.sqrt(Math.pow(c2.x - c1.x, 2) + Math.pow(c2.y - c1.y, 2));
+                        cv.line(dst, new cv.Point(c1.x, c1.y), new cv.Point(c2.x, c2.y), [0, 255, 255, 255], 2);
+                    }
+                    
+                } catch (e) {
+                    console.error("Distance Measurement Error:", e.message);
+                    Terminal.D.distanceInfo.innerHTML += `<p class="error-log">❌ ข้อผิดพลาดในการวัดระยะ: ${e.message}</p>`;
+                } finally {
+                    if (circles) circles.delete();
+                    if (topGrayRoi) topGrayRoi.delete();
+                    if (gray_for_dist) gray_for_dist.delete();
+                }
+                
+                // 5. Summarize and Display & Enable Save Button
+                let realDistance = "N/A (Focal Length Uncalibrated)";
+                if (pixelDistance > 0 && FOCAL_LENGTH_PIXELS > 0) {
+                    realDistance = (KNOWN_MARKER_DISTANCE_MM * FOCAL_LENGTH_PIXELS) / pixelDistance;
+                    realDistance = realDistance.toFixed(2) + " mm";
+                }
+                
+                if(!checkerWarpped) {
+                     cv.imshow(Terminal.D.canvasAfter, dst);
+                }
+                
+                Terminal.D.distanceInfo.innerHTML = `
+                    ✅ **ประมวลผลเสร็จสิ้น (Neo Light Terminal)**<br>
+                    **WB Ref Source:** ${refSource} | **WB Mode:** ${MANUAL_R_GAIN !== 1.0 || MANUAL_B_GAIN !== 1.0 ? 'Manual' : (autoWB_Success ? 'Auto' : 'Fallback')}<br>
+                    **Final Gains (R, B):** R=${R_gain.toFixed(3)}, B=${B_gain.toFixed(3)} (Target Gray: ${TARGET_GRAY})<br>
+                    **การตรวจจับ Card:** ${checkerWarpped ? '✅ พบและดึงภาพตรง' : '<span class="warning-log">❌ ไม่พบ (ใช้ Fallback WB)</span>'}<br>
+                    **ระยะห่างพิกเซลระหว่าง Ref:** ${pixelDistance.toFixed(2)} pixels (ตรวจจับได้ ${circleCenters.length} วง)<br>
+                    **ระยะทางจริงโดยประมาณ:** **${realDistance}** (Ref Dist: ${KNOWN_MARKER_DISTANCE_MM}mm)
+                `;
+
+                // Set default filename and enable saving
+                Terminal.D.saveFilenameInput.value = Terminal.generateDefaultFilename();
+                Terminal.D.saveButton.disabled = false;
+                
+                // FINAL CLEANUP of main Mats
+                src.delete();
+                dst.delete();
+                if(checkerWarpped) checkerWarpped.delete();
+
+                requestAnimationFrame(Terminal.detectInFrame);
+            },
+
+            // --- Helper Functions ---
+
+            generateDefaultFilename: function() {
+                const now = new Date();
+                const pad = (num) => String(num).padStart(2, '0');
+                const year = now.getFullYear();
+                const month = pad(now.getMonth() + 1);
+                const day = pad(now.getDate());
+                const hour = pad(now.getHours());
+                const minute = pad(now.getMinutes());
+                const second = pad(now.getSeconds());
+                return `NeoLight_${year}${month}${day}_${hour}${minute}${second}`;
+            },
+
+            saveProcessedImage: function() {
+                const canvas = Terminal.D.canvasAfter;
+                let filename = Terminal.D.saveFilenameInput.value.trim();
+                
+                if (!filename) {
+                    filename = Terminal.generateDefaultFilename();
+                }
+
+                // Create a temporary link element for downloading
+                const link = document.createElement('a');
+                link.download = filename + '.jpg';
+                
+                // Use canvas toDataURL to get the image data
+                canvas.toBlob((blob) => {
+                    link.href = URL.createObjectURL(blob);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    Terminal.D.distanceInfo.innerHTML += `<p class="status-found">✅ บันทึกไฟล์ ${link.download} เรียบร้อยแล้ว!</p>`;
+                }, 'image/jpeg', 0.9); // 0.9 quality for JPEG
+
+            },
+
+            // --- Palette Display (Same as Rev 11) ---
+            displayColorPaletteMapping: function(data) {
+                 let html = '<table id="palette-table"><thead><tr>';
+                html += '<th rowspan="2">#</th><th rowspan="2">Patch Name</th><th colspan="2">Reference (Target)</th><th colspan="2">Before (Captured)</th><th colspan="2">After (WB Corrected)</th></tr>';
+                html += '<tr><th>RGB</th><th>Color</th><th>RGB</th><th>Color</th><th>RGB</th><th>Color</th></tr></thead><tbody>';
+
+                data.forEach((item, index) => {
+                    const ref = item.ref;
+                    const before = item.before;
+                    const after = item.after;
+
+                    const rgbRef = `R:${ref.R}, G:${ref.G}, B:${ref.B}`;
+                    const rgbBefore = `R:${before.R.toFixed(0)}, G:${before.G.toFixed(0)}, B:${before.B.toFixed(0)}`;
+                    const rgbAfter = `R:${after.R.toFixed(0)}, G:${after.G.toFixed(0)}, B:${after.B.toFixed(0)}`;
+                    
+                    const hexRef = `rgb(${ref.R}, ${ref.G}, ${ref.B})`;
+                    const hexBefore = `rgb(${before.R}, ${before.G}, ${before.B})`;
+                    const hexAfter = `rgb(${after.R}, ${after.G}, ${after.B})`;
+
+                    const deltaE = Math.sqrt(
+                        Math.pow(ref.R - after.R, 2) + 
+                        Math.pow(ref.G - after.G, 2) + 
+                        Math.pow(ref.B - after.B, 2)
+                    ).toFixed(1);
+
+                    html += `<tr>`;
+                    html += `<td>${index + 1}</td>`;
+                    html += `<td style="text-align: left;">${item.name}</td>`;
+                    
+                    html += `<td>${rgbRef}</td>`;
+                    html += `<td><div class="color-patch" style="background-color: ${hexRef};"></div></td>`;
+
+                    html += `<td>${rgbBefore}</td>`;
+                    html += `<td><div class="color-patch" style="background-color: ${hexBefore};"></div></td>`;
+                    
+                    const deltaEStyle = deltaE > 20 ? '#a00000' : deltaE > 8 ? '#808000' : 'inherit'; 
+                    html += `<td style="background-color: ${deltaEStyle};">`;
+                    html += `${rgbAfter} (ΔE:${deltaE})</td>`;
+                    html += `<td><div class="color-patch" style="background-color: ${hexAfter};"></div></td>`;
+                    html += `</tr>`;
+                });
+
+                html += '</tbody></table>';
+                Terminal.D.paletteOutput.innerHTML = html;
+            }
+        };
+
+        window.addEventListener('load', () => {
+            if (typeof cv !== 'undefined') {
+                Terminal.onOpenCvReady();
+            }
+        });
+    </script>
+</body>
+</html>
