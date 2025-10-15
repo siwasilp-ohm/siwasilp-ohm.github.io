@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Correction Tool</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>เครื่องมือแก้ไขสีภาพ</h1>
+    </header>
+
+    <main>
+        <section class="upload-section">
+            <h2>อัปโหลดภาพ</h2>
+            <div class="upload-container">
+                <input type="file" id="imageUpload" accept="image/*">
+                <label for="imageUpload" class="upload-button">เลือกภาพ</label>
+            </div>
+            <div class="camera-container">
+                <button id="openCamera" class="camera-button">ถ่ายภาพจากกล้อง</button>
+                <div id="cameraModal" class="camera-modal">
+                    <div class="camera-modal-content">
+                        <div class="camera-modal-header">
+                            <h3>ถ่ายภาพจากกล้อง</h3>
+                            <button class="close-camera-modal">&times;</button>
+                        </div>
+                        <div class="camera-view">
+                            <video id="cameraView" autoplay playsinline></video>
+                            <canvas id="cameraCanvas" style="display:none;"></canvas>
+                        </div>
+                        <div class="camera-controls">
+                            <button id="takePhoto" class="take-photo-button">ถ่ายภาพ</button>
+                            <button id="retakePhoto" class="retake-photo-button" style="display:none;">ถ่ายใหม่</button>
+                            <button id="usePhoto" class="use-photo-button" style="display:none;">ใช้ภาพนี้</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="image-display">
+            <div class="image-container">
+                <div class="image-wrapper">
+                    <h3>ภาพต้นฉบับ</h3>
+                    <canvas id="originalCanvas"></canvas>
+                </div>
+                <div class="image-wrapper">
+                    <h3>ภาพหลังแก้ไข</h3>
+                    <canvas id="correctedCanvas"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="color-correction">
+            <h2>การแก้ไขสี</h2>
+            <div class="color-checker-container">
+                <div class="color-checker-info">
+                    <h3>Color Checker</h3>
+                    <p>ใช้ Color Checker เพื่อปรับแต่งสีให้ถูกต้อง</p>
+                </div>
+                <div class="color-checker-controls">
+                    <div class="detection-mode">
+                        <button id="detectColorCheckerAuto">ตรวจจับอัตโนมัติ</button>
+                        <button id="detectColorCheckerManual">ปรับด้วยตนเอง</button>
+                    </div>
+                    <button id="applyCorrection" disabled>ปรับแต่งสีอัตโนมัติ</button>
+                </div>
+            </div>
+
+            <div class="color-palette-editor">
+                <h3>แก้ไข Color Palette</h3>
+                <div id="colorPaletteContainer" class="color-grid"></div>
+            </div>
+
+            <div class="correction-controls">
+                <div class="control-group">
+                    <label for="whiteBalance">White Balance</label>
+                    <input type="range" id="whiteBalance" min="0" max="100" value="50">
+                </div>
+                <div class="control-group">
+                    <label for="temperature">Temperature</label>
+                    <input type="range" id="temperature" min="0" max="100" value="50">
+                </div>
+                <div class="control-group">
+                    <label for="tint">Tint</label>
+                    <input type="range" id="tint" min="0" max="100" value="50">
+                </div>
+            </div>
+        </section>
+
+        <section class="distance-calculation">
+            <h2>การคำนวณระยะ</h2>
+            <div class="distance-info">
+                <p>ระยะห่างจากกล้อง: <span id="distanceValue">0</span> หน่วย</p>
+                <p>คำนวณจากวงกลมบน Color Checker</p>
+            </div>
+        </section>
+
+        <section class="color-mapping">
+            <h2>การ Map สี</h2>
+            <div id="colorMappingInfo" class="mapping-info">
+                <p>ข้อมูลการ Map สีจะแสดงที่นี่หลังจากการปรับแต่ง</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Color Correction Tool &copy; 2023</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
