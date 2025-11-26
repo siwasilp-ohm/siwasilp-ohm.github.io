@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Huawei Solar System Simulator</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="logo">
+                <h1>⚡ Huawei Solar System Simulator</h1>
+                <p class="subtitle">Real-time Solar Energy System Emulation</p>
+            </div>
+            <div class="header-right">
+                <a href="battery-lab.html" class="btn btn-lab" target="_blank">🔋 Battery Lab</a>
+                <div class="connection-status">
+                    <span class="status-indicator" id="wsStatus">●</span>
+                    <span id="wsStatusText">Disconnected</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Configuration Panel -->
+        <section class="config-panel">
+            <h2>System Configuration</h2>
+            <div class="config-grid">
+                <!-- Inverter Configuration -->
+                <div class="config-section">
+                    <h3>Inverter Model</h3>
+                    <select id="inverterModel" class="config-select">
+                        <option value="SUN2000-2KTL">SUN2000-2KTL (2kW)</option>
+                        <option value="SUN2000-5KTL">SUN2000-5KTL (5kW)</option>
+                        <option value="SUN2000-10KTL" selected>SUN2000-10KTL (10kW)</option>
+                        <option value="SUN2000-12KTL">SUN2000-12KTL (12kW)</option>
+                        <option value="SUN2000-15KTL">SUN2000-15KTL (15kW)</option>
+                    </select>
+                    <div class="config-info">
+                        <span id="inverterEfficiency">Efficiency: 97.6%</span>
+                        <span id="inverterMPPT">MPPT: 90-580V</span>
+                    </div>
+                </div>
+
+                <!-- Battery Configuration -->
+                <div class="config-section">
+                    <h3>Battery Model</h3>
+                    <select id="batteryModel" class="config-select">
+                        <option value="LUNA2000-5kWh">LUNA2000-5kWh</option>
+                        <option value="LUNA2000-10kWh" selected>LUNA2000-10kWh</option>
+                        <option value="LUNA2000-15kWh">LUNA2000-15kWh</option>
+                        <option value="LUNA2000-20kWh">LUNA2000-20kWh</option>
+                    </select>
+                    <div class="config-info">
+                        <span id="batteryCapacity">Capacity: 10kWh</span>
+                        <span id="batteryRate">Rate: 7kW</span>
+                    </div>
+                </div>
+
+                <!-- Solar Panel Configuration -->
+                <div class="config-section">
+                    <h3>Solar Panel Array</h3>
+                    <div class="panel-config">
+                        <label>Panel Wattage:</label>
+                        <select id="panelWattage" class="config-select">
+                            <option value="300">300W</option>
+                            <option value="350">350W</option>
+                            <option value="400" selected>400W</option>
+                            <option value="450">450W</option>
+                            <option value="500">500W</option>
+                            <option value="550">550W</option>
+                        </select>
+                    </div>
+                    <div class="panel-config">
+                        <label>Panel Count:</label>
+                        <select id="panelCount" class="config-select">
+                            <option value="4">4 Panels</option>
+                            <option value="8">8 Panels</option>
+                            <option value="12">12 Panels</option>
+                            <option value="16" selected>16 Panels</option>
+                            <option value="20">20 Panels</option>
+                        </select>
+                    </div>
+                    <div class="panel-config">
+                        <label>Panel Type:</label>
+                        <select id="panelType" class="config-select">
+                            <option value="mono" selected>Monocrystalline (22%)</option>
+                            <option value="poly">Polycrystalline (18%)</option>
+                            <option value="thin">Thin-film (12%)</option>
+                        </select>
+                    </div>
+                    <div class="config-info">
+                        <span id="totalPanelPower">Total: 6.4kW</span>
+                    </div>
+                </div>
+
+                <!-- Environmental Settings -->
+                <div class="config-section">
+                    <h3>Environmental Settings</h3>
+                    <div class="panel-config">
+                        <label>Season:</label>
+                        <select id="season" class="config-select">
+                            <option value="spring">Spring</option>
+                            <option value="summer" selected>Summer</option>
+                            <option value="autumn">Autumn</option>
+                            <option value="winter">Winter</option>
+                        </select>
+                    </div>
+                    <div class="panel-config">
+                        <label>Weather:</label>
+                        <select id="weather" class="config-select">
+                            <option value="clear" selected>Clear Sky</option>
+                            <option value="partly_cloudy">Partly Cloudy</option>
+                            <option value="cloudy">Cloudy</option>
+                            <option value="rainy">Rainy</option>
+                        </select>
+                    </div>
+                    <div class="panel-config">
+                        <label>Simulation Speed:</label>
+                        <select id="simSpeed" class="config-select">
+                            <option value="0.5">0.5x</option>
+                            <option value="1" selected>1x Real-time</option>
+                            <option value="2">2x</option>
+                            <option value="5">5x</option>
+                            <option value="10">10x</option>
+                            <option value="60">60x (1min = 1hr)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="control-buttons">
+                <button id="startBtn" class="btn btn-primary">▶ Start Simulation</button>
+                <button id="pauseBtn" class="btn btn-warning" disabled>⏸ Pause</button>
+                <button id="resetBtn" class="btn btn-danger">↻ Reset</button>
+                <button id="wsConnectBtn" class="btn btn-success">🔌 Connect WebSocket</button>
+            </div>
+        </section>
+
+        <!-- Real-time Data Display -->
+        <section class="data-panel">
+            <h2>Real-time System Data</h2>
+            
+            <!-- Primary Metrics -->
+            <div class="metrics-grid">
+                <div class="metric-card power-in">
+                    <div class="metric-icon">☀️</div>
+                    <div class="metric-content">
+                        <h3>Solar Input</h3>
+                        <div class="metric-value" id="powerIn">0.00 W</div>
+                        <div class="metric-sub">Irradiance: <span id="irradiance">0</span> W/m²</div>
+                    </div>
+                </div>
+
+                <div class="metric-card power-out">
+                    <div class="metric-icon">⚡</div>
+                    <div class="metric-content">
+                        <h3>Power Output</h3>
+                        <div class="metric-value" id="powerOut">0.00 W</div>
+                        <div class="metric-sub">Efficiency: <span id="efficiency">0</span>%</div>
+                    </div>
+                </div>
+
+                <div class="metric-card battery">
+                    <div class="metric-icon">🔋</div>
+                    <div class="metric-content">
+                        <h3>Battery Status</h3>
+                        <div class="metric-value" id="batteryPercentage">0.0%</div>
+                        <div class="metric-sub">Power: <span id="batteryPower">0</span> W</div>
+                    </div>
+                    <div class="battery-bar">
+                        <div class="battery-fill" id="batteryFill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="metric-card energy">
+                    <div class="metric-icon">📊</div>
+                    <div class="metric-content">
+                        <h3>Energy Production</h3>
+                        <div class="metric-value" id="dailyEnergy">0.00 kWh</div>
+                        <div class="metric-sub">Total: <span id="totalEnergy">0</span> kWh</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Secondary Metrics -->
+            <div class="secondary-metrics">
+                <div class="metric-item">
+                    <span class="metric-label">Voltage:</span>
+                    <span class="metric-val" id="voltage">0 V</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Current:</span>
+                    <span class="metric-val" id="current">0 A</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Frequency:</span>
+                    <span class="metric-val" id="frequency">50.0 Hz</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Ambient Temp:</span>
+                    <span class="metric-val" id="temperature">0°C</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Panel Temp:</span>
+                    <span class="metric-val" id="panelTemp">0°C</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Local Time:</span>
+                    <span class="metric-val" id="localTime">00:00:00</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Status:</span>
+                    <span class="metric-val status-badge" id="status">Stopped</span>
+                </div>
+            </div>
+
+            <!-- Alerts Section -->
+            <div class="alerts-section" id="alertsSection" style="display: none;">
+                <h3>⚠️ System Alerts</h3>
+                <div id="alertsList" class="alerts-list"></div>
+            </div>
+        </section>
+
+        <!-- Charts Section -->
+        <section class="charts-section">
+            <h2>Data Visualization</h2>
+            
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3>Power Flow (24h)</h3>
+                    <canvas id="powerChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Battery State of Charge</h3>
+                    <canvas id="batteryChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Solar Irradiance & Temperature</h3>
+                    <canvas id="environmentChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Energy Production</h3>
+                    <canvas id="energyChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- WebSocket Log -->
+        <section class="log-section">
+            <h2>WebSocket Communication Log</h2>
+            <div class="log-controls">
+                <button id="clearLogBtn" class="btn btn-small">Clear Log</button>
+                <label>
+                    <input type="checkbox" id="autoScrollLog" checked>
+                    Auto-scroll
+                </label>
+            </div>
+            <div class="log-container" id="wsLog"></div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Huawei Solar System Simulator | Device ID: solar_001 | © 2025</p>
+        </footer>
+    </div>
+
+    <script src="solar.js"></script>
+</body>
+</html>

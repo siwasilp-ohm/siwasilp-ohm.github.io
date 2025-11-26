@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUNA2000 Battery Laboratory</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="battery-lab.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="logo">
+                <h1>🔋 LUNA2000 Battery Laboratory</h1>
+                <p class="subtitle">Advanced Battery Cell Monitoring & Testing System</p>
+            </div>
+            <div class="header-actions">
+                <a href="index.html" class="btn btn-secondary">← Back to Dashboard</a>
+                <div class="sync-status">
+                    <span class="status-indicator synced" id="syncStatus">●</span>
+                    <span id="syncStatusText">Synced with Dashboard</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Battery Information Panel -->
+        <section class="battery-info-panel">
+            <h2>Battery System Information</h2>
+            <div class="battery-info-grid">
+                <div class="info-card">
+                    <h3>Battery Model</h3>
+                    <div class="info-value" id="batteryModel">LUNA2000-10kWh</div>
+                    <div class="info-specs">
+                        <div><strong>Modules:</strong> <span id="moduleCount">3</span></div>
+                        <div><strong>Cells per Module:</strong> <span id="cellsPerModule">16</span></div>
+                        <div><strong>Total Cells:</strong> <span id="totalCells">48</span></div>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h3>System Parameters</h3>
+                    <div class="param-row">
+                        <span>Capacity:</span>
+                        <span class="param-value" id="capacity">10.0 kWh</span>
+                    </div>
+                    <div class="param-row">
+                        <span>Working Voltage:</span>
+                        <span class="param-value" id="workingVoltage">400.0 V</span>
+                    </div>
+                    <div class="param-row">
+                        <span>Max Charge/Discharge:</span>
+                        <span class="param-value" id="maxRate">7.0 kW</span>
+                    </div>
+                    <div class="param-row">
+                        <span>Round-trip Efficiency:</span>
+                        <span class="param-value" id="efficiency">95.0 %</span>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h3>Operating Status</h3>
+                    <div class="param-row">
+                        <span>State of Charge:</span>
+                        <span class="param-value highlight" id="soc">50.0 %</span>
+                    </div>
+                    <div class="param-row">
+                        <span>Depth of Discharge:</span>
+                        <span class="param-value" id="dod">50.0 %</span>
+                    </div>
+                    <div class="param-row">
+                        <span>Current Power:</span>
+                        <span class="param-value" id="currentPower">0 W</span>
+                    </div>
+                    <div class="param-row">
+                        <span>Temperature:</span>
+                        <span class="param-value" id="batteryTemp">25.0 °C</span>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h3>Performance Metrics</h3>
+                    <div class="param-row">
+                        <span>Peak Power:</span>
+                        <span class="param-value" id="peakPower">7.0 kW</span>
+                    </div>
+                    <div class="param-row">
+                        <span>Open-Circuit Voltage:</span>
+                        <span class="param-value" id="ocVoltage">420.0 V</span>
+                    </div>
+                    <div class="param-row">
+                        <span>Short-Circuit Current:</span>
+                        <span class="param-value" id="scCurrent">35.0 A</span>
+                    </div>
+                    <div class="param-row">
+                        <span>Fill Factor:</span>
+                        <span class="param-value" id="fillFactor">0.85</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BMS (Battery Management System) Panel -->
+        <section class="bms-panel">
+            <h2>🔧 Battery Management System (BMS)</h2>
+            <div class="bms-grid">
+                <div class="bms-card">
+                    <h3>Cell Balancing</h3>
+                    <div class="bms-status">
+                        <div class="status-row">
+                            <span>Status:</span>
+                            <span class="status-badge status-normal" id="balancingStatus">Active</span>
+                        </div>
+                        <div class="status-row">
+                            <span>Cells Balanced:</span>
+                            <span id="cellsBalanced">48/48</span>
+                        </div>
+                        <div class="status-row">
+                            <span>Max Voltage Diff:</span>
+                            <span id="maxVoltageDiff">0.05 V</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-small btn-primary" id="runBalancing">Run Balancing</button>
+                </div>
+
+                <div class="bms-card">
+                    <h3>Thermal Management</h3>
+                    <div class="bms-status">
+                        <div class="status-row">
+                            <span>Cooling Status:</span>
+                            <span class="status-badge status-normal" id="coolingStatus">Normal</span>
+                        </div>
+                        <div class="status-row">
+                            <span>Max Temperature:</span>
+                            <span id="maxTemp">25.0°C</span>
+                        </div>
+                        <div class="status-row">
+                            <span>Temp Diff:</span>
+                            <span id="tempDiff">2.0°C</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-small btn-warning" id="activateCooling">Activate Cooling</button>
+                </div>
+
+                <div class="bms-card">
+                    <h3>Safety Protection</h3>
+                    <div class="bms-status">
+                        <div class="status-row">
+                            <span>Over-voltage:</span>
+                            <span class="protection-indicator" id="ovProtection">✓</span>
+                        </div>
+                        <div class="status-row">
+                            <span>Under-voltage:</span>
+                            <span class="protection-indicator" id="uvProtection">✓</span>
+                        </div>
+                        <div class="status-row">
+                            <span>Over-current:</span>
+                            <span class="protection-indicator" id="ocProtection">✓</span>
+                        </div>
+                        <div class="status-row">
+                            <span>Over-temperature:</span>
+                            <span class="protection-indicator" id="otProtection">✓</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bms-card">
+                    <h3>SOH Estimation</h3>
+                    <div class="bms-status">
+                        <div class="status-row">
+                            <span>State of Health:</span>
+                            <span class="highlight" id="soh">98.5%</span>
+                        </div>
+                        <div class="status-row">
+                            <span>Degradation Rate:</span>
+                            <span id="degradationRate">0.02%/month</span>
+                        </div>
+                        <div class="status-row">
+                            <span>Estimated Life:</span>
+                            <span id="estimatedLife">8.5 years</span>
+                        </div>
+                    </div>
+                    <div class="soh-bar">
+                        <div class="soh-fill" id="sohFill" style="width: 98.5%"></div>
+                    </div>
+                </div>
+
+                <div class="bms-card">
+                    <h3>Charge Management</h3>
+                    <div class="bms-status">
+                        <div class="status-row">
+                            <span>Charge Mode:</span>
+                            <span id="chargeMode">CC-CV</span>
+                        </div>
+                        <div class="status-row">
+                            <span>Charge Current:</span>
+                            <span id="chargeCurrent">0.0 A</span>
+                        </div>
+                        <div class="status-row">
+                            <span>Cutoff Voltage:</span>
+                            <span id="cutoffVoltage">420.0 V</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bms-card">
+                    <h3>Communication Status</h3>
+                    <div class="bms-status">
+                        <div class="status-row">
+                            <span>CAN Bus:</span>
+                            <span class="connection-indicator active" id="canBus">Connected</span>
+                        </div>
+                        <div class="status-row">
+                            <span>RS485:</span>
+                            <span class="connection-indicator active" id="rs485">Connected</span>
+                        </div>
+                        <div class="status-row">
+                            <span>Modbus:</span>
+                            <span class="connection-indicator active" id="modbus">Connected</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Test Mode Controls -->
+        <section class="test-controls-panel">
+            <h2>Battery Testing & Simulation Controls</h2>
+            <div class="test-controls-grid">
+                <div class="control-group">
+                    <label>Testing Mode:</label>
+                    <select id="testMode" class="config-select">
+                        <option value="normal">Normal Operation</option>
+                        <option value="stress">Stress Test</option>
+                        <option value="thermal">Thermal Test</option>
+                        <option value="capacity">Capacity Test</option>
+                        <option value="aging">Aging Simulation</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>Simulation Speed:</label>
+                    <select id="labSimSpeed" class="config-select">
+                        <option value="1" selected>1x Real-time</option>
+                        <option value="2">2x Speed</option>
+                        <option value="5">5x Speed</option>
+                        <option value="10">10x Speed</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>Temperature Override:</label>
+                    <input type="range" id="tempOverride" min="-20" max="60" value="25" step="1">
+                    <span id="tempValue">25°C</span>
+                </div>
+
+                <div class="control-group">
+                    <label>Load Override:</label>
+                    <input type="range" id="loadOverride" min="-7000" max="7000" value="0" step="100">
+                    <span id="loadValue">0 W</span>
+                </div>
+            </div>
+
+            <div class="test-actions">
+                <button id="startTest" class="btn btn-primary">▶ Start Test</button>
+                <button id="pauseTest" class="btn btn-warning" disabled>⏸ Pause Test</button>
+                <button id="resetTest" class="btn btn-danger">↻ Reset All Cells</button>
+                <button id="exportData" class="btn btn-success">📊 Export Data</button>
+            </div>
+        </section>
+
+        <!-- Battery Modules Visualization -->
+        <section class="modules-panel">
+            <h2>Battery Modules & Cell Visualization</h2>
+            <div id="modulesContainer" class="modules-container">
+                <!-- Modules will be generated dynamically -->
+            </div>
+        </section>
+
+        <!-- Cell Detail Popup -->
+        <div id="cellPopup" class="cell-popup" style="display: none;">
+            <div class="popup-header">
+                <h3 id="popupTitle">Cell M1-C1</h3>
+                <button id="closePopup" class="close-btn">✕</button>
+            </div>
+            <div class="popup-content">
+                <div class="popup-section">
+                    <h4>Cell Parameters</h4>
+                    <div class="param-grid">
+                        <div class="param-item">
+                            <span class="param-label">Voltage:</span>
+                            <span class="param-val" id="popupVoltage">3.7 V</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-label">Current:</span>
+                            <span class="param-val" id="popupCurrent">0 A</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-label">Temperature:</span>
+                            <span class="param-val" id="popupTemp">25 °C</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-label">SOC:</span>
+                            <span class="param-val" id="popupSOC">50 %</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-label">Health:</span>
+                            <span class="param-val" id="popupHealth">100 %</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-label">Cycle Count:</span>
+                            <span class="param-val" id="popupCycles">0</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-label">Resistance:</span>
+                            <span class="param-val" id="popupResistance">50 mΩ</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-label">Capacity:</span>
+                            <span class="param-val" id="popupCapacity">50 Ah</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="popup-section">
+                    <h4>Cell Testing Controls</h4>
+                    <div class="test-buttons">
+                        <button class="btn btn-small btn-primary" onclick="batteryLab.testCell('charge')">⚡ Force Charge</button>
+                        <button class="btn btn-small btn-warning" onclick="batteryLab.testCell('discharge')">⚡ Force Discharge</button>
+                        <button class="btn btn-small btn-danger" onclick="batteryLab.testCell('overheat')">🔥 Simulate Overheat</button>
+                        <button class="btn btn-small btn-secondary" onclick="batteryLab.testCell('balance')">⚖️ Balance Cell</button>
+                        <button class="btn btn-small btn-danger" onclick="batteryLab.testCell('fault')">⚠️ Inject Fault</button>
+                        <button class="btn btn-small btn-success" onclick="batteryLab.testCell('reset')">↻ Reset Cell</button>
+                    </div>
+                </div>
+
+                <div class="popup-section">
+                    <h4>Cell Performance Chart</h4>
+                    <canvas id="cellChart"></canvas>
+                </div>
+
+                <div class="popup-section">
+                    <h4>Cell History</h4>
+                    <div class="cell-history" id="cellHistory">
+                        <div class="history-item">Ready for testing...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module Summary Charts -->
+        <section class="charts-panel">
+            <h2>Module Performance Analytics</h2>
+            <div class="module-charts-grid">
+                <div class="chart-container">
+                    <h3>Module Voltage Distribution</h3>
+                    <canvas id="moduleVoltageChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Module Temperature Profile</h3>
+                    <canvas id="moduleTempChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Cell SOC Distribution</h3>
+                    <canvas id="cellSOCChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Cell Health Status</h3>
+                    <canvas id="cellHealthChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Power Flow Timeline</h3>
+                    <canvas id="powerFlowChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Temperature vs Time</h3>
+                    <canvas id="tempTimeChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Alerts -->
+        <section class="alerts-panel">
+            <h2>System Alerts & Diagnostics</h2>
+            <div id="alertsContainer" class="alerts-container">
+                <div class="alert alert-info">System initialized - All cells nominal</div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>LUNA2000 Battery Laboratory | Advanced Cell Monitoring System | © 2025</p>
+        </footer>
+    </div>
+
+    <!-- Tooltip for cell hover -->
+    <div id="cellTooltip" class="cell-tooltip" style="display: none;">
+        <div class="tooltip-content">
+            <div class="tooltip-row">
+                <span>Voltage:</span>
+                <span id="tooltipVoltage">-</span>
+            </div>
+            <div class="tooltip-row">
+                <span>Current:</span>
+                <span id="tooltipCurrent">-</span>
+            </div>
+            <div class="tooltip-row">
+                <span>Temp:</span>
+                <span id="tooltipTemp">-</span>
+            </div>
+            <div class="tooltip-row">
+                <span>SOC:</span>
+                <span id="tooltipSOC">-</span>
+            </div>
+            <div class="tooltip-row">
+                <span>Health:</span>
+                <span id="tooltipHealth">-</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="battery-lab.js"></script>
+</body>
+</html>
