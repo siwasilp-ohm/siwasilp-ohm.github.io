@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบผู้ช่วยอู่ซ่อมรถอัจฉริยะ</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #eef2f7; /* Soft light blue/gray background */
+        }
+        .app-container {
+            min-height: 98vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .tab-content {
+            flex-grow: 1;
+        }
+        .scrollable-content {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .status-badge {
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 9999px;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+            letter-spacing: 0.5px;
+        }
+        /* Custom gradient header */
+        .header-gradient {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); /* Cyan/Sky Blue for modern look */
+        }
+        
+        /* --- CHAT STYLING & ANIMATION --- */
+        
+        /* Keyframes for bubble entry animation */
+        @keyframes chat-bubble-enter {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-bubble-container {
+            animation: chat-bubble-enter 0.3s ease-out forwards;
+        }
+        
+        .chat-bubble {
+            max-width: 85%; /* Slightly wider on small screens */
+            padding: 12px 18px;
+            border-radius: 20px;
+            margin-bottom: 8px;
+            word-wrap: break-word;
+            line-height: 1.5;
+            transition: all 0.3s ease;
+        }
+        .chat-user {
+            background-color: #3b82f6; /* Blue */
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
+        }
+        .chat-bot {
+            background-color: #f3f4f6; /* Light gray */
+            color: #1f2937;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            /* Styling for "intelligent" reply */
+            border: 1px solid #e0e7ff;
+        }
+        
+        /* Styling for input button hover effect */
+        .chat-input-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
+        }
+    </style>
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, setDoc, onSnapshot, collection, query, where, getDocs, updateDoc, serverTimestamp, setLogLevel, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // --- Global Variables and Configuration ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'demo-car-service-app';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        let app, db, auth, userId = null;
+        let isAuthReady = false;
+        let activeBookingData = null; // Global state for the customer's active car status
+
+        // Firestore Collection Paths (Public data)
+        const BOOKING_COLLECTION_PATH = `artifacts/${appId}/public/data/smart_bookings`;
+        
+        // Define the detailed service flow for the demo
+        const STATUS_FLOW = [
+            "Pending (รอการยืนยัน)",
+            "In Check-up (กำลังตรวจสอบ)",
+            "Awaiting Approval (รออนุมัติซ่อม)",
+            "In Repair (กำลังดำเนินการ)",
+            "Quality Check (ตรวจสอบคุณภาพ)",
+            "Ready for Pickup (พร้อมรับรถ)"
+        ];
+
+        // Expose functions globally for the HTML elements
+        window.initFirebase = initFirebase;
+        window.handleBooking = handleBooking;
+        window.setActiveTab = setActiveTab;
+        window.loadSampleData = loadSampleData;
+        window.simulateNextStatus = simulateNextStatus;
+        window.simulatePrevStatus = simulatePrevStatus;
+        window.handleChatInput = handleChatInput;
+
+        /**
+         * Converts Firebase error object to a readable string.
+         * @param {Error} error 
+         */
+        function getFirebaseErrorMessage(error) {
+            if (error.code) {
+                return `[${error.code}] ${error.message}`;
+            }
+            return error.message || "An unknown error occurred.";
+        }
+
+        // --- Firebase Initialization and Authentication ---
+        async function initFirebase() {
+            try {
+                // setLogLevel('debug'); 
+                
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                await setPersistence(auth, browserLocalPersistence);
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        isAuthReady = true;
+                        document.getElementById('user-id-display').textContent = `User ID: ${userId}`;
+                        setupRealtimeListeners();
+                        // Initial welcome message for the Chat tab
+                        displayMessage('👋 สวัสดีค่ะ ดิฉันคือผู้ช่วย AI อู่ซ่อมรถอัจฉริยะ พิมพ์ "เมนู" เพื่อดูคำสั่งหลัก หรือ "สถานะรถ" เพื่อรับข้อมูลเรียลไทม์ได้เลยค่ะ', 'bot', 'chat-messages');
+                    } else {
+                        userId = null;
+                        isAuthReady = true; 
+                        document.getElementById('user-id-display').textContent = `User ID: (เข้าสู่ระบบไม่ได้)`;
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                displayToast(`ข้อผิดพลาดร้ายแรง: ${getFirebaseErrorMessage(error)}`, 'error');
+            }
+        }
+        
+        // --- Realtime Data Listeners ---
+        function setupRealtimeListeners() {
+            if (!isAuthReady || !userId) return;
+
+            // 1. User's bookings (Dashboard and History)
+            const userBookingQuery = query(
+                collection(db, BOOKING_COLLECTION_PATH),
+                where("ownerId", "==", userId)
+            );
+
+            onSnapshot(userBookingQuery, (snapshot) => {
+                const bookings = [];
+                snapshot.forEach(doc => {
+                    bookings.push({ id: doc.id, ...doc.data() });
+                });
+                // Sort by timestamp descending (newest first for Dashboard)
+                const sortedBookings = bookings.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+                
+                // Update global active booking data: find the car that is NOT yet "Ready for Pickup"
+                activeBookingData = sortedBookings.find(b => !b.status.includes("Ready for Pickup")) || null;
+                
+                displayDashboard(sortedBookings);
+                displayHistory(sortedBookings);
+            }, (error) => {
+                console.error("Error fetching user bookings:", error);
+            });
+
+            // 2. All active bookings (Demo/Staff Controls)
+            const allQueueQuery = query(
+                collection(db, BOOKING_COLLECTION_PATH),
+                where("status", "not-in", ["Ready for Pickup (พร้อมรับรถ)"]) // Filter out completed for the active demo queue
+            );
+
+            onSnapshot(allQueueQuery, (snapshot) => {
+                const queue = [];
+                snapshot.forEach(doc => {
+                    queue.push({ id: doc.id, ...doc.data() });
+                });
+                // Sort by timestamp ascending (oldest first, like a real queue)
+                displayDemoControls(queue.sort((a, b) => (a.timestamp?.seconds || 0) - (b.timestamp?.seconds || 0)));
+            }, (error) => {
+                console.error("Error fetching demo queue:", error);
+            });
+        }
+        
+        // --- Utility Functions ---
+
+        /**
+         * Returns Tailwind classes and icon for a given status.
+         * @param {string} status 
+         */
+        function getStatusStyling(status) {
+            if (status.includes("Pending")) return { badge: "bg-yellow-100 text-yellow-700", dot: "bg-yellow-500", icon: "🕒" };
+            if (status.includes("Check-up")) return { badge: "bg-orange-100 text-orange-700", dot: "bg-orange-500", icon: "🔍" };
+            if (status.includes("Awaiting Approval")) return { badge: "bg-red-100 text-red-700", dot: "bg-red-500", icon: "✋" };
+            if (status.includes("In Repair")) return { badge: "bg-blue-100 text-blue-700", dot: "bg-blue-500", icon: "🛠️" };
+            if (status.includes("Quality Check")) return { badge: "bg-teal-100 text-teal-700", dot: "bg-teal-500", icon: "✅" };
+            if (status.includes("Ready for Pickup")) return { badge: "bg-green-100 text-green-700", dot: "bg-green-500", icon: "✨" };
+            return { badge: "bg-gray-100 text-gray-700", dot: "bg-gray-500", icon: "❓" };
+        }
+        
+        /**
+         * Gets a truncated version of the owner ID for public display.
+         * @param {string} ownerId 
+         */
+        function getPublicId(ownerId) {
+            return ownerId ? `ID: ${ownerId.substring(0, 4)}...${ownerId.substring(ownerId.length - 4)}` : 'N/A';
+        }
+
+        // --- Chat Logic ---
+        
+        /**
+         * Displays a message in the chat window with animation.
+         * @param {string|HTMLElement} content - The message text or a pre-built HTML element.
+         * @param {'user'|'bot'} sender 
+         * @param {string} containerId 
+         */
+        function displayMessage(content, sender, containerId = 'chat-messages') {
+            const container = document.getElementById(containerId);
+            const messageElement = document.createElement('div');
+            // Use container class for animation
+            messageElement.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'} chat-bubble-container`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${sender === 'user' ? 'chat-user' : 'chat-bot'}`;
+            
+            if (typeof content === 'string') {
+                // If content is a string, simply set text content
+                bubble.textContent = content;
+            } else {
+                // If content is an element (e.g., from the enhanced bot reply), append it
+                bubble.appendChild(content);
+            }
+
+            messageElement.appendChild(bubble);
+            container.appendChild(messageElement);
+            
+            // Scroll to the bottom with a slight delay to ensure animation finishes
+            setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 100);
+        }
+
+        /**
+         * Handles user input and triggers the auto-reply simulation.
+         */
+        function handleChatInput(event) {
+            event.preventDefault();
+            const inputElement = document.getElementById('chat-input');
+            const userMessage = inputElement.value.trim();
+            
+            if (!userMessage) return;
+
+            displayMessage(userMessage, 'user');
+            inputElement.value = ''; // Clear input
+
+            simulateAutoReply(userMessage);
+        }
+
+        /**
+         * Simulates the chatbot reading the active booking data and responding with enhanced variety.
+         * @param {string} userMessage 
+         */
+        function simulateAutoReply(userMessage) {
+            const normalizedMessage = userMessage.toLowerCase().trim();
+            
+            // Set a delay for bot response
+            const responseDelay = 500 + Math.random() * 500; // 0.5s to 1s delay
+
+            setTimeout(() => {
+                let replyElement = document.createElement('div');
+                let foundMatch = false;
+
+                // --- 1. Real-Time Status Check (Highest Priority) ---
+                if (normalizedMessage.includes("สถานะรถ") || normalizedMessage.includes("สถานะ") || normalizedMessage.includes("รถอยู่ไหน") || normalizedMessage.includes("check")) {
+                    foundMatch = true;
+                    if (!activeBookingData) {
+                        replyElement.innerHTML = `
+                            <p class="font-medium text-lg text-red-600">❌ ไม่พบรถที่กำลังเข้ารับบริการ</p>
+                            <p class="mt-2 text-sm">ตอนนี้ยังไม่พบรายการรถของท่านที่กำลังอยู่ในกระบวนการซ่อมค่ะ</p>
+                            <p class="mt-2 text-xs text-gray-500">หากเพิ่งทำการจองคิว อาจจะต้องรอการยืนยันสักครู่ หรือสามารถไปที่แท็บ 'จองคิว' เพื่อดำเนินการนัดหมายใหม่ค่ะ</p>
+                        `;
+                    } else {
+                        const statusStyling = getStatusStyling(activeBookingData.status);
+                        const carStatusRaw = activeBookingData.status.split('(')[1].replace(')', '').trim();
+                        
+                        // Use rich HTML for a professional, status-specific reply
+                        replyElement.innerHTML = `
+                            <div class="flex items-center space-x-2 pb-2 mb-2 border-b border-gray-200">
+                                <span class="text-xl">${statusStyling.icon}</span>
+                                <p class="text-xl font-bold text-indigo-600">${activeBookingData.licensePlate}</p>
+                            </div>
+                            <p class="text-sm text-gray-500">สถานะปัจจุบันของคุณคือ:</p>
+                            <p class="text-2xl font-extrabold text-emerald-600 my-1">${carStatusRaw}</p>
+                            <p class="text-sm mt-3">🛠️ บริการ: ${activeBookingData.serviceType}</p>
+                            <p class="text-sm">📅 คาดว่าจะเสร็จ: <span class="font-semibold text-red-500">${activeBookingData.estimatedCompletion}</span></p>
+                            <p class="mt-3 text-xs text-gray-500">หากต้องการสอบถามเพิ่มเติม โปรดพิมพ์ "คุยกับพนักงาน"</p>
+                        `;
+                    }
+                } 
+                // --- 2. Cost/Estimate Inquiry ---
+                else if (normalizedMessage.includes("ค่าใช้จ่าย") || normalizedMessage.includes("ราคา") || normalizedMessage.includes("estimate") || normalizedMessage.includes("บิล")) {
+                    foundMatch = true;
+                    if (activeBookingData && activeBookingData.status.includes("Awaiting Approval")) {
+                         replyElement.innerHTML = `
+                            <p class="text-lg font-semibold text-red-700">⚠️ สถานะรออนุมัติซ่อม!</p>
+                            <p class="mt-2 text-sm">รถทะเบียน ${activeBookingData.licensePlate} อยู่ในสถานะรออนุมัติซ่อมค่ะ ทางเราได้ส่งใบเสนอราคา (จำลอง) ไปทางอีเมลแล้ว</p>
+                            <p class="mt-2 text-sm">หากต้องการสอบถามค่าใช้จ่ายโดยละเอียด กรุณาพิมพ์ **"คุยกับพนักงาน"** เพื่อให้ช่างโทรกลับมายืนยันค่ะ</p>
+                        `;
+                    } else if (activeBookingData && activeBookingData.status.includes("Ready for Pickup")) {
+                        replyElement.innerHTML = `
+                            <p class="text-lg font-semibold text-emerald-700">✅ รถพร้อมรับแล้ว</p>
+                            <p class="mt-2 text-sm">คุณสามารถดูสรุปค่าใช้จ่ายสุดท้ายได้ที่แท็บ 'ประวัติ' หรือสอบถามเพิ่มเติมได้ที่เคาน์เตอร์ค่ะ</p>
+                        `;
+                    } else {
+                        replyElement.textContent = "เนื่องจากรถยังอยู่ในช่วงตรวจสอบ (Check-up) เราจึงยังไม่สามารถแจ้งค่าใช้จ่ายสุดท้ายได้ค่ะ ระบบจะแจ้งให้คุณทราบทันทีที่รถเข้าสู่สถานะ 'รออนุมัติซ่อม'";
+                    }
+                }
+                // --- 3. Contact/Business Hours Inquiry ---
+                else if (normalizedMessage.includes("เวลาเปิด") || normalizedMessage.includes("ติดต่อ") || normalizedMessage.includes("เบอร์โทร")) {
+                    foundMatch = true;
+                    replyElement.innerHTML = `
+                        <p class="text-lg font-semibold text-indigo-700">ข้อมูลติดต่อ</p>
+                        <ul class="list-disc list-inside mt-2 space-y-1 text-sm">
+                            <li><span class="font-medium">เวลาทำการ:</span> 8:00 น. - 17:00 น. (จันทร์-เสาร์)</li>
+                            <li><span class="font-medium">โทรศัพท์:</span> 02-123-4567 (ติดต่อฝ่ายบริการ)</li>
+                            <li><span class="font-medium">ที่อยู่:</span> 123 ถนนสมาร์ทเซอร์วิส กรุงเทพฯ</li>
+                        </ul>
+                    `;
+                }
+                // --- 4. Request Human Staff ---
+                else if (normalizedMessage.includes("คุยกับพนักงาน") || normalizedMessage.includes("คน")) {
+                    foundMatch = true;
+                    replyElement.innerHTML = `
+                        <p class="text-lg font-semibold text-blue-700">🧑‍🔧 ส่งต่อให้พนักงาน</p>
+                        <p class="mt-2 text-sm">ได้ค่ะ! ตอนนี้ฉันได้แจ้งไปยังพนักงานที่รับผิดชอบรถของคุณ (ทะเบียน: ${activeBookingData ? activeBookingData.licensePlate : 'N/A'}) แล้ว</p>
+                        <p class="mt-2 text-sm">พนักงานจะติดต่อกลับภายใน 5-10 นาทีค่ะ (ระบบจริงจะมีการแจ้งเตือนผ่านไลน์/อีเมลไปยังพนักงานทันที)</p>
+                    `;
+                }
+                // --- 5. Acknowledgment/Greeting ---
+                else if (normalizedMessage.includes("ขอบคุณ") || normalizedMessage.includes("thank")) {
+                    foundMatch = true;
+                    replyElement.textContent = "ยินดีให้บริการเสมอค่ะ! หากมีคำถามอื่นๆ สามารถสอบถามได้เลยนะคะ ✨";
+                }
+                // --- 6. Menu/Help (Default/Fallback) ---
+                else {
+                    replyElement.innerHTML = `
+                        <p class="text-lg font-semibold text-gray-700">คำสั่งหลักที่ใช้งานได้:</p>
+                        <ul class="list-disc list-inside mt-2 space-y-1 text-sm">
+                            <li>พิมพ์: **สถานะรถ** (เพื่อรับข้อมูลเรียลไทม์)</li>
+                            <li>พิมพ์: **ค่าใช้จ่าย** (สอบถามเรื่องราคา)</li>
+                            <li>พิมพ์: **เวลาเปิด-ปิด** (ข้อมูลติดต่อ)</li>
+                            <li>พิมพ์: **คุยกับพนักงาน** (ส่งเรื่องให้มนุษย์)</li>
+                        </ul>
+                    `;
+                }
+                
+                // Display the calculated reply (which might be a rich HTML element or plain text content)
+                displayMessage(replyElement, 'bot');
+
+            }, responseDelay); 
+        }
+        
+        // --- Core Application Logic (Omitted for brevity, but remains the same) ---
+        // ... (handleBooking, simulateNextStatus, loadSampleData remain the same) ...
+
+        // --- UI Rendering Functions (Customer View) ---
+        
+        /**
+         * Displays the customer's main dashboard with the latest active booking.
+         * @param {Array} bookings - Sorted newest first
+         */
+        function displayDashboard(bookings) {
+            const container = document.getElementById('dashboard-content');
+            container.innerHTML = '';
+            
+            const activeBooking = activeBookingData; // Use the global variable updated by listener
+
+            if (!activeBooking) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-500 bg-white p-6 rounded-xl shadow-lg border-2 border-dashed border-gray-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto mb-3 text-cyan-600">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="font-bold text-xl">ไม่พบรถที่กำลังเข้าบริการ</p>
+                        <p class="text-sm mt-1">สามารถจองคิวใหม่ได้ที่แท็บ "จองคิว"</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const styling = getStatusStyling(activeBooking.status);
+            const statusIndex = STATUS_FLOW.indexOf(activeBooking.status);
+
+            // Timeline Progress HTML: Updated for smoother appearance and transition colors
+            container.innerHTML = `
+                <div class="bg-white p-6 rounded-xl shadow-2xl border-t-8 border-cyan-500 transform hover:scale-[1.005] transition-transform duration-300">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-2xl font-extrabold text-gray-800">${activeBooking.licensePlate}</h3>
+                        <span class="status-badge ${styling.badge} text-xs shadow-sm">${styling.icon} ${activeBooking.status.split('(')[0].trim()}</span>
+                    </div>
+
+                    <!-- Main Status Display -->
+                    <div class="bg-cyan-50 p-4 rounded-xl mb-6 border border-cyan-200">
+                        <p class="text-sm text-cyan-600 font-semibold mb-1">สถานะปัจจุบัน</p>
+                        <p class="text-3xl font-bold text-cyan-700">${activeBooking.status.split('(')[1].replace(')', '').trim()}</p>
+                    </div>
+                    
+                    <!-- Timeline Progress -->
+                    <div class="flex justify-between items-start mb-6 pt-4 relative">
+                        <!-- Horizontal line for timeline base (hidden since we use line between dots) -->
+                        ${STATUS_FLOW.slice(0, 5).map((status, index) => {
+                            const lineClass = index < statusIndex ? styling.dot : 'bg-gray-300';
+                            return index < 4 ? `<div class="absolute top-5 left-[${(index * 25) + 12.5}%] w-[25%] h-0.5 ${lineClass} transition-all duration-500 z-0"></div>` : '';
+                        }).join('')}
+                        
+                        ${STATUS_FLOW.slice(0, 5).map((status, index) => {
+                            const isActive = index <= statusIndex;
+                            const isCurrent = index === statusIndex;
+                            const dotClass = isActive ? styling.dot : 'bg-gray-300';
+                            const labelClass = isActive ? 'font-semibold text-gray-800' : 'text-gray-400';
+
+                            return `
+                                <div class="flex flex-col items-center w-1/5 z-10">
+                                    <div class="w-4 h-4 rounded-full ${dotClass} ${isCurrent ? 'ring-4 ring-offset-2 ring-cyan-300' : ''} transition-all duration-500"></div>
+                                    <div class="text-center mt-2 text-[10px] sm:text-xs ${labelClass} leading-tight">${status.split('(')[1].replace(')', '')}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                         <div class="flex flex-col items-center w-1/5 z-10">
+                            <div class="w-4 h-4 rounded-full ${statusIndex >= 5 ? getStatusStyling(STATUS_FLOW[5]).dot : 'bg-gray-300'} ${statusIndex === 5 ? 'ring-4 ring-offset-2 ring-cyan-300' : ''} transition-all duration-500"></div>
+                            <div class="text-center mt-2 text-[10px] sm:text-xs ${statusIndex >= 5 ? 'font-semibold text-gray-800' : 'text-gray-400'} leading-tight">พร้อมรับรถ</div>
+                        </div>
+                    </div>
+
+
+                    <!-- Details -->
+                    <div class="border-t pt-4 space-y-2 text-gray-700">
+                        <p class="text-sm"><strong>บริการ:</strong> <span class="text-gray-900 font-medium">${activeBooking.serviceType}</span></p>
+                        <p class="text-sm"><strong>วันที่นัดหมาย:</strong> <span class="text-gray-900 font-medium">${activeBooking.preferredDate}</span></p>
+                        <p class="text-sm"><strong>คาดว่าจะเสร็จ:</strong> <span class="text-lg text-red-600 font-extrabold">${activeBooking.estimatedCompletion}</span></p>
+                        <p class="text-xs text-gray-500 pt-2">รหัสอ้างอิง: ${activeBooking.id.substring(0, 8).toUpperCase()}</p>
+                    </div>
+
+                    <!-- Call to Action (Example: Call Staff or Chat) -->
+                    <div class="mt-6 flex space-x-3">
+                        <button onclick="setActiveTab('chat')" class="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg transition duration-200">
+                            💬 สอบถามสถานะอัตโนมัติ (Chat)
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // ... (displayHistory remains the same) ...
+        function displayHistory(bookings) {
+            const container = document.getElementById('history-content');
+            container.innerHTML = '';
+            
+            const historyBookings = bookings.filter(b => b.status.includes("Ready for Pickup"));
+
+            if (historyBookings.length === 0) {
+                 container.innerHTML = `
+                    <p class="text-center text-gray-500 py-6">ไม่พบประวัติการเข้ารับบริการที่เสร็จสมบูรณ์</p>
+                `;
+                return;
+            }
+
+            let historyHTML = '';
+            historyBookings.forEach(booking => {
+                 const styling = getStatusStyling(booking.status);
+                 historyHTML += `
+                    <div class="bg-white p-4 rounded-xl shadow-md mb-4 border-l-4 border-cyan-500 hover:shadow-lg transition-shadow duration-300">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-lg font-semibold text-gray-800">${booking.licensePlate} - ${booking.serviceType}</h3>
+                             <span class="status-badge ${styling.badge} text-xs">${styling.icon} เสร็จสมบูรณ์</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">เข้าใช้บริการ: ${booking.preferredDate}</p>
+                        <p class="text-xs text-gray-500">เลขไมล์: ${booking.odometerKm.toLocaleString()} กม.</p>
+                        <div class="mt-3 pt-2 border-t text-xs text-gray-500">
+                            ดูรายละเอียดใบแจ้งซ่อม <span class="text-blue-500 cursor-pointer hover:underline">(จำลอง)</span>
+                        </div>
+                    </div>
+                 `;
+            });
+
+            container.innerHTML = historyHTML;
+        }
+
+        // ... (displayDemoControls remains the same) ...
+        function displayDemoControls(queue) {
+            const container = document.getElementById('demo-controls-list');
+            container.innerHTML = '';
+
+            const loadButton = `
+                <div class="mb-4">
+                    <button onclick="loadSampleData()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-4 rounded-xl transition duration-300 shadow-lg transform hover:scale-[1.01]">
+                        คลิกเพื่อโหลดข้อมูลตัวอย่าง (DEMO)
+                    </button>
+                    <p class="text-center text-xs text-gray-500 mt-2">โปรดใช้ปุ่มด้านล่างนี้เพื่อสาธิตการเปลี่ยนสถานะแบบเรียลไทม์</p>
+                </div>
+            `;
+            container.innerHTML += loadButton;
+
+            if (queue.length === 0) {
+                container.innerHTML += `
+                    <p class="text-center text-gray-500 py-6">ไม่พบรถที่กำลังเข้าบริการ (ยกเว้นรถที่พร้อมรับ)</p>
+                `;
+                return;
+            }
+
+            let queueHTML = '<ul class="divide-y divide-gray-200 bg-white rounded-xl shadow-lg">';
+            queue.forEach((item, index) => {
+                const isUserCar = item.ownerId === userId;
+                const styling = getStatusStyling(item.status);
+
+                queueHTML += `
+                    <li class="py-4 px-4 flex flex-col sm:flex-row justify-between items-start sm:items-center ${isUserCar ? 'bg-blue-50/70 border-l-4 border-blue-500' : 'hover:bg-gray-50'} transition duration-100">
+                        <div class="flex-1 min-w-0 mb-3 sm:mb-0">
+                            <p class="text-lg font-semibold text-gray-900">${index + 1}. ${item.licensePlate} ${isUserCar ? ' <span class="text-blue-500 text-sm font-medium">(รถของคุณ)</span>' : ''}</p>
+                            <p class="text-sm text-gray-500">${item.serviceType} (นัด ${item.preferredDate})</p>
+                            <span class="status-badge ${styling.badge} text-xs mt-1 inline-block">${item.status}</span>
+                            <p class="text-xs text-gray-400 mt-2">${getPublicId(item.ownerId)}</p>
+                        </div>
+                        
+                        <div class="flex flex-row space-x-2 mt-2 sm:mt-0">
+                            <button onclick="simulatePrevStatus('${item.id}')"
+                                class="bg-gray-400 hover:bg-gray-500 text-white text-xs font-bold py-2 px-3 rounded-full transition duration-150 shadow-md transform active:scale-95">
+                                ⬅️ ย้อนกลับ
+                            </button>
+                            <button onclick="simulateNextStatus('${item.id}')"
+                                class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-3 rounded-full transition duration-150 shadow-md transform active:scale-95">
+                                ถัดไป ➡️
+                            </button>
+                        </div>
+                    </li>
+                `;
+            });
+            queueHTML += '</ul>';
+            container.innerHTML += queueHTML;
+        }
+
+        // --- Tab Control Logic ---
+        function setActiveTab(tabName) {
+            // Hide all content and reset button styles
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-button').forEach(el => {
+                el.classList.remove('text-cyan-600', 'border-cyan-500');
+                el.classList.add('text-gray-500', 'border-transparent');
+            });
+            
+            // Show target content and set active style
+            document.getElementById(tabName).classList.remove('hidden');
+            document.getElementById(`btn-${tabName}`).classList.add('text-cyan-600', 'border-cyan-500');
+            document.getElementById(`btn-${tabName}`).classList.remove('text-gray-500', 'border-transparent');
+            
+            // Special case for chat tab:
+            if (tabName === 'chat') {
+                const container = document.getElementById('chat-messages');
+                // Ensure chat scrolls to bottom when switched to
+                setTimeout(() => {
+                    container.scrollTop = container.scrollHeight;
+                }, 50); 
+            }
+        }
+        
+        // ... (Toast Notification remains the same) ...
+        function displayToast(message, type) {
+            const toast = document.getElementById('toast-message');
+            let bgColor, icon;
+            if (type === 'success') {
+                bgColor = 'bg-green-500';
+                icon = '✅';
+            } else if (type === 'error') {
+                bgColor = 'bg-red-500';
+                icon = '❌';
+            } else { // warning
+                bgColor = 'bg-yellow-500';
+                icon = '⚠️';
+            }
+
+            toast.innerHTML = `${icon} ${message}`;
+            toast.className = `fixed top-4 left-1/2 -translate-x-1/2 p-4 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 transform z-50 ${bgColor}`;
+            toast.style.opacity = 1;
+            toast.style.visibility = 'visible';
+            
+            setTimeout(() => {
+                toast.style.opacity = 0;
+                toast.style.visibility = 'hidden';
+            }, 5000);
+        }
+        
+        // ... (Core Application Logic - Simulates Status Update)
+        async function handleBooking(event) {
+            event.preventDefault();
+            if (!userId) {
+                displayToast("ระบบกำลังยืนยันตัวตน กรุณารอสักครู่", 'warning');
+                return;
+            }
+
+            const licensePlate = document.getElementById('licensePlate').value.trim().toUpperCase();
+            const serviceType = document.getElementById('serviceType').value;
+            const preferredDate = document.getElementById('preferredDate').value;
+            const odometerKm = parseInt(document.getElementById('odometerKm').value, 10);
+
+            if (!licensePlate || !serviceType || !preferredDate || isNaN(odometerKm)) {
+                displayToast("กรุณากรอกข้อมูลการจองให้ครบถ้วน", 'warning');
+                return;
+            }
+
+            // Check for existing ongoing booking for this license plate by this user
+            const ongoingStatuses = STATUS_FLOW.slice(0, STATUS_FLOW.length - 1); // All except 'Ready for Pickup'
+            const q = query(
+                collection(db, BOOKING_COLLECTION_PATH), 
+                where("ownerId", "==", userId),
+                where("licensePlate", "==", licensePlate),
+                where("status", "in", ongoingStatuses)
+            );
+            const existingDocs = await getDocs(q);
+
+            if (existingDocs.docs.length > 0) {
+                displayToast(`รถทะเบียน ${licensePlate} ของคุณมีคิว/กำลังซ่อมอยู่แล้ว สถานะ: ${existingDocs.docs[0].data().status}`, 'error');
+                return;
+            }
+
+            const newBooking = {
+                ownerId: userId,
+                licensePlate: licensePlate,
+                serviceType: serviceType,
+                preferredDate: preferredDate,
+                odometerKm: odometerKm,
+                estimatedCompletion: new Date(new Date().getTime() + (72 * 60 * 60 * 1000)).toISOString().split('T')[0], // Estimate 3 days later
+                status: STATUS_FLOW[0], // Initial status: "Pending (รอการยืนยัน)"
+                timestamp: serverTimestamp()
+            };
+
+            try {
+                await addDoc(collection(db, BOOKING_COLLECTION_PATH), newBooking);
+                displayToast("✅ จองคิวสำเร็จ! ดูสถานะได้ที่หน้าหลัก", 'success');
+                document.getElementById('bookingForm').reset();
+                setActiveTab('dashboard'); 
+            } catch (error) {
+                console.error("Error adding booking:", error);
+                displayToast(`ข้อผิดพลาดในการจองคิว: ${getFirebaseErrorMessage(error)}`, 'error');
+            }
+        }
+        
+        async function simulateNextStatus(docId) {
+            try {
+                const docRef = doc(db, BOOKING_COLLECTION_PATH, docId);
+                const docSnap = await getDoc(docRef);
+                if (!docSnap.exists()) {
+                    displayToast(`ไม่พบการจอง ID: ${docId}`, 'error');
+                    return;
+                }
+                const currentStatus = docSnap.data().status;
+                const currentIndex = STATUS_FLOW.indexOf(currentStatus);
+                
+                if (currentIndex < STATUS_FLOW.length - 1) {
+                    const nextStatus = STATUS_FLOW[currentIndex + 1];
+                    const updateData = { status: nextStatus };
+                    
+                    // Special action for Awaiting Approval: Send a mock notification
+                    if (nextStatus.includes("Awaiting Approval")) {
+                        updateData.estimatedCompletion = new Date(new Date().getTime() + (24 * 60 * 60 * 1000)).toISOString().split('T')[0];
+                        displayToast("🚨 จำลองการแจ้งเตือนลูกค้า: รถของคุณถูกตรวจสอบแล้ว กรุณาติดต่อเพื่ออนุมัติซ่อม!", 'warning');
+                        
+                        // Send Auto-Chat notification to customer if it's their car
+                        if (activeBookingData && activeBookingData.id === docId) {
+                            setTimeout(() => {
+                                const notificationContent = document.createElement('div');
+                                notificationContent.innerHTML = `
+                                    <p class="text-xl font-bold text-red-600">🚨 แจ้งเตือนสถานะสำคัญ!</p>
+                                    <p class="mt-2 text-sm">รถทะเบียน ${activeBookingData.licensePlate} ตรวจสอบเสร็จแล้ว</p>
+                                    <p class="mt-2 text-sm font-semibold">สถานะ: รออนุมัติซ่อม</p>
+                                    <p class="mt-2 text-xs text-gray-500">กรุณาพิมพ์ **"คุยกับพนักงาน"** หรือโทรกลับเพื่ออนุมัติการซ่อมตามใบเสนอราคาด่วนค่ะ</p>
+                                `;
+                                displayMessage(notificationContent, 'bot', 'chat-messages');
+                            }, 1500);
+                        }
+                    }
+                    
+                    await updateDoc(docRef, updateData);
+                    displayToast(`อัปเดตคิวเป็น "${nextStatus}" เรียบร้อย`, 'success');
+                } else {
+                    displayToast("สถานะปัจจุบันคือสถานะสุดท้ายแล้ว (พร้อมรับรถ)", 'warning');
+                }
+            } catch (error) {
+                console.error("Error updating status:", error);
+                displayToast(`ข้อผิดพลาดในการอัปเดตสถานะ: ${getFirebaseErrorMessage(error)}`, 'error');
+            }
+        }
+
+        async function simulatePrevStatus(docId) {
+            try {
+                const docRef = doc(db, BOOKING_COLLECTION_PATH, docId);
+                const docSnap = await getDoc(docRef);
+                if (!docSnap.exists()) {
+                    displayToast(`ไม่พบการจอง ID: ${docId}`, 'error');
+                    return;
+                }
+                const currentStatus = docSnap.data().status;
+                const currentIndex = STATUS_FLOW.indexOf(currentStatus);
+                
+                if (currentIndex > 0) {
+                    const prevStatus = STATUS_FLOW[currentIndex - 1];
+                    await updateDoc(docRef, { status: prevStatus });
+                    displayToast(`ย้อนกลับสถานะเป็น "${prevStatus}" เรียบร้อย`, 'warning');
+                } else {
+                    displayToast("สถานะปัจจุบันคือสถานะแรกแล้ว", 'warning');
+                }
+            } catch (error) {
+                console.error("Error updating status:", error);
+                displayToast(`ข้อผิดพลาดในการอัปเดตสถานะ: ${getFirebaseErrorMessage(error)}`, 'error');
+            }
+        }
+        
+        async function loadSampleData() {
+            if (!userId) {
+                displayToast("ระบบกำลังยืนยันตัวตน กรุณารอสักครู่", 'warning');
+                return;
+            }
+
+            const bookingsCollection = collection(db, BOOKING_COLLECTION_PATH);
+
+            const sampleBookings = [
+                {
+                    ownerId: userId,
+                    licensePlate: "กท 1234",
+                    serviceType: "เช็คระยะ 30,000 กม.",
+                    preferredDate: "2025-12-05",
+                    odometerKm: 29500,
+                    estimatedCompletion: "2025-12-08",
+                    status: STATUS_FLOW[3], // กำลังดำเนินการ
+                    timestamp: serverTimestamp()
+                },
+                {
+                    ownerId: userId,
+                    licensePlate: "พย 5678",
+                    serviceType: "ซ่อมสีรอบคัน",
+                    preferredDate: "2025-12-10",
+                    odometerKm: 150000,
+                    estimatedCompletion: "2025-12-25",
+                    status: STATUS_FLOW[0], // รอการยืนยัน
+                    timestamp: serverTimestamp()
+                },
+                {
+                    ownerId: "OTHER_CUST_1",
+                    licensePlate: "นค 9999",
+                    serviceType: "เปลี่ยนยาง 4 เส้น",
+                    preferredDate: "2025-11-27",
+                    odometerKm: 85000,
+                    estimatedCompletion: "2025-11-27",
+                    status: STATUS_FLOW[5], // พร้อมรับรถ (Completed)
+                    timestamp: serverTimestamp()
+                }
+            ];
+
+            try {
+                await Promise.all(sampleBookings.map(booking => addDoc(bookingsCollection, booking)));
+                displayToast("เพิ่มข้อมูลการจองรถตัวอย่าง 3 รายการแล้ว!", 'success');
+            } catch (error) {
+                console.error("Error loading sample data:", error);
+                displayToast(`ข้อผิดพลาดในการโหลดข้อมูลตัวอย่าง: ${getFirebaseErrorMessage(error)}`, 'error');
+            }
+        }
+        // End of core logic
+
+        // Initialize Firebase on load
+        window.onload = () => {
+             initFirebase();
+             setActiveTab('dashboard');
+        }
+    </script>
+</head>
+<body class="min-h-screen p-2 sm:p-4">
+
+    <div class="max-w-xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden app-container">
+        
+        <!-- Header (Simulated App Header) -->
+        <header class="header-gradient p-4 text-white shadow-xl sticky top-0 z-20">
+            <h1 class="text-2xl font-extrabold text-center tracking-wide">SMART SERVICE ASSISTANT</h1>
+            <p class="text-sm text-center font-light mt-0.5">ระบบผู้ช่วยอู่ซ่อมรถอัจฉริยะ</p>
+            <p id="user-id-display" class="text-xs text-center mt-2 opacity-75 truncate"></p>
+        </header>
+
+        <!-- Toast Notification Area -->
+        <div id="toast-message" class="fixed top-4 left-1/2 -translate-x-1/2 p-4 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 transform z-50 opacity-0 invisible"></div>
+
+
+        <!-- Tab Navigation (Main Menu) -->
+        <nav class="sticky top-[95px] bg-white border-b-2 border-gray-100 shadow-md z-10">
+            <div class="flex justify-around text-center">
+                <button id="btn-dashboard" class="tab-button w-1/4 py-3 border-b-4 border-cyan-500 text-cyan-600 transition duration-200" onclick="setActiveTab('dashboard')">
+                    <span class="text-xl">🏠</span><span class="block text-xs font-medium">หน้าหลัก</span>
+                </button>
+                <button id="btn-booking" class="tab-button w-1/4 py-3 border-b-4 border-transparent text-gray-500 transition duration-200" onclick="setActiveTab('booking')">
+                    <span class="text-xl">🗓️</span><span class="block text-xs font-medium">จองคิว</span>
+                </button>
+                <button id="btn-chat" class="tab-button w-1/4 py-3 border-b-4 border-transparent text-gray-500 transition duration-200" onclick="setActiveTab('chat')">
+                    <span class="text-xl">💬</span><span class="block text-xs font-medium">Chat</span>
+                </button>
+                <button id="btn-demo" class="tab-button w-1/4 py-3 border-b-4 border-transparent text-gray-500 transition duration-200" onclick="setActiveTab('demo')">
+                    <span class="text-xl">⚙️</span><span class="block text-xs font-medium">Demo Control</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="scrollable-content overflow-y-auto p-4 sm:p-6 pb-20">
+
+            <!-- 1. หน้าหลัก (Dashboard) -->
+            <section id="dashboard" class="tab-content">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800">สถานะรถปัจจุบันของคุณ</h2>
+                <div id="dashboard-content">
+                    <!-- Data will be loaded here by displayDashboard() -->
+                    <div class="text-center py-10 text-gray-400">กำลังโหลดสถานะล่าสุด...</div>
+                </div>
+            </section>
+
+            <!-- 2. จองคิว (Booking) -->
+            <section id="booking" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">นัดหมายเข้าใช้บริการ</h2>
+                
+                <form id="bookingForm" onsubmit="handleBooking(event)" class="bg-white p-6 rounded-xl shadow-lg">
+                    
+                    <div class="mb-4">
+                        <label for="licensePlate" class="block text-sm font-medium text-gray-700 mb-2">ทะเบียนรถ</label>
+                        <input type="text" id="licensePlate" name="licensePlate" required 
+                               class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-200 focus:border-cyan-500 uppercase transition duration-150 shadow-inner" placeholder="เช่น กท 1234">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="serviceType" class="block text-sm font-medium text-gray-700 mb-2">ประเภทบริการที่ต้องการ</label>
+                        <select id="serviceType" name="serviceType" required
+                                class="w-full p-3 border border-gray-300 rounded-xl bg-white focus:ring-2 focus:ring-cyan-200 focus:border-cyan-500 shadow-inner">
+                            <option value="">-- เลือกบริการ --</option>
+                            <option value="เปลี่ยนถ่ายน้ำมันเครื่อง">เปลี่ยนถ่ายน้ำมันเครื่อง</option>
+                            <option value="เช็คระยะ">เช็คระยะ (กำหนดเอง)</option>
+                            <option value="ซ่อมสี/ตัวถัง">ซ่อมสี/ตัวถัง</option>
+                            <option value="ซ่อมช่วงล่าง">ซ่อมช่วงล่าง</option>
+                            <option value="อื่นๆ">อื่นๆ</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4 flex space-x-4">
+                         <div class="flex-1">
+                            <label for="preferredDate" class="block text-sm font-medium text-gray-700 mb-2">วันที่นัดหมาย</label>
+                            <input type="date" id="preferredDate" name="preferredDate" required
+                                   class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-200 focus:border-cyan-500 shadow-inner">
+                        </div>
+                        <div class="flex-1">
+                            <label for="odometerKm" class="block text-sm font-medium text-gray-700 mb-2">เลขไมล์ (กม.)</label>
+                            <input type="number" id="odometerKm" name="odometerKm" required min="1"
+                                   class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-200 focus:border-cyan-500 shadow-inner" placeholder="เช่น 50000">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" 
+                            class="w-full mt-4 bg-cyan-600 hover:bg-cyan-700 text-white font-extrabold py-3 px-4 rounded-xl transition duration-300 shadow-lg shadow-cyan-500/50 transform hover:scale-[1.01] active:scale-100">
+                        ยืนยันการจองและรอการยืนยัน
+                    </button>
+                </form>
+            </section>
+
+            <!-- 3. ประวัติ (History) -->
+            <section id="history" class="tab-content hidden">
+                 <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">ประวัติการเข้ารับบริการที่ผ่านมา</h2>
+                 <div id="history-content">
+                    <!-- Data will be loaded here by displayHistory() -->
+                    <div class="text-center py-10 text-gray-400">กำลังโหลดประวัติ...</div>
+                </div>
+            </section>
+            
+             <!-- 4. Live Chat Assistant (Mockup) -->
+            <section id="chat" class="tab-content hidden flex flex-col h-[60vh] p-0">
+                <div class="flex-none bg-indigo-600 text-white p-3 rounded-t-xl text-center font-bold shadow-md">
+                    💬 Live Service Assistant
+                </div>
+                <!-- Chat Message Container (Scrollable) -->
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col space-y-2 bg-gray-50 scrollable-content">
+                    <!-- Messages will be injected here -->
+                </div>
+                <!-- Input Form -->
+                <form onsubmit="handleChatInput(event)" class="flex-none p-3 border-t bg-white">
+                    <div class="flex space-x-2">
+                        <input type="text" id="chat-input" placeholder="พิมพ์ 'สถานะรถ' หรือ 'เมนู'..."
+                               class="flex-1 p-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 transition duration-150 shadow-inner">
+                        <button type="submit"
+                                class="chat-input-button bg-indigo-500 text-white font-bold w-12 h-12 rounded-full flex items-center justify-center transition duration-200 shadow-lg transform active:scale-95">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                                <path d="M3.478 2.405a.75.75 0 01.926.27l4.73 9.5a.75.75 0 010 .639l-4.73 9.5a.75.75 0 01-.926.27 1.5 1.5 0 01-.27-.926V3.332a1.5 1.5 0 01.27-.926zM7.5 12a.75.75 0 01.75-.75h12.75a.75.75 0 010 1.5H8.25A.75.75 0 017.5 12z" />
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- 5. Demo Control (Staff/Simulation View) -->
+            <section id="demo" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-6 text-red-600 border-b pb-2">⚙️ Demo/Staff Control (ควบคุมสถานะ)</h2>
+                
+                <div id="demo-controls-list">
+                    <!-- Data will be loaded here by displayDemoControls() -->
+                    <div class="text-center py-10 text-gray-400">กำลังโหลดคิวสำหรับ Demo...</div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</body>
+</html>
