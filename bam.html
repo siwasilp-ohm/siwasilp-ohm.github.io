@@ -94,10 +94,36 @@
         
         // --- Global Variables and Configuration ---
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'demo-car-service-app';
-        // Parse firebase config, ensuring a fallback to an empty object if undefined
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
+        // New robust Firebase Config Parsing with Fallback
+        const firebaseConfigRaw = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
+        let firebaseConfig;
+        let isDummyConfig = false;
+
+        try {
+            firebaseConfig = JSON.parse(firebaseConfigRaw);
+        } catch (e) {
+            // Failed to parse, treat as empty object
+            firebaseConfig = {}; 
+        }
+
+        // Critical Check: If projectId is missing, use a dummy config for graceful demo mode.
+        if (!firebaseConfig.projectId) {
+            isDummyConfig = true;
+            firebaseConfig = {
+                apiKey: "DUMMY_API_KEY",
+                authDomain: "dummy-project.firebaseapp.com",
+                projectId: "dummy-project-id", // The required field for initializeApp
+                storageBucket: "dummy-project-id.appspot.com",
+                messagingSenderId: "1234567890",
+                appId: "1:1234567890:web:dummy"
+            };
+            console.error("CRITICAL: Using DUMMY Firebase Config because environment config failed to provide 'projectId'. Firestore operations will be simulated.");
+        }
+        // END New robust Firebase Config Parsing with Fallback
+
+
         let app, db, auth, userId = null;
         let isAuthReady = false;
         let activeBookingData = null; // Global state for the customer's active car status
@@ -140,11 +166,7 @@
             try {
                 // setLogLevel('debug'); 
                 
-                // IMPORTANT: Check if the configuration object is valid before initialization
-                if (!firebaseConfig || !firebaseConfig.projectId) {
-                    throw new Error("Firebase Configuration is missing Project ID. The environment might not be fully initialized or the configuration object is empty.");
-                }
-
+                // Initialization proceeds with real or dummy config
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
@@ -174,8 +196,8 @@
 
             } catch (error) {
                 console.error("Firebase initialization failed:", error);
-                // Use displayToast to show the critical error to the user
-                displayToast(`ข้อผิดพลาดร้ายแรง: ${getFirebaseErrorMessage(error)}`, 'error');
+                // If initialization fails even with dummy config (highly unlikely, but safe guard)
+                displayToast(`ข้อผิดพลาดร้ายแรงในการเริ่มระบบ: ${getFirebaseErrorMessage(error)}`, 'error');
             }
         }
         
@@ -204,6 +226,9 @@
                 displayHistory(sortedBookings);
             }, (error) => {
                 console.error("Error fetching user bookings:", error);
+                if (isDummyConfig) {
+                    displayToast("❌ ฐานข้อมูลจำลอง: ไม่สามารถดึงข้อมูลจริงได้ กรุณาใช้ปุ่ม 'Demo' เพื่อโหลดข้อมูลตัวอย่าง", 'warning');
+                }
             });
 
             // 2. All active bookings (Demo/Staff Controls)
@@ -402,9 +427,6 @@
             }, responseDelay); 
         }
         
-        // --- Core Application Logic (Omitted for brevity, but remains the same) ---
-        // ... (handleBooking, simulateNextStatus, loadSampleData remain the same) ...
-
         // --- UI Rendering Functions (Customer View) ---
         
         /**
@@ -493,7 +515,7 @@
             `;
         }
         
-        // ... (displayHistory remains the same) ...
+        
         function displayHistory(bookings) {
             const container = document.getElementById('history-content');
             container.innerHTML = '';
@@ -528,7 +550,7 @@
             container.innerHTML = historyHTML;
         }
 
-        // ... (displayDemoControls remains the same) ...
+        
         function displayDemoControls(queue) {
             const container = document.getElementById('demo-controls-list');
             container.innerHTML = '';
@@ -631,7 +653,14 @@
             }, 5000);
         }
         
-        // ... (Core Application Logic - Simulates Status Update)
+        // New function to display the dummy warning banner
+        function checkDummyMode() {
+            if (isDummyConfig) {
+                document.getElementById('dummy-mode-warning').classList.remove('hidden');
+            }
+        }
+        
+        // --- Core Application Logic (Simulates Status Update) ---
         async function handleBooking(event) {
             event.preventDefault();
             if (!userId) {
@@ -647,6 +676,11 @@
             if (!licensePlate || !serviceType || !preferredDate || isNaN(odometerKm)) {
                 displayToast("กรุณากรอกข้อมูลการจองให้ครบถ้วน", 'warning');
                 return;
+            }
+
+            if (isDummyConfig) {
+                 displayToast("⚠️ โหมดจำลอง: ไม่สามารถบันทึกข้อมูลจริงได้ ใช้ปุ่ม 'Demo' เพื่อโหลดข้อมูลตัวอย่างแทน", 'error');
+                 return;
             }
 
             // Check for existing ongoing booking for this license plate by this user
@@ -687,6 +721,10 @@
         }
         
         async function simulateNextStatus(docId) {
+            if (isDummyConfig) {
+                 displayToast("⚠️ โหมดจำลอง: ไม่สามารถอัปเดตข้อมูลจริงได้", 'error');
+                 return;
+            }
             try {
                 const docRef = doc(db, BOOKING_COLLECTION_PATH, docId);
                 const docSnap = await getDoc(docRef);
@@ -733,6 +771,10 @@
         }
 
         async function simulatePrevStatus(docId) {
+             if (isDummyConfig) {
+                 displayToast("⚠️ โหมดจำลอง: ไม่สามารถอัปเดตข้อมูลจริงได้", 'error');
+                 return;
+            }
             try {
                 const docRef = doc(db, BOOKING_COLLECTION_PATH, docId);
                 const docSnap = await getDoc(docRef);
@@ -760,6 +802,10 @@
             if (!userId) {
                 displayToast("ระบบกำลังยืนยันตัวตน กรุณารอสักครู่", 'warning');
                 return;
+            }
+             if (isDummyConfig) {
+                 displayToast("⚠️ โหมดจำลอง: ไม่สามารถเพิ่มข้อมูลจริงได้", 'error');
+                 return;
             }
 
             const bookingsCollection = collection(db, BOOKING_COLLECTION_PATH);
@@ -811,6 +857,7 @@
         window.onload = () => {
              initFirebase();
              setActiveTab('dashboard');
+             checkDummyMode(); // Display the warning banner if needed
         }
     </script>
 </head>
@@ -825,12 +872,17 @@
             <p id="user-id-display" class="text-xs text-center mt-2 opacity-75 truncate"></p>
         </header>
 
+        <!-- DUMMY MODE Warning Banner -->
+        <div id="dummy-mode-warning" class="hidden bg-red-600 text-white text-center p-2 text-sm font-bold sticky top-[95px] z-20 shadow-xl">
+            ⚠️ โหมดจำลอง: Firebase Config ไม่สมบูรณ์! การดำเนินการฐานข้อมูลจะไม่ทำงานจริง
+        </div>
+
         <!-- Toast Notification Area -->
         <div id="toast-message" class="fixed top-4 left-1/2 -translate-x-1/2 p-4 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 transform z-50 opacity-0 invisible"></div>
 
 
         <!-- Tab Navigation (Main Menu) -->
-        <nav class="sticky top-[95px] bg-white border-b-2 border-gray-100 shadow-md z-10">
+        <nav class="sticky top-[135px] sm:top-[95px] bg-white border-b-2 border-gray-100 shadow-md z-10">
             <div class="flex justify-around text-center">
                 <button id="btn-dashboard" class="tab-button w-1/4 py-3 border-b-4 border-cyan-500 text-cyan-600 transition duration-200" onclick="setActiveTab('dashboard')">
                     <span class="text-xl">🏠</span><span class="block text-xs font-medium">หน้าหลัก</span>
@@ -907,3 +959,47 @@
             <!-- 3. ประวัติ (History) -->
             <section id="history" class="tab-content hidden">
                  <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">ประวัติการเข้ารับบริการที่ผ่านมา</h2>
+                 <div id="history-content">
+                    <!-- Data will be loaded here by displayHistory() -->
+                    <div class="text-center py-10 text-gray-400">กำลังโหลดประวัติ...</div>
+                </div>
+            </section>
+            
+             <!-- 4. Live Chat Assistant (Mockup) -->
+            <section id="chat" class="tab-content hidden flex flex-col h-[60vh] p-0">
+                <div class="flex-none bg-indigo-600 text-white p-3 rounded-t-xl text-center font-bold shadow-md">
+                    💬 Live Service Assistant
+                </div>
+                <!-- Chat Message Container (Scrollable) -->
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col space-y-2 bg-gray-50 scrollable-content">
+                    <!-- Messages will be injected here -->
+                </div>
+                <!-- Input Form -->
+                <form onsubmit="handleChatInput(event)" class="flex-none p-3 border-t bg-white">
+                    <div class="flex space-x-2">
+                        <input type="text" id="chat-input" placeholder="พิมพ์ 'สถานะรถ' หรือ 'เมนู'..."
+                               class="flex-1 p-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 transition duration-150 shadow-inner">
+                        <button type="submit"
+                                class="chat-input-button bg-indigo-500 text-white font-bold w-12 h-12 rounded-full flex items-center justify-center transition duration-200 shadow-lg transform active:scale-95">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                                <path d="M3.478 2.405a.75.75 0 01.926.27l4.73 9.5a.75.75 0 010 .639l-4.73 9.5a.75.75 0 01-.926.27 1.5 1.5 0 01-.27-.926V3.332a1.5 1.5 0 01.27-.926zM7.5 12a.75.75 0 01.75-.75h12.75a.75.75 0 010 1.5H8.25A.75.75 0 017.5 12z" />
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- 5. Demo Control (Staff/Simulation View) -->
+            <section id="demo" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-6 text-red-600 border-b pb-2">⚙️ Demo/Staff Control (ควบคุมสถานะ)</h2>
+                
+                <div id="demo-controls-list">
+                    <!-- Data will be loaded here by displayDemoControls() -->
+                    <div class="text-center py-10 text-gray-400">กำลังโหลดคิวสำหรับ Demo...</div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</body>
+</html>
